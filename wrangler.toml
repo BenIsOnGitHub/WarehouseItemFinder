@@ -1,0 +1,12 @@
+name = "warehouse-item-finder"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Serve static frontend files (index.html, styles.css, app.js, manifest, icons)
+assets = { directory = "./public" }
+
+# Bind the D1 Database to env.DB in worker.js
+[[d1_databases]]
+binding = "DB"
+database_name = "product-inventory"
+database_id = "70585109-17a3-4c36-a3b3-9354a6f9afe7"

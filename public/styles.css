@@ -1,0 +1,425 @@
+/* Base Page Reset & Layout */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f4f7;
+  color: #333;
+}
+
+/* Header & Logo Control */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+/*  background-color: #0060a9; */ /* Costco Blue */
+  background-color: #013687;
+  color: white;
+  padding: 10px 16px;
+  position: relative;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.header-logo {
+  max-height: 32px; /* Fixes giant logo */
+  width: auto;
+  display: block;
+}
+
+/* Page Views Stack Fix (Prevents all pages showing at once) */
+.page-view {
+  display: none;
+  padding: 16px;
+}
+
+.page-view.active {
+  display: block;
+}
+
+/* Hamburger Button & Navigation Menu */
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 0 0 8px 8px;
+  width: 200px;
+  z-index: 1000;
+}
+
+.nav-dropdown.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-dropdown button {
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  text-align: left;
+  width: 100%;
+  font-size: 15px;
+  color: #333;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.nav-dropdown button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Search Box & Inputs */
+.search-box input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.number {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Interactive Location Badges */
+.loc-badge {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  transition: background-color 0.15s ease;
+}
+
+.loc-badge.unassigned {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+.loc-badge.assigned {
+  color: #007bff;
+  background-color: #e7f0ff;
+  border: 1px solid #b8daff;
+}
+
+.loc-badge:hover {
+  filter: brightness(0.95);
+}
+
+.loc-edit-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Favorites Star Button */
+.fav-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.fav-btn.active {
+  color: #eab308;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.browse-cat-btn {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.browse-cat-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-indicator-text {
+  font-size: 13px;
+  color: #666;
+  margin: 4px 0;
+}
+
+/* Browse Mode Toggle Buttons */
+.browse-mode-toggle {
+  display: flex;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  padding: 3px;
+  max-width: 280px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background-color: #0060a9;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.aisle-group h2 {
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+/* Help Icon Button inside Location Form */
+.help-icon-btn {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.help-icon-btn:hover {
+  background-color: #138496;
+}
+
+/* Modal Overlay Background */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+/* Modal Content Box */
+.modal-content {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  max-width: 90%;
+  max-height: 85vh;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.help-image {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* Modal Close ('x') Button */
+.modal-close-btn {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  color: #dc3545;
+}
+
+/* Flag Incorrect Buttons */
+.flag-incorrect-btn {
+  background: #e9ecef;
+  color: #6c757d;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.flag-incorrect-btn.reported {
+  background: #f8d7da;
+  color: #842029;
+  border-color: #f5c2c7;
+  cursor: not-allowed;
+}
+
+/* Location Inline Inputs & Buttons */
+.loc-edit-input {
+  padding: 4px;
+  font-size: 12px;
+}
+
+.loc-edit-input.aisle-input {
+  width: 85px;
+}
+
+.loc-edit-input.bay-input {
+  width: 75px;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Product Cards & Rows */
+.product-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-info {
+  flex-grow: 1;
+}
+
+.product-title {
+  font-weight: bold;
+}
+
+.product-details {
+  font-size: 12px;
+  color: #666;
+}
+
+.external-product-link {
+  font-size: 12px;
+  color: #888;
+  text-decoration: underline;
+}
+
+.browse-product-row {
+  padding-left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.browse-product-details {
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.browse-product-title {
+  font-size: 14px;
+}
+
+/* Aisle Grouping Styles */
+.aisle-group {
+  margin-bottom: 16px;
+}
+
+.aisle-group-header {
+  font-size: 15px;
+  background: #0060a9;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px 6px 0 0;
+  margin: 0;
+}
+
+.aisle-group-body {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 8px;
+}
+
+.browse-product-row.aisle-item-row {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.empty-aisle-notice {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+}
+
+.loading-state {
+  padding: 12px;
+  color: #666;
+}

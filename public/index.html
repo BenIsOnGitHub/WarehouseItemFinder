@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Warehouse Product Finder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" sizes="192x192" href="/icon-192.png">
+<link rel="icon" sizes="512x512" href="/icon-512.png">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- App Navigation Bar -->
+<header>
+  <div class="header-title">
+    <img src="images/icon-192-square.png" alt="App Logo" class="header-logo"> Warehouse Item Finder
+  </div>
+  <button class="hamburger-btn" id="menuToggle" aria-label="Open Navigation Menu">&#9776;</button>
+  
+  <div class="nav-dropdown" id="navDropdown">
+    <button onclick="switchView('search-view'); resetSearchView();">Search Products</button>
+    <button onclick="switchView('browse-view'); startBrowse(1);">Browse Products</button>
+    <button onclick="showFavoritesView()">My Favorite Products</button> 
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- View 1: Product Search (Default) -->
+  <section id="search-view" class="page-view active">
+    <h1>Product Search</h1>
+<!-- Warehouse Selector -->
+    <div style="margin-top: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+      <label for="warehouseSearchSelect" style="font-weight: 600; font-size: 14px; color: #555;">Warehouse:</label>
+      <select class="warehouse-select-dropdown" onchange="onWarehouseChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
+        <option value="1738">The Villages, FL #1738</option>
+      </select>
+    </div>
+    <div class="search-box" style="display: flex; align-items: center; gap: 8px;">
+      <input type="text" id="searchBox" placeholder="Search product name or SKU..." />
+      <button id="micBtn" title="Search by voice" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px;">
+        &#127908;
+      </button>
+    </div>
+    
+    <!-- Install UI -->
+    <div id="installContainer" style="display:none;">
+      <button id="installBtn" style="display:none;">Install App</button>
+      <div id="installHint">To install app on iPhone, tap the share button and scroll to 'Add to Home Screen'</div>
+    </div>
+    
+    <div id="count"></div>
+    <ul id="results"></ul>
+  </section>
+
+  <!-- View 2: Favorites List -->
+  <section id="favorites-view" class="page-view">
+    <h1>My Favorite Products</h1>
+    <div id="favCount"></div>
+    <ul id="favoritesList"></ul>
+  </section>
+
+  <!-- View 3: Browse Products -->
+  <section id="browse-view" class="page-view">
+    <h1>Browse Products</h1>
+    <!-- Dynamic Warehouse Drop-down Selector -->
+    <div style="margin-top: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+      <label for="warehouseSelect" style="font-weight: 600; font-size: 14px; color: #555;">Warehouse:</label>
+      <select id="warehouseSelect" onchange="onWarehouseChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
+        <option value="1738">The Villages, FL #1738</option>
+      </select>
+    </div>
+
+    <!-- Browse Mode Toggle Buttons -->
+    <div class="browse-mode-toggle" style="margin: 15px 0; display: flex; gap: 10px;">
+      <button id="browseByNameBtn" class="toggle-btn active" onclick="setBrowseMode('name')">By Name</button>
+      <button id="browseByAisleBtn" class="toggle-btn" onclick="setBrowseMode('aisle')">By Aisle</button>
+    </div>
+
+    <div id="browseContent">
+      <!-- Top Pagination Block -->
+      <div class="pagination-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 12px;">
+        <div class="pagination-controls">
+          <button class="top-prev5-btn browse-cat-btn" onclick="changeBrowsePage(-5)">-5 &laquo;</button>
+          <button class="top-prev-btn browse-cat-btn" onclick="changeBrowsePage(-1)">Prev &lsaquo;</button>
+          <button class="top-next-btn browse-cat-btn" onclick="changeBrowsePage(1)">Next &rsaquo;</button>
+          <button class="top-next5-btn browse-cat-btn" onclick="changeBrowsePage(5)">+5 &raquo;</button>
+        </div>
+      </div>
+      
+      <div class="pageIndicatorTop page-indicator-text"></div>
+      
+      <div id="browseListContainer" style="margin-top: 15px;"></div>
+      
+      <!-- Bottom Pagination Block -->
+      <div class="pagination-wrapper">
+        <div class="pageIndicatorBottom page-indicator-text"></div>
+        <div class="pagination-controls">
+          <button class="bottom-prev5-btn browse-cat-btn" onclick="changeBrowsePage(-5, true)">&laquo;</button>
+          <button class="bottom-prev-btn browse-cat-btn" onclick="changeBrowsePage(-1, true)">&lsaquo;</button>
+          <button class="bottom-next-btn browse-cat-btn" onclick="changeBrowsePage(1, true)">&rsaquo;</button>
+          <button class="bottom-next5-btn browse-cat-btn" onclick="changeBrowsePage(5, true)">&raquo;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  
+</div>
+
+<script src="app.js"></script>
+
+  <!-- Location Help Modal -->
+  <div id="helpModal" class="modal-overlay" onclick="closeHelpModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeHelpModal()">&times;</button>
+      <img src="images/help.jpg" alt="Aisle and Bay Location Guide" class="help-image">
+    </div>
+  </div>
+
+</body>
+</html>
