@@ -597,14 +597,24 @@ async function loadWarehouses() {
     const res = await fetch(`${API_BASE_URL}/api/warehouses`);
     const warehouses = await res.json();
     
+    if (!res.ok || !Array.isArray(warehouses)) {
+      console.error('Invalid response from /api/warehouses:', warehouses);
+      return;
+    }
+
     const selectElements = document.querySelectorAll('.warehouse-select-dropdown, #warehouseSelect');
     if (selectElements.length === 0 || warehouses.length === 0) return;
 
-    const optionsHTML = warehouses.map(w => `
-      <option value="${w.warehouse_id}" ${w.warehouse_id === CURRENT_WAREHOUSE ? 'selected' : ''}>
-        ${w.warehouse_name || 'Warehouse #' + w.warehouse_id}
-      </option>
-    `).join('');
+    const optionsHTML = warehouses.map(w => {
+      // Escape HTML entities safely
+      const name = (w.warehouse_name || `Warehouse #${w.warehouse_id}`)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+      return `<option value="${w.warehouse_id}" ${w.warehouse_id === CURRENT_WAREHOUSE ? 'selected' : ''}>${name}</option>`;
+    }).join('');
 
     selectElements.forEach(selectEl => {
       selectEl.innerHTML = optionsHTML;
@@ -614,7 +624,6 @@ async function loadWarehouses() {
     console.error('Failed to fetch warehouses list:', err);
   }
 }
-
 function onWarehouseChange(newWarehouseId) {
   CURRENT_WAREHOUSE = newWarehouseId;
   localStorage.setItem('selected_warehouse', newWarehouseId);

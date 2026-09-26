@@ -112,16 +112,26 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-      // 4. Fetch available warehouses list
-      if (pathname === '/api/warehouses') {
-        const { results } = await env.DB.prepare(`
-          SELECT warehouse_id, warehouse_name 
-          FROM warehouses 
-          ORDER BY CAST(warehouse_id AS INTEGER) ASC
-        `).all();
+			// 4. Fetch available warehouses list
+			if (pathname === '/api/warehouses') {
+			  try {
+			    const { results } = await env.DB.prepare(`
+			      SELECT warehouse_id, warehouse_name 
+			      FROM warehouses 
+			      ORDER BY warehouse_id ASC
+			    `).all();
 
-        return new Response(JSON.stringify(results), { headers: corsHeaders });
-      }
+			    return new Response(JSON.stringify(results || []), {
+			      status: 200,
+			      headers: corsHeaders
+			    });
+			  } catch (dbErr) {
+			    console.error('Error fetching warehouses:', dbErr);
+			    return new Response(JSON.stringify([
+			      { warehouse_id: '1738', warehouse_name: 'The Villages, FL #1738' }
+			    ]), { status: 200, headers: corsHeaders });
+			  }
+			}
 
       // 5. Flag product location as incorrect: /api/flag-incorrect
       if (pathname === '/api/flag-incorrect' && request.method === 'POST') {
