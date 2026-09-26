@@ -89,19 +89,30 @@ if (sort === 'aisle') {
         }), { headers: corsHeaders });
       }
 
-      // 3. Update Product Aisle / Bay / Notes API
-      if (pathname === '/api/update-location' && request.method === 'POST') {
-        const body = await request.json();
-        const { sku, warehouse_id, aisle, bay } = body;
+      if (path === '/api/update-location') {
+  const { sku, warehouse_id, aisle, bay, is_wrong } = await request.json();
 
-        await env.DB.prepare(`
-          UPDATE products 
-          SET aisle = ?, bay = ?, updated_at = datetime('now')
-          WHERE sku = ? AND warehouse_id = ?
-        `).bind(aisle, bay, sku, warehouse_id).run();
+  if (!sku || !warehouse_id) {
+    return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
 
-        return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
-      }
+  // Ensure is_wrong defaults to 0 if undefined/null
+  const flagValue = is_wrong !== undefined && is_wrong !== null ? Number(is_wrong) : 0;
+
+  await env.DB.prepare(`
+    UPDATE products 
+    SET aisle = ?, 
+        bay = ?, 
+        is_wrong = ?, 
+        updated_at = datetime('now')
+    WHERE sku = ? AND warehouse_id = ?
+  `).bind(aisle ?? '', bay ?? '', flagValue, sku, warehouse_id).run();
+
+  return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+}
 
 // In worker.js inside try block:
 

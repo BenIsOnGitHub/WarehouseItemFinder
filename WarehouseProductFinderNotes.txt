@@ -1,0 +1,8 @@
+1. "python warehouseProductScraper.py > scraper_log.txt 2>&1" launches a web browser and grabs all of the products and puts them into a CSV file. At the top of this file is a list of all of the html pages that contain the products you want to index. At the moment it is just 901 grocery products. Note: you have to hit Enter in the window once the proper store is set in the browser. (running "python removeSomeCategories.py" after the scraper will help remove some subcategories that don't find in-store items)
+
+2. "python generateSQLfromCSV.py" takes the CSV file and generates the SQL necessary to import those products into the Cloudflare database. This SQL file is called seed_products.sql
+
+3. "npx wrangler d1 execute costco-inventory --remote --file=seed_products.sql" SQL is inserted into the database.
+
+4. github is linked to cloudflare, so to deploy changes to files, just run 
+

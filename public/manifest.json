@@ -1,6 +1,6 @@
 {
-  "name": "Costco Product Finder",
-  "short_name": "Costco Finder",
+  "name": "Warehouse Product Finder",
+  "short_name": "Warehouse Products",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

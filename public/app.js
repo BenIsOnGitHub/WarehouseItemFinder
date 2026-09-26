@@ -120,6 +120,22 @@ async function saveLocation(sku) {
   const newAisle = aisleInput ? aisleInput.value.trim() : '';
   const newBay = bayInput ? bayInput.value.trim() : '';
 
+  // Check current flag state in memory
+  const itemInBrowse = browseData.find(p => p.sku === sku);
+  let clearFlag = 0;
+
+  if (itemInBrowse && itemInBrowse.is_wrong === 1) {
+    const userConfirmed = confirm(
+      'This location had been flagged as incorrect. Have you corrected it?'
+    );
+    if (userConfirmed) {
+      clearFlag = 1; // User selected 'Yes'
+    }
+  }
+
+  // Calculate new is_wrong status
+  const finalIsWrong = (itemInBrowse && itemInBrowse.is_wrong === 1 && !clearFlag) ? 1 : 0;
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/update-location`, {
       method: 'POST',
@@ -128,19 +144,19 @@ async function saveLocation(sku) {
         sku: sku,
         warehouse_id: CURRENT_WAREHOUSE,
         aisle: newAisle,
-        bay: newBay
+        bay: newBay,
+        is_wrong: finalIsWrong // Send updated is_wrong state to D1 worker
       })
     });
 
     if (response.ok) {
-      // Update local memory representations and clear the wrong flag
-      const itemInBrowse = browseData.find(p => p.sku === sku);
+      // Update local memory representations
       if (itemInBrowse) {
         itemInBrowse.aisle = newAisle;
         itemInBrowse.bay = newBay;
-        itemInBrowse.is_wrong = 0; // Reset flag in memory
+        itemInBrowse.is_wrong = finalIsWrong;
       }
-      renderLocationDisplay(sku, newAisle, newBay, 0); // Reset flag in UI
+      renderLocationDisplay(sku, newAisle, newBay, finalIsWrong);
     } else {
       alert('Failed to update product location in database.');
     }

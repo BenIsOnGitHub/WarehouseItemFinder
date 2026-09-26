@@ -1,0 +1,105 @@
+
+[+] Launching Chrome Browser Session...
+
+============================================================
+ACTION REQUIRED IN BROWSER WINDOW:
+1. Click 'Delivery Location' / 'My Warehouse' at top header.
+2. Enter your zip code and select your target warehouse.
+3. Check the 'In-Warehouse' (or 'Buy In Warehouse') checkbox.
+4. Return to this terminal and press ENTER when finished.
+============================================================
+
+Press ENTER after setting location & filter in Chrome...[+] Found Warehouse ID in cookie 'WAREHOUSEDELIVERY_WHS': 1738
+[*] Proceeding with Warehouse ID: 1738
+
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GROCERY-HOUSEHOLD.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GDX API Intercept] Captured 24 new items (Total saved: 24)
+
+[Page 2] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GDX API Intercept] Captured 24 new items (Total saved: 48)
+
+[Page 3] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GDX API Intercept] Captured 24 new items (Total saved: 72)
+
+[Page 4] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GDX API Intercept] Captured 24 new items (Total saved: 96)
+
+[Page 5] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GDX API Intercept] Captured 24 new items (Total saved: 120)
+
+[Page 6] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=6
+      [GDX API Intercept] Captured 24 new items (Total saved: 144)
+
+[Page 7] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=7
+      [GDX API Intercept] Captured 24 new items (Total saved: 168)
+
+[Page 8] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=8
+      [GDX API Intercept] Captured 24 new items (Total saved: 192)
+
+[Page 9] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=9
+      [GDX API Intercept] Captured 24 new items (Total saved: 216)
+
+[Page 10] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=10
+      [GDX API Intercept] Captured 24 new items (Total saved: 240)
+
+[Page 11] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=11
+      [GDX API Intercept] Captured 24 new items (Total saved: 264)
+
+[Page 12] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=12
+      [GDX API Intercept] Captured 24 new items (Total saved: 288)
+
+[Page 13] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=13
+      [GDX API Intercept] Captured 24 new items (Total saved: 312)
+
+[Page 14] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=14
+      [GDX API Intercept] Captured 24 new items (Total saved: 336)
+
+[Page 15] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=15
+      [GDX API Intercept] Captured 24 new items (Total saved: 360)
+
+[Page 16] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=16
+      [GDX API Intercept] Captured 24 new items (Total saved: 384)
+
+[Page 17] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=17
+      [GDX API Intercept] Captured 22 new items (Total saved: 406)
+
+[Page 18] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=18
+      [GDX API Intercept] Captured 24 new items (Total saved: 430)
+
+[Page 19] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=19
+      [GDX API Intercept] Captured 24 new items (Total saved: 454)
+
+[Page 20] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=20
+      [GDX API Intercept] Captured 24 new items (Total saved: 478)
+Traceback (most recent call last):
+  File "C:\Python314\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Personal\Coding\WarehouseItemFinder\warehouseProductScraper.py", line 569, in main
+    await asyncio.sleep(2.5)
+  File "C:\Python314\Lib\asyncio\tasks.py", line 702, in sleep
+    return await future
+           ^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Personal\Coding\WarehouseItemFinder\warehouseProductScraper.py", line 625, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Python314\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\asyncio\runners.py", line 132, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+^C

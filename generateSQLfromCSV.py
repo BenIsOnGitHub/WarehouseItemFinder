@@ -1,7 +1,7 @@
 import csv
 import os
 
-csv_filename = "costco_warehouse_products.csv"
+csv_filename = "warehouse_products_master_merged.csv"
 sql_filename = "seed_products.sql"
 
 print(f"[*] Checking directory: {os.getcwd()}")
