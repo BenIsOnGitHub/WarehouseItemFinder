@@ -51,31 +51,28 @@ export default {
         `).bind(warehouseId).first();
         const total = countStmt.total;
 
-        // Construct dynamic ORDER BY logic for D1
-     // In worker.js inside the /api/browse handler:
-
-let query = '';
-if (sort === 'aisle') {
-  query = `
-    SELECT sku, warehouse_id, product_name, product_url, aisle, bay, is_wrong, is_discontinued 
-    FROM products 
-    WHERE warehouse_id = ?
-    ORDER BY 
-      CASE WHEN aisle IS NULL OR aisle = '' THEN 1 ELSE 0 END ASC, 
-      CAST(aisle AS INTEGER) ASC, 
-      CAST(bay AS INTEGER) ASC, 
-      product_name ASC
-    LIMIT ? OFFSET ?
-  `;
-} else {
-  query = `
-    SELECT sku, warehouse_id, product_name, product_url, aisle, bay, is_wrong, is_discontinued 
-    FROM products 
-    WHERE warehouse_id = ?
-    ORDER BY product_name ASC
-    LIMIT ? OFFSET ?
-  `;
-}
+        let query = '';
+        if (sort === 'aisle') {
+          query = `
+            SELECT sku, warehouse_id, product_name, product_url, aisle, bay, is_wrong, is_discontinued 
+            FROM products 
+            WHERE warehouse_id = ?
+            ORDER BY 
+              CASE WHEN aisle IS NULL OR aisle = '' THEN 1 ELSE 0 END ASC, 
+              CAST(aisle AS INTEGER) ASC, 
+              CAST(bay AS INTEGER) ASC, 
+              product_name ASC
+            LIMIT ? OFFSET ?
+          `;
+        } else {
+          query = `
+            SELECT sku, warehouse_id, product_name, product_url, aisle, bay, is_wrong, is_discontinued 
+            FROM products 
+            WHERE warehouse_id = ?
+            ORDER BY product_name ASC
+            LIMIT ? OFFSET ?
+          `;
+        }
 
         const { results } = await env.DB.prepare(query)
           .bind(warehouseId, limit, offset)
@@ -89,59 +86,56 @@ if (sort === 'aisle') {
         }), { headers: corsHeaders });
       }
 
-      if (path === '/api/update-location') {
-  const { sku, warehouse_id, aisle, bay, is_wrong } = await request.json();
+      // 3. Update Product Location API: /api/update-location
+      if (pathname === '/api/update-location' && request.method === 'POST') {
+        const { sku, warehouse_id, aisle, bay, is_wrong } = await request.json();
 
-  if (!sku || !warehouse_id) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-      status: 400,
-      headers: corsHeaders,
-    });
-  }
+        if (!sku || !warehouse_id) {
+          return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+            status: 400,
+            headers: corsHeaders,
+          });
+        }
 
-  // Ensure is_wrong defaults to 0 if undefined/null
-  const flagValue = is_wrong !== undefined && is_wrong !== null ? Number(is_wrong) : 0;
+        // Ensure is_wrong defaults to 0 if undefined/null
+        const flagValue = is_wrong !== undefined && is_wrong !== null ? Number(is_wrong) : 0;
 
-  await env.DB.prepare(`
-    UPDATE products 
-    SET aisle = ?, 
-        bay = ?, 
-        is_wrong = ?, 
-        updated_at = datetime('now')
-    WHERE sku = ? AND warehouse_id = ?
-  `).bind(aisle ?? '', bay ?? '', flagValue, sku, warehouse_id).run();
+        await env.DB.prepare(`
+          UPDATE products 
+          SET aisle = ?, 
+              bay = ?, 
+              is_wrong = ?, 
+              updated_at = datetime('now')
+          WHERE sku = ? AND warehouse_id = ?
+        `).bind(aisle ?? '', bay ?? '', flagValue, sku, warehouse_id).run();
 
-  return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
-}
+        return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+      }
 
-// In worker.js inside try block:
+      // 4. Fetch available warehouses list
+      if (pathname === '/api/warehouses') {
+        const { results } = await env.DB.prepare(`
+          SELECT warehouse_id, warehouse_name 
+          FROM warehouses 
+          ORDER BY CAST(warehouse_id AS INTEGER) ASC
+        `).all();
 
-// Fetch available warehouses list
-if (pathname === '/api/warehouses') {
-  const { results } = await env.DB.prepare(`
-    SELECT warehouse_id, warehouse_name 
-    FROM warehouses 
-    ORDER BY CAST(warehouse_id AS INTEGER) ASC
-  `).all();
+        return new Response(JSON.stringify(results), { headers: corsHeaders });
+      }
 
-  return new Response(JSON.stringify(results), { headers: corsHeaders });
-}
+      // 5. Flag product location as incorrect: /api/flag-incorrect
+      if (pathname === '/api/flag-incorrect' && request.method === 'POST') {
+        const body = await request.json();
+        const { sku, warehouse_id } = body;
 
-// In worker.js inside the try block:
+        await env.DB.prepare(`
+          UPDATE products 
+          SET is_wrong = 1, updated_at = datetime('now')
+          WHERE sku = ? AND warehouse_id = ?
+        `).bind(sku, warehouse_id).run();
 
-if (pathname === '/api/flag-incorrect' && request.method === 'POST') {
-  const body = await request.json();
-  const { sku, warehouse_id } = body;
-
-  await env.DB.prepare(`
-    UPDATE products 
-    SET is_wrong = 1, updated_at = datetime('now')
-    WHERE sku = ? AND warehouse_id = ?
-  `).bind(sku, warehouse_id).run();
-
-  return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
-}
-
+        return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+      }
 
       return new Response(JSON.stringify({ error: 'Endpoint not found' }), { status: 404, headers: corsHeaders });
 
@@ -150,4 +144,3 @@ if (pathname === '/api/flag-incorrect' && request.method === 'POST') {
     }
   }
 };
-
