@@ -400,16 +400,23 @@ async function startBrowse(page = 1) {
     const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}`);
     const data = await res.json();
     
-    browseData = data.products;
-    totalBrowsePages = data.totalPages;
+    if (!res.ok || !data.products) {
+      console.error('API Error:', data);
+      if (container) container.innerHTML = `<div class="empty-aisle-notice">Error loading products: ${data.error || 'Server error'}</div>`;
+      return;
+    }
+
+    browseData = data.products || [];
+    totalBrowsePages = data.totalPages || 1;
 
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
     } else {
-      renderBrowsePage(); // Standard By Name rendering
+      renderBrowsePage();
     }
   } catch (err) {
     console.error('Failed to load browse page:', err);
+    if (container) container.innerHTML = '<div class="empty-aisle-notice">Unable to connect to server.</div>';
   }
 }
 

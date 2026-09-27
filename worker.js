@@ -21,7 +21,7 @@ export default {
         const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id') || '1738';
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
 
-        let discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
+        const discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
 
         const { results } = await env.DB.prepare(`
           SELECT id, warehouse_id, sku, item_number, product_name, product_url, aisle, bay, is_wrong, is_discontinued
@@ -43,19 +43,28 @@ export default {
       // 2. Paginated Browse API
       if (pathname === '/api/browse') {
         const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id') || '1738';
-        const page = parseInt(url.searchParams.get('page') || '1', 10);
-        const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+        const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1);
+        const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
         const sort = url.searchParams.get('sort') || 'name';
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
         const offset = (page - 1) * limit;
 
-        let discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
+        const discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
 
+        // 1. Count Total
         const countStmt = await env.DB.prepare(`
           SELECT COUNT(*) as total FROM products WHERE warehouse_id = ? ${discontinuedClause}
         `).bind(warehouseId).first();
-        const total = countStmt ? countStmt.total : 0;
 
+        // Safe total extraction
+        let total = 0;
+        if (countStmt) {
+          total = Number(countStmt.total ?? countStmt['COUNT(*)'] ?? countStmt.count ?? 0);
+        }
+
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+
+        // 2. Query Paginated Products
         let query = '';
         if (sort === 'aisle') {
           query = `
@@ -84,9 +93,9 @@ export default {
           .all();
 
         return new Response(JSON.stringify({
-          total,
-          page,
-          totalPages: Math.ceil(total / limit) || 1,
+          total: total,
+          page: page,
+          totalPages: totalPages,
           products: results || []
         }), { headers: corsHeaders });
       }
@@ -141,7 +150,7 @@ export default {
       return new Response(JSON.stringify({ error: 'Endpoint not found' }), { status: 404, headers: corsHeaders });
 
     } catch (err) {
-      return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), { status: 500, headers: corsHeaders });
     }
   }
 };
