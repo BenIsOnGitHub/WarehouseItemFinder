@@ -9,6 +9,7 @@ const NOTES_KEY = 'product_notes';
 
 let browseData = [];
 let currentBrowsePageNum = 1;
+let showDiscontinuedItems = false;
 let totalBrowsePages = 1;
 const ITEMS_PER_PAGE = 20;
 
@@ -701,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-let showDiscontinuedItems = false;
+
 
 function toggleShowDiscontinued(checkbox) {
   showDiscontinuedItems = checkbox.checked;
