@@ -397,7 +397,7 @@ async function startBrowse(page = 1) {
   if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}`);
+    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}`);
     const data = await res.json();
     
     browseData = data.products;
@@ -687,3 +687,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+let showDiscontinuedItems = false;
+
+function toggleShowDiscontinued(checkbox) {
+  showDiscontinuedItems = checkbox.checked;
+  if (currentTab === 'browse') {
+    startBrowse(1);
+  } else {
+    performSearch();
+  }
+}
+
+async function flagDiscontinued(id, currentStatus) {
+  const newStatus = !currentStatus;
+  const actionText = newStatus ? 'mark this item as discontinued/out of stock' : 'restore this item as active';
+  if (!confirm(`Are you sure you want to ${actionText}?`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/flag-discontinued`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, is_discontinued: newStatus })
+    });
+
+    if (res.ok) {
+      alert(`Item updated successfully.`);
+      if (currentTab === 'browse') startBrowse(currentBrowsePageNum);
+    }
+  } catch (err) {
+    console.error('Error updating discontinued status:', err);
+  }
+}
