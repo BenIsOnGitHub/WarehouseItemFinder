@@ -2,7 +2,7 @@
 
 2. "python generateSQLfromCSV.py" takes the CSV file and generates the SQL necessary to import those products into the Cloudflare database. This SQL file is called seed_products.sql
 
-3. "npx wrangler d1 execute costco-inventory --remote --file=seed_products.sql" SQL is inserted into the database.
+3. "npx wrangler d1 execute product-inventory --remote --file=seed_products.sql" SQL is inserted into the database.
 
 4. github is linked to cloudflare, so to deploy changes to files, just run 
 
