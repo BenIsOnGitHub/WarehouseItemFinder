@@ -42,63 +42,66 @@ export default {
 
       // 2. Paginated Browse API
       if (pathname === '/api/browse') {
-        const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id') || '1738';
-        const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1);
-        const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
-        const sort = url.searchParams.get('sort') || 'name';
-        const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
-        const offset = (page - 1) * limit;
+  const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id') || '1738';
+  const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1);
+  const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
+  const sort = url.searchParams.get('sort') || 'name';
+  const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
+  const offset = (page - 1) * limit;
 
-        const discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
+  try {
+    // 1. Build WHERE conditions cleanly
+    let whereClause = "WHERE warehouse_id = ?";
+    const bindParams = [warehouseId];
 
-        // 1. Count Total
-        const countStmt = await env.DB.prepare(`
-          SELECT COUNT(*) as total FROM products WHERE warehouse_id = ? ${discontinuedClause}
-        `).bind(warehouseId).first();
+    if (!showDiscontinued) {
+      whereClause += " AND (is_discontinued IS NULL OR is_discontinued = 0)";
+    }
 
-        // Safe total extraction
-        let total = 0;
-        if (countStmt) {
-          total = Number(countStmt.total ?? countStmt['COUNT(*)'] ?? countStmt.count ?? 0);
-        }
+    // 2. Count Query
+    const countQuery = `SELECT COUNT(*) AS total FROM products ${whereClause}`;
+    const countStmt = await env.DB.prepare(countQuery).bind(...bindParams).first();
+    const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
-        const totalPages = Math.max(1, Math.ceil(total / limit));
+    // 3. Select Query
+    let orderByClause = "ORDER BY product_name ASC";
+    if (sort === 'aisle') {
+      orderByClause = `
+        ORDER BY 
+          CASE WHEN aisle IS NULL OR aisle = '' THEN 1 ELSE 0 END ASC, 
+          CAST(aisle AS INTEGER) ASC, 
+          CAST(bay AS INTEGER) ASC, 
+          product_name ASC
+      `;
+    }
 
-        // 2. Query Paginated Products
-        let query = '';
-        if (sort === 'aisle') {
-          query = `
-            SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued 
-            FROM products 
-            WHERE warehouse_id = ? ${discontinuedClause}
-            ORDER BY 
-              CASE WHEN aisle IS NULL OR aisle = '' THEN 1 ELSE 0 END ASC, 
-              CAST(aisle AS INTEGER) ASC, 
-              CAST(bay AS INTEGER) ASC, 
-              product_name ASC
-            LIMIT ? OFFSET ?
-          `;
-        } else {
-          query = `
-            SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued 
-            FROM products 
-            WHERE warehouse_id = ? ${discontinuedClause}
-            ORDER BY product_name ASC
-            LIMIT ? OFFSET ?
-          `;
-        }
+    const selectQuery = `
+      SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued
+      FROM products
+      ${whereClause}
+      ${orderByClause}
+      LIMIT ? OFFSET ?
+    `;
 
-        const { results } = await env.DB.prepare(query)
-          .bind(warehouseId, limit, offset)
-          .all();
+    const { results } = await env.DB.prepare(selectQuery)
+      .bind(...bindParams, limit, offset)
+      .all();
 
-        return new Response(JSON.stringify({
-          total: total,
-          page: page,
-          totalPages: totalPages,
-          products: results || []
-        }), { headers: corsHeaders });
-      }
+    return new Response(JSON.stringify({
+      total: total,
+      page: page,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+      products: results || []
+    }), { status: 200, headers: corsHeaders });
+
+  } catch (err) {
+    console.error("D1 Error:", err);
+    return new Response(JSON.stringify({ 
+      error: err.message,
+      products: [] 
+    }), { status: 500, headers: corsHeaders });
+  }
+}
 
       // 3. Update Location API
       if (pathname === '/api/update-location' && request.method === 'POST') {

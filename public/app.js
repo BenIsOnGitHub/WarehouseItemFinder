@@ -391,32 +391,21 @@ function setBrowseMode(mode) {
   startBrowse(1);
 }
 
-async function startBrowse(page = 1) {
-  currentBrowsePageNum = page;
-  const container = document.getElementById('browseListContainer');
-  if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
-
+async function startBrowse() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}`);
-    const data = await res.json();
+    const res = await fetch(`https://warehouse-item-finder.pant.workers.dev/api/browse?warehouse=${currentWarehouse}&page=${currentPage}&limit=20&sort=${currentSort}&show_discontinued=${showDiscontinued}`);
     
-    if (!res.ok || !data.products) {
-      console.error('API Error:', data);
-      if (container) container.innerHTML = `<div class="empty-aisle-notice">Error loading products: ${data.error || 'Server error'}</div>`;
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Worker Error:", data.error);
+      alert(`API Error (${res.status}): ${data.error || 'Failed to fetch products'}`);
       return;
     }
 
-    browseData = data.products || [];
-    totalBrowsePages = data.totalPages || 1;
-
-    if (currentBrowseMode === 'aisle') {
-      renderBrowseByAislePage();
-    } else {
-      renderBrowsePage();
-    }
+    renderBrowsePage(data);
   } catch (err) {
-    console.error('Failed to load browse page:', err);
-    if (container) container.innerHTML = '<div class="empty-aisle-notice">Unable to connect to server.</div>';
+    console.error("Failed to load browse page:", err);
   }
 }
 
