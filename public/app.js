@@ -9,7 +9,7 @@ const NOTES_KEY = 'product_notes';
 
 let browseData = [];
 let currentBrowsePageNum = 1;
-let showDiscontinuedItems = false;
+let showDiscontinuedItems = false; // Moved to global declarations
 let totalBrowsePages = 1;
 const ITEMS_PER_PAGE = 20;
 
@@ -56,7 +56,6 @@ function saveNote(id, noteText) {
 
 function toggleFavorite(product, starElement) {
   let favorites = getFavorites();
-  // Match using product.id instead of product.sku
   const existingIndex = favorites.findIndex(item => item.id === product.id);
 
   if (existingIndex > -1) {
@@ -117,7 +116,6 @@ function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
   `;
 }
 
-// Help Modal Controls
 function openHelpModal() {
   const modal = document.getElementById('helpModal');
   if (modal) modal.classList.add('active');
@@ -176,7 +174,6 @@ function cancelLocationEdit(id, aisle, bay, isWrong = 0) {
   renderLocationDisplay(id, aisle, bay, isWrong);
 }
 
-// Report incorrect location API call
 async function flagLocationIncorrect(id) {
   if (!confirm('Report this aisle/bay location as incorrect?')) return;
 
@@ -247,7 +244,7 @@ function handleSearchInput(e) {
 
   searchDebounceTimer = setTimeout(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}&warehouse=${CURRENT_WAREHOUSE}`);
+      const res = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}&warehouse=${CURRENT_WAREHOUSE}&show_discontinued=${showDiscontinuedItems}`);
       const results = await res.json();
       renderResultsUI(results);
     } catch (err) {
@@ -381,14 +378,12 @@ let currentBrowseMode = 'name'; // Default: 'name' | Alternative: 'aisle'
 function setBrowseMode(mode) {
   currentBrowseMode = mode;
 
-  // Toggle active class on mode buttons
   const byNameBtn = document.getElementById('browseByNameBtn');
   const byAisleBtn = document.getElementById('browseByAisleBtn');
 
   if (byNameBtn) byNameBtn.classList.toggle('active', mode === 'name');
   if (byAisleBtn) byAisleBtn.classList.toggle('active', mode === 'aisle');
 
-  // Reset to Page 1 whenever switching modes
   startBrowse(1);
 }
 
@@ -400,12 +395,12 @@ async function startBrowse(page = 1) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}`);
     const data = await res.json();
-    
+
     if (!res.ok || data.error) {
       console.error('API Error:', data.error);
       if (container) {
         if (data.error && data.error.includes('exceeded D1\'s free tier')) {
-          container.innerHTML = `<div class="empty-aisle-notice">?? Cloudflare D1 daily free quota exceeded. Please try again tomorrow or upgrade your Cloudflare plan.</div>`;
+          container.innerHTML = `<div class="empty-aisle-notice">Cloudflare D1 daily free quota exceeded. Please try again tomorrow or upgrade your Cloudflare plan.</div>`;
         } else {
           container.innerHTML = `<div class="empty-aisle-notice">Error loading products: ${data.error || 'Server error'}</div>`;
         }
@@ -512,15 +507,13 @@ function renderBrowseByAislePage() {
   const container = document.getElementById('browseListContainer');
   if (!container) return;
 
-  const assigned = browseData.filter(p => p.aisle && p.aisle.toString().trim() !== '');
-
-  if (assigned.length === 0) {
-    container.innerHTML = '<div class="empty-aisle-notice">No items on this page have an assigned aisle.</div>';
+  if (browseData.length === 0) {
+    container.innerHTML = '<div class="empty-aisle-notice">No items found for this aisle page.</div>';
     return;
   }
 
   const grouped = {};
-  assigned.forEach(prod => {
+  browseData.forEach(prod => {
     const key = `Aisle ${prod.aisle}`;
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(prod);
@@ -599,7 +592,6 @@ function renderBrowseByAislePage() {
   }).join('');
 }
 
-
 // ==========================================
 // WAREHOUSE SELECTOR & NAVIGATION
 // ==========================================
@@ -607,7 +599,7 @@ async function loadWarehouses() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/warehouses`);
     const warehouses = await res.json();
-    
+
     if (!res.ok || !Array.isArray(warehouses)) {
       console.error('Invalid response from /api/warehouses:', warehouses);
       return;
@@ -617,7 +609,6 @@ async function loadWarehouses() {
     if (selectElements.length === 0 || warehouses.length === 0) return;
 
     const optionsHTML = warehouses.map(w => {
-      // Escape HTML entities safely
       const name = (w.warehouse_name || `Warehouse #${w.warehouse_id}`)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -635,6 +626,7 @@ async function loadWarehouses() {
     console.error('Failed to fetch warehouses list:', err);
   }
 }
+
 function onWarehouseChange(newWarehouseId) {
   CURRENT_WAREHOUSE = newWarehouseId;
   localStorage.setItem('selected_warehouse', newWarehouseId);
@@ -675,6 +667,44 @@ function resetSearchView() {
   document.getElementById('count').textContent = '';
 }
 
+function toggleShowDiscontinued(checkbox) {
+  showDiscontinuedItems = checkbox.checked;
+  const activeView = document.querySelector('.page-view.active');
+
+  if (activeView && activeView.id === 'browse-view') {
+    startBrowse(1);
+  } else {
+    const searchBox = document.getElementById('searchBox');
+    if (searchBox && searchBox.value.trim()) {
+      handleSearchInput({ target: searchBox });
+    }
+  }
+}
+
+async function flagDiscontinued(id, currentStatus) {
+  const newStatus = !currentStatus;
+  const actionText = newStatus ? 'mark this item as discontinued/out of stock' : 'restore this item as active';
+  if (!confirm(`Are you sure you want to ${actionText}?`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/flag-discontinued`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, is_discontinued: newStatus })
+    });
+
+    if (res.ok) {
+      alert(`Item updated successfully.`);
+      const activeView = document.querySelector('.page-view.active');
+      if (activeView && activeView.id === 'browse-view') {
+        startBrowse(currentBrowsePageNum);
+      }
+    }
+  } catch (err) {
+    console.error('Error updating discontinued status:', err);
+  }
+}
+
 // ==========================================
 // APP INITIALIZATION
 // ==========================================
@@ -701,35 +731,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-
-
-function toggleShowDiscontinued(checkbox) {
-  showDiscontinuedItems = checkbox.checked;
-  if (currentTab === 'browse') {
-    startBrowse(1);
-  } else {
-    performSearch();
-  }
-}
-
-async function flagDiscontinued(id, currentStatus) {
-  const newStatus = !currentStatus;
-  const actionText = newStatus ? 'mark this item as discontinued/out of stock' : 'restore this item as active';
-  if (!confirm(`Are you sure you want to ${actionText}?`)) return;
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/flag-discontinued`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, is_discontinued: newStatus })
-    });
-
-    if (res.ok) {
-      alert(`Item updated successfully.`);
-      if (currentTab === 'browse') startBrowse(currentBrowsePageNum);
-    }
-  } catch (err) {
-    console.error('Error updating discontinued status:', err);
-  }
-}
