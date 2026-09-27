@@ -391,21 +391,38 @@ function setBrowseMode(mode) {
   startBrowse(1);
 }
 
-async function startBrowse() {
-  try {
-    const res = await fetch(`https://warehouse-item-finder.pant.workers.dev/api/browse?warehouse=${currentWarehouse}&page=${currentPage}&limit=20&sort=${currentSort}&show_discontinued=${showDiscontinued}`);
-    
-    const data = await res.json();
+async function startBrowse(page = 1) {
+  currentBrowsePageNum = page;
+  const container = document.getElementById('browseListContainer');
+  if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
 
-    if (!res.ok) {
-      console.error("Worker Error:", data.error);
-      alert(`API Error (${res.status}): ${data.error || 'Failed to fetch products'}`);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}`);
+    const data = await res.json();
+    
+    if (!res.ok || data.error) {
+      console.error('API Error:', data.error);
+      if (container) {
+        if (data.error && data.error.includes('exceeded D1\'s free tier')) {
+          container.innerHTML = `<div class="empty-aisle-notice">?? Cloudflare D1 daily free quota exceeded. Please try again tomorrow or upgrade your Cloudflare plan.</div>`;
+        } else {
+          container.innerHTML = `<div class="empty-aisle-notice">Error loading products: ${data.error || 'Server error'}</div>`;
+        }
+      }
       return;
     }
 
-    renderBrowsePage(data);
+    browseData = data.products || [];
+    totalBrowsePages = data.totalPages || 1;
+
+    if (currentBrowseMode === 'aisle') {
+      renderBrowseByAislePage();
+    } else {
+      renderBrowsePage();
+    }
   } catch (err) {
-    console.error("Failed to load browse page:", err);
+    console.error('Failed to load browse page:', err);
+    if (container) container.innerHTML = '<div class="empty-aisle-notice">Unable to connect to server.</div>';
   }
 }
 
