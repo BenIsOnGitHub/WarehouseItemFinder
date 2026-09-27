@@ -17,25 +17,26 @@ export default {
 
     try {
       // 1. Live Search API: /api/search?q=bourbon&warehouse=1738
-      if (pathname === '/api/search') {
-        const query = url.searchParams.get('q') || '';
-        const warehouseId = url.searchParams.get('warehouse') || '1738';
+      // /api/search endpoint
+			if (pathname === '/api/search') {
+			  const query = url.searchParams.get('q') || '';
+			  const warehouseId = url.searchParams.get('warehouse_id') || '1738';
 
-        if (!query.trim()) {
-          return new Response(JSON.stringify([]), { headers: corsHeaders });
-        }
+			  const { results } = await env.DB.prepare(`
+			    SELECT id, warehouse_id, sku, item_number, product_name, product_url, aisle, bay, is_wrong
+			    FROM products
+			    WHERE warehouse_id = ?
+			      AND (
+			        LOWER(product_name) LIKE LOWER(?)
+			        OR sku LIKE ?
+			        OR item_number LIKE ?
+			      )
+			    ORDER BY product_name ASC
+			    LIMIT 50
+			  `).bind(warehouseId, `%${query}%`, `%${query}%`, `%${query}%`).all();
 
-        const cleanQuery = `%${query.trim()}%`;
-        const { results } = await env.DB.prepare(`
-          SELECT sku, warehouse_id, product_name, product_url, aisle, bay, is_wrong, is_discontinued 
-          FROM products 
-          WHERE warehouse_id = ? AND (product_name LIKE ? OR sku LIKE ?)
-          ORDER BY product_name ASC
-          LIMIT 100
-        `).bind(warehouseId, cleanQuery, cleanQuery).all();
-
-        return new Response(JSON.stringify(results), { headers: corsHeaders });
-      }
+			  return new Response(JSON.stringify(results || []), { headers: corsHeaders });
+			}
 
       // 2. Paginated Browse API: /api/browse?warehouse=1738&page=1&limit=20&sort=aisle
       if (pathname === '/api/browse') {
@@ -87,30 +88,33 @@ export default {
       }
 
       // 3. Update Product Location API: /api/update-location
-      if (pathname === '/api/update-location' && request.method === 'POST') {
-        const { sku, warehouse_id, aisle, bay, is_wrong } = await request.json();
+      // 1B. Update product location handler (/api/update-location)
+			if (pathname === '/api/update-location' && request.method === 'POST') {
+			  try {
+			    const { id, aisle, bay, is_wrong } = await request.json();
 
-        if (!sku || !warehouse_id) {
-          return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-            status: 400,
-            headers: corsHeaders,
-          });
-        }
+			    if (!id) {
+			      return new Response(JSON.stringify({ error: 'Missing product ID' }), { 
+			        status: 400, 
+			        headers: corsHeaders 
+			      });
+			    }
 
-        // Ensure is_wrong defaults to 0 if undefined/null
-        const flagValue = is_wrong !== undefined && is_wrong !== null ? Number(is_wrong) : 0;
+			    await env.DB.prepare(`
+			      UPDATE products
+			      SET aisle = ?, bay = ?, is_wrong = ?, updated_at = datetime('now')
+			      WHERE id = ?
+			    `).bind(aisle || '', bay || '', is_wrong ? 1 : 0, id).run();
 
-        await env.DB.prepare(`
-          UPDATE products 
-          SET aisle = ?, 
-              bay = ?, 
-              is_wrong = ?, 
-              updated_at = datetime('now')
-          WHERE sku = ? AND warehouse_id = ?
-        `).bind(aisle ?? '', bay ?? '', flagValue, sku, warehouse_id).run();
-
-        return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
-      }
+			    return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+			  } catch (err) {
+			    console.error('Error updating location:', err);
+			    return new Response(JSON.stringify({ error: 'Failed to update location' }), { 
+			      status: 500, 
+			      headers: corsHeaders 
+			    });
+			  }
+			}
 
 			// 4. Fetch available warehouses list
 			if (pathname === '/api/warehouses') {

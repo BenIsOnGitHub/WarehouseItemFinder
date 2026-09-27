@@ -19,6 +19,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+function getIdentifierDisplay(prod) {
+  const parts = [];
+  if (prod.item_number) parts.push(`Item #${prod.item_number}`);
+  if (prod.sku) parts.push(`SKU: ${prod.sku}`);
+  return parts.length > 0 ? parts.join(' | ') : 'No Identifier';
+}
+
 // ==========================================
 // FAVORITES & LOCAL STORAGE HELPERS
 // ==========================================
@@ -36,26 +43,29 @@ function getNotes() {
   return notes ? JSON.parse(notes) : {};
 }
 
-function saveNote(sku, noteText) {
+function saveNote(id, noteText) {
   let notes = getNotes();
   if (!noteText.trim()) {
-    delete notes[sku];
+    delete notes[id];
   } else {
-    notes[sku] = noteText;
+    notes[id] = noteText;
   }
   localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
 }
 
 function toggleFavorite(product, starElement) {
   let favorites = getFavorites();
-  const existingIndex = favorites.findIndex(item => item.sku === product.sku);
+  // Match using product.id instead of product.sku
+  const existingIndex = favorites.findIndex(item => item.id === product.id);
 
   if (existingIndex > -1) {
     favorites.splice(existingIndex, 1);
     if (starElement) starElement.classList.remove('active');
   } else {
     favorites.push({
-      sku: product.sku,
+      id: product.id,
+      sku: product.sku || '',
+      item_number: product.item_number || '',
       product_name: product.product_name,
       warehouse_id: product.warehouse_id,
       product_url: product.product_url,
@@ -88,17 +98,20 @@ function moveFavorite(index, direction) {
 // ==========================================
 // INTERACTIVE LOCATION UPDATE (D1 API)
 // ==========================================
-function openLocationEditor(sku, currentAisle, currentBay, isWrong = 0) {
-  const container = document.getElementById(`loc-edit-${sku}`);
+function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
+  const container = document.getElementById(`loc-edit-${id}`);
   if (!container) return;
+
+  const safeAisle = String(currentAisle).replace(/'/g, "\\'");
+  const safeBay = String(currentBay).replace(/'/g, "\\'");
 
   container.innerHTML = `
     <div class="loc-edit-form">
-      <input type="text" id="aisle-input-${sku}" class="loc-edit-input aisle-input" placeholder="Aisle (e.g. 12)" value="${currentAisle || ''}">
-      <input type="text" id="bay-input-${sku}" class="loc-edit-input bay-input" placeholder="Bay (e.g. 2)" value="${currentBay || ''}">
+      <input type="text" id="aisle-input-${id}" class="loc-edit-input aisle-input" placeholder="Aisle" value="${currentAisle || ''}">
+      <input type="text" id="bay-input-${id}" class="loc-edit-input bay-input" placeholder="Bay" value="${currentBay || ''}">
       <button class="help-icon-btn" onclick="openHelpModal()" type="button" title="Where do I find the Bay number?">?</button>
-      <button class="btn btn-save" onclick="saveLocation('${sku}')">Save</button>
-      <button class="btn btn-cancel" onclick="cancelLocationEdit('${sku}', '${currentAisle}', '${currentBay}', ${isWrong})">Cancel</button>
+      <button class="btn btn-save" onclick="saveLocation('${id}')">Save</button>
+      <button class="btn btn-cancel" onclick="cancelLocationEdit('${id}', '${safeAisle}', '${safeBay}', ${isWrong})">Cancel</button>
     </div>
   `;
 }
@@ -114,26 +127,20 @@ function closeHelpModal(event) {
   if (modal) modal.classList.remove('active');
 }
 
-async function saveLocation(sku) {
-  const aisleInput = document.getElementById(`aisle-input-${sku}`);
-  const bayInput = document.getElementById(`bay-input-${sku}`);
+async function saveLocation(id) {
+  const aisleInput = document.getElementById(`aisle-input-${id}`);
+  const bayInput = document.getElementById(`bay-input-${id}`);
   const newAisle = aisleInput ? aisleInput.value.trim() : '';
   const newBay = bayInput ? bayInput.value.trim() : '';
 
-  // Check current flag state in memory
-  const itemInBrowse = browseData.find(p => p.sku === sku);
+  const itemInBrowse = browseData.find(p => p.id === id);
   let clearFlag = 0;
 
   if (itemInBrowse && itemInBrowse.is_wrong === 1) {
-    const userConfirmed = confirm(
-      'This location had been flagged as incorrect. Have you corrected it?'
-    );
-    if (userConfirmed) {
-      clearFlag = 1; // User selected 'Yes'
-    }
+    const userConfirmed = confirm('This location had been flagged as incorrect. Have you corrected it?');
+    if (userConfirmed) clearFlag = 1;
   }
 
-  // Calculate new is_wrong status
   const finalIsWrong = (itemInBrowse && itemInBrowse.is_wrong === 1 && !clearFlag) ? 1 : 0;
 
   try {
@@ -141,22 +148,20 @@ async function saveLocation(sku) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sku: sku,
-        warehouse_id: CURRENT_WAREHOUSE,
+        id: id,
         aisle: newAisle,
         bay: newBay,
-        is_wrong: finalIsWrong // Send updated is_wrong state to D1 worker
+        is_wrong: finalIsWrong
       })
     });
 
     if (response.ok) {
-      // Update local memory representations
       if (itemInBrowse) {
         itemInBrowse.aisle = newAisle;
         itemInBrowse.bay = newBay;
         itemInBrowse.is_wrong = finalIsWrong;
       }
-      renderLocationDisplay(sku, newAisle, newBay, finalIsWrong);
+      renderLocationDisplay(id, newAisle, newBay, finalIsWrong);
     } else {
       alert('Failed to update product location in database.');
     }
@@ -166,12 +171,12 @@ async function saveLocation(sku) {
   }
 }
 
-function cancelLocationEdit(sku, aisle, bay, isWrong = 0) {
-  renderLocationDisplay(sku, aisle, bay, isWrong);
+function cancelLocationEdit(id, aisle, bay, isWrong = 0) {
+  renderLocationDisplay(id, aisle, bay, isWrong);
 }
 
 // Report incorrect location API call
-async function flagLocationIncorrect(sku) {
+async function flagLocationIncorrect(id) {
   if (!confirm('Report this aisle/bay location as incorrect?')) return;
 
   try {
@@ -179,30 +184,26 @@ async function flagLocationIncorrect(sku) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sku: sku,
+        id: id,
         warehouse_id: CURRENT_WAREHOUSE
       })
     });
 
     if (response.ok) {
-      // Update memory state
-      const itemInBrowse = browseData.find(p => p.sku === sku);
+      const itemInBrowse = browseData.find(p => p.id === id);
       if (itemInBrowse) itemInBrowse.is_wrong = 1;
-
-      // Re-render button in reported state
-      renderLocationDisplay(sku, itemInBrowse?.aisle, itemInBrowse?.bay, 1);
+      renderLocationDisplay(id, itemInBrowse?.aisle, itemInBrowse?.bay, 1);
       alert('Thank you! Location reported as incorrect.');
     } else {
       alert('Failed to report incorrect location.');
     }
   } catch (err) {
     console.error('Error reporting location:', err);
-    alert('Server error while reporting location.');
   }
 }
 
-function renderLocationDisplay(sku, aisle, bay, isWrong = 0) {
-  const container = document.getElementById(`loc-edit-${sku}`);
+function renderLocationDisplay(id, aisle, bay, isWrong = 0) {
+  const container = document.getElementById(`loc-edit-${id}`);
   if (!container) return;
 
   const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
@@ -211,17 +212,9 @@ function renderLocationDisplay(sku, aisle, bay, isWrong = 0) {
   let incorrectBtnHTML = '';
   if (aisle) {
     if (isWrong) {
-      incorrectBtnHTML = `
-        <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-          Reported as incorrect
-        </button>
-      `;
+      incorrectBtnHTML = `<button class="flag-incorrect-btn reported" disabled>Reported as incorrect</button>`;
     } else {
-      incorrectBtnHTML = `
-        <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${sku}')" title="Report incorrect location">
-          Report as incorrect
-        </button>
-      `;
+      incorrectBtnHTML = `<button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${id}')">Report as incorrect</button>`;
     }
   }
 
@@ -229,7 +222,7 @@ function renderLocationDisplay(sku, aisle, bay, isWrong = 0) {
   const safeBay = String(bay).replace(/'/g, "\\'");
 
   container.innerHTML = `
-    <span class="${badgeClass}" onclick="openLocationEditor('${sku}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
+    <span class="${badgeClass}" onclick="openLocationEditor('${id}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
       ${locationStr} &#9998;
     </span>
     ${incorrectBtnHTML}
@@ -275,10 +268,11 @@ function renderResultsUI(results) {
   }
 
   const favorites = getFavorites();
-  const favoriteSkus = new Set(favorites.map(f => f.sku));
+  const favoriteIds = new Set(favorites.map(f => f.id));
 
   container.innerHTML = results.map(prod => {
-    const isFav = favoriteSkus.has(prod.sku);
+    const isFav = favoriteIds.has(prod.id);
+    const identifierText = getIdentifierDisplay(prod);
     const favClass = isFav ? 'fav-btn active' : 'fav-btn';
     const aisle = prod.aisle || '';
     const bay = prod.bay || '';
@@ -296,7 +290,7 @@ function renderResultsUI(results) {
         `;
       } else {
         incorrectBtn = `
-          <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.sku}')" title="Report incorrect location">
+          <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
             Report as incorrect
           </button>
         `;
@@ -307,23 +301,23 @@ function renderResultsUI(results) {
     const safeBay = String(bay).replace(/'/g, "\\'");
 
     return `
-      <li class="product-card">
-        <div class="product-info">
-          <div class="product-title">${prod.product_name}</div>
-          <div class="product-details">
-            SKU: ${prod.sku} | 
-            <span id="loc-edit-${prod.sku}">
-              <span class="${badgeClass}" onclick="openLocationEditor('${prod.sku}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
-                ${locationStr} &#9998;
-              </span>
-              ${incorrectBtn}
-            </span>
-          </div>
-          ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
-        </div>
-        <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)' aria-label="Favorite product">&#9733;</button>
-      </li>
-    `;
+  <li class="product-card">
+    <div class="product-info">
+      <div class="product-title">${prod.product_name}</div>
+      <div class="product-details">
+        ${identifierText} | 
+        <span id="loc-edit-${prod.id}">
+          <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})">
+            ${locationStr} &#9998;
+          </span>
+          ${incorrectBtn}
+        </span>
+      </div>
+      ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
+    </div>
+    <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+  </li>
+`;
   }).join('');
 }
 
@@ -348,32 +342,33 @@ function renderFavoritesUI() {
   }
 
   container.innerHTML = favorites.map((prod, index) => {
-    const prodNote = notes[prod.sku] || '';
+    const prodNote = notes[prod.id] || '';
+    const identifierText = getIdentifierDisplay(prod);
     const isFirst = index === 0;
     const isLast = index === favorites.length - 1;
 
     return `
-      <li class="product-card">
-        <div class="reorder-btns">
-          <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
-          <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
-        </div>
-        <div class="product-info">
-          <div class="product-title">${prod.product_name}</div>
-          <div class="product-details">SKU: ${prod.sku}</div>
-          <div class="note-container">
-            <input 
-              type="text" 
-              class="note-input" 
-              placeholder="Add note (e.g. check endcap)" 
-              value="${prodNote.replace(/"/g, '&quot;')}"
-              onchange="saveNote('${prod.sku}', this.value)"
-            />
-          </div>
-        </div>
-        <button class="fav-btn active" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
-      </li>
-    `;
+	  <li class="product-card">
+	    <div class="reorder-btns">
+	      <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
+	      <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
+	    </div>
+	    <div class="product-info">
+	      <div class="product-title">${prod.product_name}</div>
+	      <div class="product-details">${identifierText}</div>
+	      <div class="note-container">
+	        <input 
+	          type="text" 
+	          class="note-input" 
+	          placeholder="Add note (e.g. check endcap)" 
+	          value="${prodNote.replace(/"/g, '&quot;')}"
+	          onchange="saveNote('${prod.id}', this.value)"
+	        />
+	      </div>
+	    </div>
+	    <button class="fav-btn active" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+	  </li>
+	`;
   }).join('');
 }
 
@@ -446,10 +441,11 @@ function renderBrowsePage() {
   if (!container) return;
 
   const favorites = getFavorites();
-  const favoriteSkus = new Set(favorites.map(f => f.sku));
+  const favoriteIds = new Set(favorites.map(f => f.id));
 
   container.innerHTML = browseData.map(prod => {
-    const isFav = favoriteSkus.has(prod.sku);
+    const isFav = favoriteIds.has(prod.id);
+    const identifierText = getIdentifierDisplay(prod);
     const favClass = isFav ? 'fav-btn active' : 'fav-btn';
     const aisle = prod.aisle || '';
     const bay = prod.bay || '';
@@ -467,7 +463,7 @@ function renderBrowsePage() {
         `;
       } else {
         incorrectBtn = `
-          <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.sku}')" title="Report incorrect location">
+          <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
             Report as incorrect
           </button>
         `;
@@ -482,9 +478,9 @@ function renderBrowsePage() {
         <div class="browse-product-details">
           <div class="browse-product-title"><strong>${prod.product_name}</strong></div>
           <div class="product-details">
-            SKU: ${prod.sku} | 
-            <span id="loc-edit-${prod.sku}">
-              <span class="${badgeClass}" onclick="openLocationEditor('${prod.sku}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
+            ${identifierText} | 
+            <span id="loc-edit-${prod.id}">
+              <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
                 ${locationStr} &#9998;
               </span>
               ${incorrectBtn}
@@ -523,7 +519,7 @@ function renderBrowseByAislePage() {
   });
 
   const favorites = getFavorites();
-  const favoriteSkus = new Set(favorites.map(f => f.sku));
+  const favoriteIds = new Set(favorites.map(f => f.id));
 
   container.innerHTML = sortedAisles.map(aisleKey => {
     const items = grouped[aisleKey];
@@ -536,7 +532,8 @@ function renderBrowseByAislePage() {
         </h2>
         <div class="aisle-group-body">
           ${items.map(prod => {
-            const isFav = favoriteSkus.has(prod.sku);
+            const isFav = favoriteIds.has(prod.id);
+            const identifierText = getIdentifierDisplay(prod);
             const favClass = isFav ? 'fav-btn active' : 'fav-btn';
             const aisle = prod.aisle || '';
             const bay = prod.bay || '';
@@ -554,14 +551,13 @@ function renderBrowseByAislePage() {
                 `;
               } else {
                 incorrectBtn = `
-                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.sku}')" title="Report incorrect location">
+                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
                     Report as incorrect
                   </button>
                 `;
               }
             }
 
-            // Escaping single quotes for the inline onclick handler
             const safeAisle = String(aisle).replace(/'/g, "\\'");
             const safeBay = String(bay).replace(/'/g, "\\'");
 
@@ -570,9 +566,9 @@ function renderBrowseByAislePage() {
                 <div class="browse-product-details">
                   <div class="browse-product-title"><strong>${prod.product_name}</strong></div>
                   <div class="product-details">
-                    SKU: ${prod.sku} | 
-                    <span id="loc-edit-${prod.sku}">
-                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.sku}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
+                    ${identifierText} | 
+                    <span id="loc-edit-${prod.id}">
+                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
                         ${locationStr} &#9998;
                       </span>
                       ${incorrectBtn}
