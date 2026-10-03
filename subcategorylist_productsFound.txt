@@ -1,0 +1,144 @@
+  -  679 items | [Configured] https://www.costco.com/grocery-household.html
+  -  343 items | [Configured] https://www.costco.com/health-beauty.html
+  -  102 items | [Configured] https://www.costco.com/kirkland-signature-groceries.html
+  -   97 items | [Configured] https://www.costco.com/snacks.html
+  -   96 items | [Configured] https://www.costco.com/clothing.html
+  -   71 items | [Configured] https://www.costco.com/beverages.html
+  -   68 items | [Configured] https://www.costco.com/computers.html
+  -   61 items | [Configured] https://www.costco.com/appliances.html
+  -   59 items | [Configured] https://www.costco.com/household-cleaning.html
+  -   52 items | [Configured] https://www.costco.com/hardware.html
+  -   46 items | [Configured] https://www.costco.com/pantry.html
+  -   45 items | [Configured] https://www.costco.com/deli.html
+  -   44 items | [Configured] https://www.costco.com/beauty.html
+  -   44 items | [Configured] https://www.costco.com/all-costco-grocery.html
+  -   42 items | [Configured] https://www.costco.com/televisions.html
+  -   35 items | [Configured] https://www.costco.com/costco-direct.html
+  -   28 items | [Configured] https://www.costco.com/audio-video.html
+  -   26 items | [Configured] https://www.costco.com/laptops.html
+  -   25 items | [Configured] https://www.costco.com/small-kitchen-appliances.html
+  -   25 items | [Configured] https://www.costco.com/dairy-eggs-cheese.html
+  -   23 items | [Configured] https://www.costco.com/seasonal.html
+  -   20 items | [Configured] https://www.costco.com/candy.html
+  -   20 items | [Configured] https://www.costco.com/sports-fitness.html
+  -   19 items | [Configured] https://www.costco.com/paper-products-food-storage.html
+  -   18 items | [Configured] https://www.costco.com/skin-care.html
+  -   18 items | [Configured] https://www.costco.com/furniture.html
+  -   18 items | [Configured] https://www.costco.com/produce.html
+  -   17 items | [Configured] https://www.costco.com/frozen-meals.html
+  -   16 items | [Configured] https://www.costco.com/hair-care.html
+  -   16 items | [Configured] https://www.costco.com/lighting.html
+  -   15 items | [Configured] https://www.costco.com/french-door-refrigerators.html
+  -   14 items | [Configured] https://www.costco.com/vacuums-floor-care.html
+  -   12 items | [Configured] https://www.costco.com/mattresses.html
+  -   11 items | [Configured] https://www.costco.com/tablet-computers-accessories.html
+  -    9 items | [Configured] https://www.costco.com/living-room.html
+  -    9 items | [Configured] https://www.costco.com/toys.html
+  -    8 items | [Configured] https://www.costco.com/desktops-servers.html
+  -    8 items | [Configured] https://www.costco.com/apple-smart-watch.html
+  -    8 items | [Configured] https://www.costco.com/video-games.html
+  -    7 items | [Configured] https://www.costco.com/home-alarm-systems-automation.html
+  -    7 items | [Configured] https://www.costco.com/wearable-technology.html
+  -    7 items | [Configured] https://www.costco.com/coffee-sweeteners.html
+  -    7 items | [Configured] https://www.costco.com/tools.html
+  -    6 items | [Configured] https://www.costco.com/beauty-tools-accessories.html
+  -    6 items | [Configured] https://www.costco.com/monitors.html
+  -    5 items | [Configured] https://www.costco.com/cameras-camcorders.html
+  -    4 items | [Configured] https://www.costco.com/cell-phone-chargers-batteries.html
+  -    4 items | [Configured] https://www.costco.com/bedroom-furniture.html
+  -    4 items | [Configured] https://www.costco.com/garage.html
+  -    3 items | [Configured] https://www.costco.com/freezers-ice-makers.html
+  -    3 items | [Configured] https://www.costco.com/pc-gaming.html
+  -    3 items | [Configured] https://www.costco.com/dining-kitchen.html
+  -    3 items | [Configured] https://www.costco.com/office-furniture.html
+  -    3 items | [Configured] https://www.costco.com/generators.html
+  -    2 items | [Configured] https://www.costco.com/refrigerators.html
+  -    2 items | [Configured] https://www.costco.com/dryers.html
+  -    2 items | [Configured] https://www.costco.com/cosmetics.html
+  -    2 items | [Configured] https://www.costco.com/computer-accessories.html
+  -    2 items | [Configured] https://www.costco.com/airpods.html
+  -    2 items | [Configured] https://www.costco.com/cell-phones.html
+  -    1 items | [Configured] https://www.costco.com/small-space-appliances.html
+  -    1 items | [Configured] https://www.costco.com/cooling-air-treatment-heating.html
+  -    1 items | [Configured] https://www.costco.com/microwaves.html
+  -    1 items | [Configured] https://www.costco.com/washers.html
+  -    1 items | [Configured] https://www.costco.com/mens-clothing.html
+  -    1 items | [Configured] https://www.costco.com/hard-drives-memory.html
+  -    1 items | [Configured] https://www.costco.com/routers-networking.html
+  -    1 items | [Configured] https://www.costco.com/batteries.html
+  -    1 items | [Configured] https://www.costco.com/musical-instruments.html
+  -    1 items | [Configured] https://www.costco.com/meat.html
+  -    1 items | [Configured] https://www.costco.com/storage-organization.html
+  
+"https://www.costco.com/grocery-household.html",
+"https://www.costco.com/health-beauty.html",
+"https://www.costco.com/kirkland-signature-groceries.html",
+"https://www.costco.com/snacks.html",
+"https://www.costco.com/clothing.html",
+"https://www.costco.com/beverages.html",
+"https://www.costco.com/computers.html",
+"https://www.costco.com/appliances.html",
+"https://www.costco.com/household-cleaning.html",
+"https://www.costco.com/hardware.html",
+"https://www.costco.com/pantry.html",
+"https://www.costco.com/deli.html",
+"https://www.costco.com/beauty.html",
+"https://www.costco.com/all-costco-grocery.html",
+"https://www.costco.com/televisions.html",
+"https://www.costco.com/costco-direct.html",
+"https://www.costco.com/audio-video.html",
+"https://www.costco.com/laptops.html",
+"https://www.costco.com/small-kitchen-appliances.html",
+"https://www.costco.com/dairy-eggs-cheese.html",
+"https://www.costco.com/seasonal.html",
+"https://www.costco.com/candy.html",
+"https://www.costco.com/sports-fitness.html",
+"https://www.costco.com/paper-products-food-storage.html",
+"https://www.costco.com/skin-care.html",
+"https://www.costco.com/furniture.html",
+"https://www.costco.com/fresh-fruit.html",
+"https://www.costco.com/fresh-vegetables.html",
+"https://www.costco.com/frozen-meals.html",
+"https://www.costco.com/hair-care.html",
+"https://www.costco.com/lighting.html",
+"https://www.costco.com/french-door-refrigerators.html",
+"https://www.costco.com/vacuums-floor-care.html",
+"https://www.costco.com/mattresses.html",
+"https://www.costco.com/tablet-computers-accessories.html",
+"https://www.costco.com/living-room.html",
+"https://www.costco.com/toys.html",
+"https://www.costco.com/desktops-servers.html",
+"https://www.costco.com/apple-smart-watch.html",
+"https://www.costco.com/video-games.html",
+"https://www.costco.com/home-alarm-systems-automation.html",
+"https://www.costco.com/wearable-technology.html",
+"https://www.costco.com/coffee-sweeteners.html",
+"https://www.costco.com/tools.html",
+"https://www.costco.com/beauty-tools-accessories.html",
+"https://www.costco.com/monitors.html",
+"https://www.costco.com/cameras-camcorders.html",
+"https://www.costco.com/cell-phone-chargers-batteries.html",
+"https://www.costco.com/bedroom-furniture.html",
+"https://www.costco.com/garage.html",
+"https://www.costco.com/freezers-ice-makers.html",
+"https://www.costco.com/pc-gaming.html",
+"https://www.costco.com/dining-kitchen.html",
+"https://www.costco.com/office-furniture.html",
+"https://www.costco.com/generators.html",
+"https://www.costco.com/refrigerators.html",
+"https://www.costco.com/dryers.html",
+"https://www.costco.com/cosmetics.html",
+"https://www.costco.com/computer-accessories.html",
+"https://www.costco.com/airpods.html",
+"https://www.costco.com/cell-phones.html",
+"https://www.costco.com/small-space-appliances.html",
+"https://www.costco.com/cooling-air-treatment-heating.html",
+"https://www.costco.com/microwaves.html",
+"https://www.costco.com/washers.html",
+"https://www.costco.com/mens-clothing.html",
+"https://www.costco.com/hard-drives-memory.html",
+"https://www.costco.com/routers-networking.html",
+"https://www.costco.com/batteries.html",
+"https://www.costco.com/musical-instruments.html",
+"https://www.costco.com/meat.html",
+"https://www.costco.com/storage-organization.html"

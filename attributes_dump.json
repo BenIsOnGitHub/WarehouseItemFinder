@@ -1,0 +1,1727 @@
+{
+  "searchResultProvider": "GRS",
+  "locale": "en-US",
+  "client_id": "USBC",
+  "searchResult": {
+    "results": [
+      {
+        "id": "4000050834",
+        "product": {
+          "name": "projects/765882799461/locations/global/catalogs/default_catalog/branches/0/products/4000050834",
+          "id": "",
+          "type": "TYPE_UNSPECIFIED",
+          "primaryProductId": "",
+          "collectionMemberIds": [],
+          "gtin": "",
+          "categories": [
+            "Appliances",
+            "Appliances > Refrigerators",
+            "Appliances > Refrigerators > Bottom Freezer Refrigerators"
+          ],
+          "title": "Midea 18.7 cu. ft. Bottom Mount Freezer Refrigerator",
+          "brands": [
+            "Midea"
+          ],
+          "description": "",
+          "languageCode": "",
+          "attributes": {
+            "disp_price_in_cart_only": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "promotional_statement": {
+              "text": [
+                "While supplies last."
+              ],
+              "numbers": []
+            },
+            "program_types": {
+              "text": [
+                "LocationControlledInventory",
+                "InWarehouse",
+                "LTLPickUp",
+                "Standard",
+                "ShipIt"
+              ],
+              "numbers": []
+            },
+            "product_type": {
+              "text": [
+                "Product"
+              ],
+              "numbers": []
+            },
+            "fsa_eligible": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "marketing_keywords": {
+              "text": [
+                "1253",
+                "HOLIDAYAPP23",
+                "HawaiiDelivery",
+                "Midea429",
+                "Midea826",
+                "MideaAll",
+                "MideaDeals",
+                "PuertoRicoDelivery",
+                "midea912",
+                "trendingfridge"
+              ],
+              "numbers": []
+            },
+            "variable_weight": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "primary_image": {
+              "text": [
+                "https://gdx-assets.costco.com/adobe/assets/urn:aaid:aem:9cd0e66d-72fb-4894-b84d-e54d3b970226/as/4000050834-847__1.avif"
+              ],
+              "numbers": []
+            },
+            "member_only": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "as400_department": {
+              "text": [
+                "24"
+              ],
+              "numbers": []
+            },
+            "category_names": {
+              "text": [
+                "Appliances",
+                "Refrigerators",
+                "Bottom Freezer Refrigerators"
+              ],
+              "numbers": []
+            },
+            "chdi_eligible": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "max_item_order_qty": {
+              "text": [
+                "9999.0"
+              ],
+              "numbers": []
+            },
+            "min_item_order_qty": {
+              "text": [
+                "1"
+              ],
+              "numbers": []
+            },
+            "model": {
+              "text": [
+                "MRB19B7AST"
+              ],
+              "numbers": []
+            },
+            "reviews_eligible": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "swatchable": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "buyable": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "pills": {
+              "text": [
+                "Costco Direct",
+                "Spend & Save"
+              ],
+              "numbers": []
+            },
+            "product_class_type": {
+              "text": [
+                "Standard"
+              ],
+              "numbers": []
+            },
+            "comparable": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "as400_category": {
+              "text": [
+                "HAB"
+              ],
+              "numbers": []
+            },
+            "features": {
+              "text": [
+                "Energy Star Certified"
+              ],
+              "numbers": []
+            }
+          },
+          "tags": [],
+          "rating": {
+            "ratingCount": 341,
+            "averageRating": 4.217,
+            "ratingHistogram": []
+          },
+          "availability": "AVAILABILITY_UNSPECIFIED",
+          "fulfillmentInfo": [],
+          "uri": "https://www.costco.com/p/-/midea-187-cu-ft-bottom-mount-freezer-refrigerator/4000050834",
+          "images": [],
+          "sizes": [],
+          "materials": [],
+          "patterns": [],
+          "conditions": [],
+          "promotions": [],
+          "variants": [
+            {
+              "name": "projects/765882799461/locations/global/catalogs/default_catalog/branches/0/products/1691251",
+              "id": "1691251",
+              "type": "VARIANT",
+              "primaryProductId": "",
+              "collectionMemberIds": [],
+              "gtin": "",
+              "categories": [],
+              "title": "Midea 18.7 cu. ft. Bottom Mount Freezer Refrigerator",
+              "brands": [],
+              "description": "",
+              "languageCode": "",
+              "attributes": {
+                "buyable": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "member_only": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "chdi_eligible": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "program_types": {
+                  "text": [
+                    "LocationControlledInventory",
+                    "InWarehouse",
+                    "LTLPickUp",
+                    "Standard",
+                    "ShipIt"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "reviews_eligible": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "product_class_type": {
+                  "text": [
+                    "Standard"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "model": {
+                  "text": [
+                    "MRB19B7AST"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "disp_price_in_cart_only": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "as400_category": {
+                  "text": [
+                    "HAB"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "variable_weight": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "min_item_order_qty": {
+                  "text": [
+                    "1"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "max_item_order_qty": {
+                  "text": [
+                    "5.0"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "fsa_eligible": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "product_type": {
+                  "text": [
+                    "Item"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "as400_department": {
+                  "text": [
+                    "24"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "swatchable": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "comparable": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "category_names": {
+                  "text": [
+                    "Appliances",
+                    "Refrigerators",
+                    "Bottom Freezer Refrigerators"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                }
+              },
+              "tags": [],
+              "availability": "AVAILABILITY_UNSPECIFIED",
+              "fulfillmentInfo": [],
+              "uri": "https://www.costco.com/p/-/midea-187-cu-ft-bottom-mount-freezer-refrigerator/1691251",
+              "images": [],
+              "sizes": [],
+              "materials": [],
+              "patterns": [],
+              "conditions": [],
+              "promotions": [],
+              "variants": [],
+              "localInventories": []
+            }
+          ],
+          "localInventories": []
+        },
+        "matchingVariantCount": 1,
+        "matchingVariantFields": {},
+        "variantRollupValues": {
+          "attributes.start_date": [
+            "2023-06-13 17:00:00.0"
+          ],
+          "price": [
+            849.99
+          ],
+          "inventory(1738-wh, price)": [
+            599.99
+          ],
+          "attributes.max_item_order_qty": [
+            "5.0"
+          ],
+          "variantId": [
+            "1691251"
+          ],
+          "attributes.program_types": [
+            "LocationControlledInventory",
+            "InWarehouse",
+            "LTLPickUp",
+            "Standard",
+            "ShipIt"
+          ],
+          "attributes.fsa_eligible": [
+            0.0
+          ],
+          "attributes.chdi_eligible": [
+            0.0
+          ],
+          "attributes.as400_category": [
+            "HAB"
+          ],
+          "attributes.product_class_type": [
+            "Standard"
+          ],
+          "inventory(1259-3pl, attributes.availability)": [
+            "IN_STOCK"
+          ],
+          "inventory(847, originalPrice)": [
+            749.99
+          ],
+          "attributes.buyable": [
+            1.0
+          ],
+          "originalPrice": [
+            849.99
+          ],
+          "attributes.min_item_order_qty": [
+            "1"
+          ],
+          "attributes.variable_weight": [
+            0.0
+          ],
+          "inventory(847, price)": [
+            749.99
+          ],
+          "attributes.member_only": [
+            1.0
+          ],
+          "inventory(1738-wh, attributes.availability)": [
+            "IN_STOCK"
+          ],
+          "attributes.as400_department": [
+            "24"
+          ]
+        },
+        "personalLabels": []
+      },
+      {
+        "id": "100457663",
+        "product": {
+          "name": "projects/765882799461/locations/global/catalogs/default_catalog/branches/0/products/100457663",
+          "id": "",
+          "type": "TYPE_UNSPECIFIED",
+          "primaryProductId": "",
+          "collectionMemberIds": [],
+          "gtin": "",
+          "categories": [
+            "Appliances",
+            "Appliances > Compact Appliances",
+            "Appliances > Compact Appliances > Apartment Size Refrigerators"
+          ],
+          "title": "Whirlpool 20 cu. ft. French Door Refrigerator with FreshFlow",
+          "brands": [
+            "Whirlpool"
+          ],
+          "description": "",
+          "languageCode": "",
+          "attributes": {
+            "buyable": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "promotional_statement": {
+              "text": [
+                "While supplies last."
+              ],
+              "numbers": []
+            },
+            "as400_department": {
+              "text": [
+                "24"
+              ],
+              "numbers": []
+            },
+            "fsa_eligible": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "product_type": {
+              "text": [
+                "Product"
+              ],
+              "numbers": []
+            },
+            "primary_image": {
+              "text": [
+                "https://gdx-assets.costco.com/adobe/assets/urn:aaid:aem:85ecd6c6-710b-47d0-bf03-a446e451e1e5/as/1281364-847__1.avif"
+              ],
+              "numbers": []
+            },
+            "member_only": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "program_types": {
+              "text": [
+                "LocationControlledInventory",
+                "InWarehouse",
+                "LTLPickUp",
+                "Standard",
+                "ShipIt"
+              ],
+              "numbers": []
+            },
+            "pills": {
+              "text": [
+                "Costco Direct",
+                "Online Only",
+                "Spend & Save"
+              ],
+              "numbers": []
+            },
+            "chdi_eligible": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "model": {
+              "text": [
+                "WRF560SEHZ"
+              ],
+              "numbers": []
+            },
+            "category_names": {
+              "text": [
+                "Appliances",
+                "Compact Appliances",
+                "Apartment Size Refrigerators",
+                "Appliances",
+                "Refrigerators",
+                "French Door Refrigerators"
+              ],
+              "numbers": []
+            },
+            "variable_weight": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "product_class_type": {
+              "text": [
+                "Standard"
+              ],
+              "numbers": []
+            },
+            "comparable": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "features": {
+              "text": [
+                "Fingerprint Resistant"
+              ],
+              "numbers": []
+            },
+            "max_item_order_qty": {
+              "text": [
+                "9999.0"
+              ],
+              "numbers": []
+            },
+            "min_item_order_qty": {
+              "text": [
+                "1"
+              ],
+              "numbers": []
+            },
+            "marketing_statement": {
+              "text": [
+                "Price includes $300 savings.<br>Price valid through 10/14/26"
+              ],
+              "numbers": []
+            },
+            "as400_category": {
+              "text": [
+                "HAA"
+              ],
+              "numbers": []
+            },
+            "marketing_keywords": {
+              "text": [
+                "WRF560SEHZ",
+                "bigbulky",
+                "kitchen",
+                "refrigerator",
+                "small",
+                "space",
+                "whirlpool",
+                "whirlpool0518",
+                "whirlpool73",
+                "wp0625",
+                "wp0709",
+                "wpapp1208",
+                "wpref1208"
+              ],
+              "numbers": []
+            },
+            "disp_price_in_cart_only": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            },
+            "swatchable": {
+              "text": [],
+              "numbers": [
+                0.0
+              ]
+            },
+            "reviews_eligible": {
+              "text": [],
+              "numbers": [
+                1.0
+              ]
+            }
+          },
+          "tags": [],
+          "rating": {
+            "ratingCount": 781,
+            "averageRating": 3.895,
+            "ratingHistogram": []
+          },
+          "availability": "AVAILABILITY_UNSPECIFIED",
+          "fulfillmentInfo": [],
+          "uri": "https://www.costco.com/p/-/whirlpool-20-cu-ft-french-door-refrigerator-with-freshflow/100457663",
+          "images": [],
+          "sizes": [],
+          "materials": [],
+          "patterns": [],
+          "conditions": [],
+          "promotions": [],
+          "variants": [
+            {
+              "name": "projects/765882799461/locations/global/catalogs/default_catalog/branches/0/products/1281364",
+              "id": "1281364",
+              "type": "VARIANT",
+              "primaryProductId": "",
+              "collectionMemberIds": [],
+              "gtin": "",
+              "categories": [],
+              "title": "Whirlpool 20 cu. ft. Wide French Door Refrigerator with Fingerprint Resistant Stainless Steel",
+              "brands": [],
+              "description": "",
+              "languageCode": "",
+              "attributes": {
+                "chdi_eligible": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "disp_price_in_cart_only": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "comparable": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "swatchable": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "as400_department": {
+                  "text": [
+                    "24"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "category_names": {
+                  "text": [
+                    "Appliances",
+                    "Compact Appliances",
+                    "Apartment Size Refrigerators",
+                    "Appliances",
+                    "Refrigerators",
+                    "French Door Refrigerators"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "product_class_type": {
+                  "text": [
+                    "Standard"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "variable_weight": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "member_only": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "program_types": {
+                  "text": [
+                    "LocationControlledInventory",
+                    "InWarehouse",
+                    "LTLPickUp",
+                    "Standard",
+                    "ShipIt"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "buyable": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "max_item_order_qty": {
+                  "text": [
+                    "9999.0"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "reviews_eligible": {
+                  "text": [],
+                  "numbers": [
+                    1.0
+                  ],
+                  "indexable": false
+                },
+                "fsa_eligible": {
+                  "text": [],
+                  "numbers": [
+                    0.0
+                  ],
+                  "indexable": false
+                },
+                "product_type": {
+                  "text": [
+                    "Item"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "min_item_order_qty": {
+                  "text": [
+                    "1"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                },
+                "as400_category": {
+                  "text": [
+                    "HAD"
+                  ],
+                  "numbers": [],
+                  "searchable": false,
+                  "indexable": false
+                }
+              },
+              "tags": [],
+              "availability": "AVAILABILITY_UNSPECIFIED",
+              "fulfillmentInfo": [],
+              "uri": "https://www.costco.com/p/-/whirlpool-20-cu-ft-wide-french-door-refrigerator-with-fingerprint-resistant-stainless-steel/1281364",
+              "images": [],
+              "sizes": [],
+              "materials": [],
+              "patterns": [],
+              "conditions": [],
+              "promotions": [],
+              "variants": [],
+              "localInventories": []
+            }
+          ],
+          "localInventories": []
+        },
+        "matchingVariantCount": 1,
+        "matchingVariantFields": {},
+        "variantRollupValues": {
+          "attributes.as400_department": [
+            "24"
+          ],
+          "attributes.max_item_order_qty": [
+            "9999.0"
+          ],
+          "attributes.chdi_eligible": [
+            0.0
+          ],
+          "originalPrice": [
+            1899.99
+          ],
+          "attributes.fsa_eligible": [
+            0.0
+          ],
+          "inventory(1259-3pl, attributes.availability)": [
+            "IN_STOCK"
+          ],
+          "attributes.as400_category": [
+            "HAD"
+          ],
+          "inventory(847, price)": [
+            1899.99
+          ],
+          "inventory(847, originalPrice)": [
+            1899.99
+          ],
+          "attributes.product_class_type": [
+            "Standard"
+          ],
+          "attributes.buyable": [
+            1.0
+          ],
+          "attributes.start_date": [
+            "2019-08-28 17:00:00.0"
+          ],
+          "attributes.variable_weight": [
+            0.0
+          ],
+          "inventory(1738-wh, price)": [
+            2079.99
+          ],
+          "variantId": [
+            "1281364"
+          ],
+          "attributes.program_types": [
+            "LocationControlledInventory",
+            "InWarehouse",
+            "LTLPickUp",
+            "Standard",
+            "ShipIt"
+          ],
+          "price": [
+            1899.99
+          ],
+          "inventory(1738-wh, attributes.availability)": [
+            "OUT_OF_STOCK"
+          ],
+          "attributes.min_item_order_qty": [
+            "1"
+          ],
+          "attributes.member_only": [
+            1.0
+          ]
+        },
+        "personalLabels": []
+      }
+    ],
+    "facets": [
+      {
+        "key": "inventory(847, price)",
+        "values": [
+          {
+            "interval": {
+              "minimum": 500.0,
+              "maximum": 1000.0
+            },
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 1000.0,
+              "maximum": 2000.0
+            },
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.chdi_eligible",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.fsa_eligible",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "rating",
+        "values": [
+          {
+            "interval": {
+              "minimum": 1.0,
+              "maximum": 5.0
+            },
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 2.0,
+              "maximum": 5.0
+            },
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 3.0,
+              "maximum": 5.0
+            },
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 4.0,
+              "maximum": 5.0
+            },
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "buy_in_warehouse",
+        "values": [
+          {
+            "value": "1",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "brands",
+        "values": [
+          {
+            "value": "Midea",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Whirlpool",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.category_names",
+        "values": [
+          {
+            "value": "Apartment Size Refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Appliances",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Bottom Freezer Refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Compact Appliances",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "French Door Refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Refrigerators",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "mdo_pickup",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "categories",
+        "values": [
+          {
+            "value": "Appliances",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Appliances > Compact Appliances",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Appliances > Compact Appliances > Apartment Size Refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Appliances > Refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Appliances > Refrigerators > Bottom Freezer Refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "warehouse_pickup",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.program_types",
+        "values": [
+          {
+            "value": "Google",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "InWarehouse",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "LocationControlledInventory",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "LTLPickUp",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "ShipIt",
+            "count": 10,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "SiteControlledInventory",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Standard",
+            "count": 10,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.category_info",
+        "values": [
+          {
+            "value": "30001_Appliances_30001_appliances",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30148_Refrigerators_30001|30148_refrigerators",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "66009_French Door Refrigerators_30001|30148|66009_french-door-refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "67501_Bottom Freezer Refrigerators_30001|30148|67501_refrigerators-bottom-mount-door",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "527601_Compact Appliances_30001|527601_small-space-appliances",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618253270_Apartment Size Refrigerators_30001|527601|3074457345618253270_small-refrigerators",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.brand",
+        "values": [
+          {
+            "value": "Midea",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Whirlpool",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.color",
+        "values": [
+          {
+            "value": "Stainless Steel",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.fit_width",
+        "values": [
+          {
+            "value": "28 - 30 Inch Wide",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.refrigerator_installation_depth",
+        "values": [
+          {
+            "value": "Counter Depth",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Standard Depth",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.overall_capacity",
+        "values": [
+          {
+            "value": "18 - 19.9 cu. ft.",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.features",
+        "values": [
+          {
+            "value": "Energy Star Certified",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Fingerprint Resistant",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.category_uri",
+        "values": [
+          {
+            "value": "adult-multi-letter-vitamins",
+            "count": 53,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "all-costco-grocery",
+            "count": 47,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "all-vitamins-supplements",
+            "count": 101,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "allergy-sinus",
+            "count": 22,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "appliances",
+            "count": 59,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "audio-video",
+            "count": 24,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "beauty",
+            "count": 47,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "beverages",
+            "count": 71,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "coffee-sweeteners",
+            "count": 29,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "cold-frozen-grocery",
+            "count": 62,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "computers",
+            "count": 64,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "dairy-eggs-cheese",
+            "count": 24,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "deli",
+            "count": 47,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "diamond-earrings",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "diet-nutrition",
+            "count": 33,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "earrings",
+            "count": 44,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "electronics",
+            "count": 120,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "frozen-meat-seafood",
+            "count": 27,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "grocery-health-beauty",
+            "count": 38,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "grocery-household",
+            "count": 684,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "hardware",
+            "count": 57,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "health-beauty",
+            "count": 363,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "home-and-decor",
+            "count": 84,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "household-cleaning",
+            "count": 60,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "jewelry",
+            "count": 149,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "kirkland-signature-groceries",
+            "count": 148,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "laptops",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "laundry-supplies",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "necklaces",
+            "count": 50,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "non-prescription-remedies",
+            "count": 114,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "nuts",
+            "count": 22,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "organic-groceries",
+            "count": 22,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "pantry",
+            "count": 92,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "paper-products-food-storage",
+            "count": 40,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "patio-lawn-garden",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "personal-care",
+            "count": 74,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "pet-supplies",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "produce",
+            "count": 40,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "protein",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "rings",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "seasonal",
+            "count": 39,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "seasonal-holiday-christmas",
+            "count": 24,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "small-kitchen-appliances",
+            "count": 24,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "snacks",
+            "count": 122,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "snacks-bars",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "sports-fitness",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "televisions",
+            "count": 42,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "view-more",
+            "count": 41,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "vitamins-herbals-dietary-supplements",
+            "count": 138,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "watches",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.category",
+        "values": [],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.disp_on_zero_inv",
+        "values": [
+          {
+            "interval": {
+              "minimum": 0.0,
+              "exclusiveMaximum": 1.0
+            },
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 1.0,
+              "exclusiveMaximum": 2.0
+            },
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.costco_direct",
+        "values": [
+          {
+            "value": "Costco Direct",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.category_ids",
+        "values": [
+          {
+            "value": "30001",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30148",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "66009",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "67501",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "527601",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618253270",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      }
+    ],
+    "totalSize": 2,
+    "correctedQuery": "",
+    "attributionToken": "rAHwqwoMCOr4-9UGEIfCu9oDEAEaJDZhZjE5NTU4LTAwMDAtMmZjMC1iNzQ5LTA4OWUwODI0NjdmOComMjc1MTQ0NjYxMTA2NzIyNzE5MjQzOTcwNjg5ODQwOTY5MzYwMzEyMKChmjKc1rctjr6dFdSynRXC8J4Vn9a3LZD3sjCo5aot0u7tOIj1uDmN48Q50qLwOToOZGVmYXVsdF9zZWFyY2hIAVgBYAFoAXoCcGg",
+    "nextPageToken": "",
+    "redirectUri": "",
+    "appliedControls": [
+      "projects/765882799461/locations/global/catalogs/default_catalog/controls/lw-clp-09hyuyxufx-01",
+      "projects/765882799461/locations/global/catalogs/default_catalog/controls/hide-items-from-browse"
+    ],
+    "invalidConditionBoostSpecs": [],
+    "experimentInfo": []
+  },
+  "pageScaffoldProvider": null,
+  "pageScaffold": null,
+  "myWarehouse": {
+    "locationId": "1738-wh",
+    "isPickupEligible": true
+  },
+  "mdoLocation": null,
+  "inventoryResponse": [
+    {
+      "productId": "4000050834",
+      "deliveryPrice": {
+        "minPrice": "749.99",
+        "maxPrice": "749.99"
+      },
+      "warehousePrice": {
+        "minPrice": "599.99",
+        "maxPrice": "599.99"
+      },
+      "deliveryAvailability": "IN_STOCK",
+      "warehouseAvailability": "IN_STOCK",
+      "mdoAvailability": null,
+      "linkFees": [],
+      "promotions": [],
+      "originalPrice": {
+        "minPrice": "749.99",
+        "maxPrice": "749.99"
+      }
+    },
+    {
+      "productId": "100457663",
+      "deliveryPrice": {
+        "minPrice": "1899.99",
+        "maxPrice": "1899.99"
+      },
+      "warehousePrice": {
+        "minPrice": "2079.99",
+        "maxPrice": "2079.99"
+      },
+      "deliveryAvailability": "IN_STOCK",
+      "warehouseAvailability": "OUT_OF_STOCK",
+      "mdoAvailability": null,
+      "linkFees": [],
+      "promotions": [],
+      "originalPrice": {
+        "minPrice": "1899.99",
+        "maxPrice": "1899.99"
+      }
+    }
+  ],
+  "filterEvent": {
+    "isFilterOnlyEvent": null,
+    "filters": [
+      "attributes.category_uri: ANY(\"refrigerators\")",
+      "(attributes.program_types: ANY(\"InWarehouse\") AND (inventory(1738-wh, attributes.availability): ANY(\"IN_STOCK\", \"LOW_STOCK\", \"BACK_ORDER\", \"PRESELL\", \"SHIP_RESTRICTED\") OR (attributes.disp_on_zero_inv = 1 AND inventory(1738-wh, attributes.availability): ANY(\"OUT_OF_STOCK\")) ))"
+    ]
+  },
+  "pageCategories": [
+    "refrigerators"
+  ],
+  "observability": {
+    "correlationId": "9f05f967-ffdd-4ac4-9d4d-c9532ef862f6",
+    "durationMs": 145,
+    "errorInfo": null
+  },
+  "breadcrumb": {
+    "name": "Appliances|Refrigerators",
+    "url": "appliances|refrigerators"
+  }
+}

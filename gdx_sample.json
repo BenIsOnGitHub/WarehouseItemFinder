@@ -1,0 +1,1597 @@
+{
+  "searchResultProvider": "GRS",
+  "locale": "en-US",
+  "client_id": "USBC",
+  "searchResult": {
+    "results": [],
+    "facets": [
+      {
+        "key": "attributes.chdi_eligible",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.fsa_eligible",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "rating",
+        "values": [
+          {
+            "interval": {
+              "minimum": 1.0,
+              "maximum": 5.0
+            },
+            "count": 30,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 2.0,
+              "maximum": 5.0
+            },
+            "count": 30,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 3.0,
+              "maximum": 5.0
+            },
+            "count": 29,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 4.0,
+              "maximum": 5.0
+            },
+            "count": 27,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "buy_in_warehouse",
+        "values": [
+          {
+            "value": "1",
+            "count": 35,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[0-25]",
+        "values": [
+          {
+            "value": "1",
+            "count": 10,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[25-50]",
+        "values": [
+          {
+            "value": "1",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[50-100]",
+        "values": [
+          {
+            "value": "1",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[100-200]",
+        "values": [
+          {
+            "value": "1",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[200-500]",
+        "values": [
+          {
+            "value": "1",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[500-1000]",
+        "values": [
+          {
+            "value": "1",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[1000-2000]",
+        "values": [
+          {
+            "value": "1",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[2000-5000]",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[5000-10000]",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[10000-25000]",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[25000-50000]",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[50000-100000]",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "[100000+]",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "brands",
+        "values": [
+          {
+            "value": "Bark",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Chinet",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Disney",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "General Mills",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Georgia-Pacific",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Hershey's",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Jazwares",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Kellogg's",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Kirkland Signature",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Mars",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Solo",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Swarovski",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "USPS",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.category_names",
+        "values": [
+          {
+            "value": "Advent Calendars",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Angels & Nativity Sets",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Candy",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Chocolates",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Christmas & Holiday",
+            "count": 20,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Christmas Decorations",
+            "count": 13,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Christmas Ornaments",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Christmas Table Top Decorations",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Christmas Trees",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Christmas Wreaths, Garlands & Centerpieces",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Dolls & Action Figures",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Easter",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials",
+            "count": 12,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Halloween",
+            "count": 9,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Halloween Candy",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Halloween Decorations",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Hard & Gummy Candy",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Christmas Porch Decor",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal",
+            "count": 35,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal Gift Guides",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday Cards, Wrapping Paper & Ribbons",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Kirkland Signature Grocery",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Nutcrackers, Holiday Statues & Figurines",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Outdoor Christmas Decorations",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Paper & Plastic Products",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Paper Towels & Napkins",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Paper, Plastic & Disposable Plates",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Party Supplies",
+            "count": 6,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Pet Supplies",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Pet Toys & Treats",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Plastic & Disposable Utensils",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Plastic, Paper & Disposable Cups",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Toys",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "View More Categories",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "mdo_pickup",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "categories",
+        "values": [
+          {
+            "value": "Grocery & Household Essentials",
+            "count": 9,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials > Candy",
+            "count": 6,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials > Candy > Chocolates",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials > Candy > Hard & Gummy Candy",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials > Paper & Plastic Products",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials > Paper & Plastic Products > Paper Towels & Napkins",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Grocery & Household Essentials > Paper & Plastic Products > Plastic & Disposable Utensils",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal",
+            "count": 24,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday",
+            "count": 18,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations",
+            "count": 12,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations > Angels & Nativity Sets",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations > Christmas Ornaments",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations > Christmas Table Top Decorations",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations > Christmas Wreaths, Garlands & Centerpieces",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations > Outdoor Christmas Decorations",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Decorations > Outdoor Christmas Decorations > Holiday & Christmas Porch Decor",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Christmas Trees",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Christmas & Holiday > Holiday Cards, Wrapping Paper & Ribbons",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Halloween",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Halloween > Halloween Candy",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Halloween > Halloween Decorations",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Holiday & Seasonal > Party Supplies",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Pet Supplies",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Pet Supplies > Pet Toys & Treats",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Toys",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Toys > Dolls & Action Figures",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "warehouse_pickup",
+        "values": [],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.program_types",
+        "values": [
+          {
+            "value": "2DayDelivery",
+            "count": 15,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3rdPartyDelivery",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Google",
+            "count": 14,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "GoogleGrocery",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "InWarehouse",
+            "count": 35,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "LocationControlledInventory",
+            "count": 21,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "LTLPickUp",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "ShipIt",
+            "count": 42,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "SiteControlledInventory",
+            "count": 21,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Standard",
+            "count": 27,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "WarehouseDelivery",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.category_info",
+        "values": [
+          {
+            "value": "30099_Christmas Decorations_318609|3074457345618248268|30099_home-seasonal",
+            "count": 13,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30143_Pet Supplies_30143_pet-supplies",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30168_Toys_30168_toys",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30344_Chocolates_379108|512108|30344_chocolates",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30345_Christmas Trees_318609|3074457345618248268|30345_trees",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30419_Pet Toys & Treats_30143|30419_pet-food-treats",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30420_Dolls & Action Figures_30168|30420_dollhouses",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30497_Christmas Wreaths, Garlands & Centerpieces_318609|3074457345618248268|30099|30497_garland-wreaths-floral",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30555_Christmas Table Top Decorations_318609|3074457345618248268|30099|30555_holiday-tabletop",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30725_Outdoor Christmas Decorations_318609|3074457345618248268|30099|30725_outdoor-decorations",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "31097_Plastic, Paper & Disposable Cups_379108|512125|31097_cups-lids",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "278101_Christmas Ornaments_318609|3074457345618248268|30099|278101_ornaments",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "318609_Holiday & Seasonal_318609_seasonal",
+            "count": 35,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "337104_Paper, Plastic & Disposable Plates_379108|512125|337104_disposable-dinnerware",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "379108_Grocery & Household Essentials_379108_grocery-household",
+            "count": 12,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "403107_Halloween Decorations_318609|3074457345618243768|403107_halloween-decorations",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "475103_Easter_263111|3074457345618243769|475103_easter",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "512102_Kirkland Signature Grocery_379108|512102_kirkland-signature-groceries",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "512108_Candy_379108|512108_candy",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "512125_Paper & Plastic Products_379108|512125_paper-products-food-storage",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "664101_Holiday Cards, Wrapping Paper & Ribbons_318609|3074457345618248268|664101_holiday-cards-wrapping-paper",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "1216108_Hard & Gummy Candy_379108|512108|1216108_hard-gummy-candy",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "1216113_Paper Towels & Napkins_379108|512125|1216113_paper-towels-napkins",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "1216114_Plastic & Disposable Utensils_379108|512125|1216114_plastic-disposable-utensils",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618180268_Halloween Candy_318609|3074457345618243768|3074457345618180268_halloween-candy",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618196768_Angels & Nativity Sets_318609|3074457345618248268|30099|3074457345618196768_nativity-sets",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618197268_Nutcrackers, Holiday Statues & Figurines_318609|3074457345618248268|30099|3074457345618197268_nutcrackers-holiday-statues",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618197269_Advent Calendars_318609|3074457345618248268|3074457345618197269_advent-calendars",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618197273_Holiday & Christmas Porch Decor_318609|3074457345618248268|30099|30725|3074457345618197273_holiday-christmas-greeters-porch-decor",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618243768_Halloween_318609|3074457345618243768_halloween",
+            "count": 9,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618243769_Holiday & Seasonal Gift Guides_263111|3074457345618243769_holiday-seasonal-gift-guides",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618248268_Christmas & Holiday_318609|3074457345618248268_seasonal-holiday-christmas",
+            "count": 20,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618277768_Party Supplies_318609|3074457345618277768_party-supplies",
+            "count": 6,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": false
+      },
+      {
+        "key": "attributes.color",
+        "values": [
+          {
+            "value": "Green",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Multi",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "White",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.artificial_fresh",
+        "values": [
+          {
+            "value": "Artificial",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.indoor_outdoor",
+        "values": [
+          {
+            "value": "Indoor",
+            "count": 17,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Indoor/Outdoor",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Outdoor",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.category_uri",
+        "values": [
+          {
+            "value": "adult-multi-letter-vitamins",
+            "count": 53,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "all-costco-grocery",
+            "count": 46,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "all-vitamins-supplements",
+            "count": 102,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "allergy-sinus",
+            "count": 22,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "apple-brand-showcase",
+            "count": 21,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "appliances",
+            "count": 58,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "audio-video",
+            "count": 24,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "beauty",
+            "count": 46,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "beverages",
+            "count": 71,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "coffee-sweeteners",
+            "count": 29,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "cold-frozen-grocery",
+            "count": 62,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "computers",
+            "count": 64,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "dairy-eggs-cheese",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "deli",
+            "count": 46,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "diamond-earrings",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "diet-nutrition",
+            "count": 32,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "earrings",
+            "count": 45,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "electronics",
+            "count": 121,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "frozen-meat-seafood",
+            "count": 27,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "grocery-health-beauty",
+            "count": 37,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "grocery-household",
+            "count": 680,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "hardware",
+            "count": 56,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "health-beauty",
+            "count": 364,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "home-and-decor",
+            "count": 87,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "household-cleaning",
+            "count": 60,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "jewelry",
+            "count": 151,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "kirkland-signature-groceries",
+            "count": 147,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "laptops",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "laundry-supplies",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "necklaces",
+            "count": 51,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "non-prescription-remedies",
+            "count": 115,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "nuts",
+            "count": 22,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "organic-groceries",
+            "count": 22,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "pantry",
+            "count": 90,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "paper-products-food-storage",
+            "count": 40,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "patio-lawn-garden",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "personal-care",
+            "count": 72,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "pet-supplies",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "produce",
+            "count": 40,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "protein",
+            "count": 26,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "rings",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "seasonal",
+            "count": 35,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "small-kitchen-appliances",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "snacks",
+            "count": 123,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "snacks-bars",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "sports-fitness",
+            "count": 25,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "televisions",
+            "count": 42,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "view-more",
+            "count": 42,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "vitamins-herbals-dietary-supplements",
+            "count": 140,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "watches",
+            "count": 23,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.disp_on_zero_inv",
+        "values": [
+          {
+            "interval": {
+              "minimum": 0.0,
+              "exclusiveMaximum": 1.0
+            },
+            "count": 28,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "interval": {
+              "minimum": 1.0,
+              "exclusiveMaximum": 2.0
+            },
+            "count": 15,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.category",
+        "values": [],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.category_ids",
+        "values": [
+          {
+            "value": "30099",
+            "count": 13,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30143",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30168",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30344",
+            "count": 4,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30345",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30419",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30420",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30497",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30555",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "30725",
+            "count": 8,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "31097",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "263111",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "278101",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "318609",
+            "count": 35,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "337104",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "379108",
+            "count": 12,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "403107",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "475103",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "512102",
+            "count": 3,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "512108",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "512125",
+            "count": 5,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "664101",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "1216108",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "1216113",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "1216114",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618180268",
+            "count": 7,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618196768",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618197268",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618197269",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618197273",
+            "count": 2,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618243768",
+            "count": 9,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618243769",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618248268",
+            "count": 20,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "3074457345618277768",
+            "count": 6,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      },
+      {
+        "key": "attributes.design",
+        "values": [
+          {
+            "value": "Candy Cane",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Pokemon",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          },
+          {
+            "value": "Pumpkin",
+            "count": 1,
+            "minValue": 0.0,
+            "maxValue": 0.0
+          }
+        ],
+        "dynamicFacet": true
+      }
+    ],
+    "totalSize": 35,
+    "correctedQuery": "",
+    "attributionToken": "pQHwpAoLCOKh6NUGEM7drj8QARokNmFkMWE4MDctMDAwMC0yNjZmLThiZTEtZDQzYTJjY2I5ZGZmKiYyNzUxNDQ2NjExMDY3MjI3MTkyNDM5NzA2ODk4NDA5NjkzNjAzMTIsoKGaMp_Wty3C8J4V1LKdFY6-nRWQ97IwnNa3Lajlqi3S7u04iPW4OY3jxDk6DmRlZmF1bHRfc2VhcmNoSAFYAWgBegJvdg",
+    "nextPageToken": "",
+    "redirectUri": "",
+    "appliedControls": [
+      "projects/765882799461/locations/global/catalogs/default_catalog/controls/lw-clp-tkmzwnj9do-01",
+      "projects/765882799461/locations/global/catalogs/default_catalog/controls/hide-items-from-browse"
+    ],
+    "invalidConditionBoostSpecs": [],
+    "experimentInfo": []
+  },
+  "pageScaffoldProvider": null,
+  "pageScaffold": null,
+  "myWarehouse": {
+    "locationId": "1738-wh",
+    "isPickupEligible": true
+  },
+  "mdoLocation": null,
+  "inventoryResponse": [],
+  "filterEvent": {
+    "isFilterOnlyEvent": null,
+    "filters": [
+      "attributes.category_uri: ANY(\"seasonal\")",
+      "(attributes.program_types: ANY(\"InWarehouse\") AND (inventory(1738-wh, attributes.availability): ANY(\"IN_STOCK\", \"LOW_STOCK\", \"BACK_ORDER\", \"PRESELL\", \"SHIP_RESTRICTED\") OR (attributes.disp_on_zero_inv = 1 AND inventory(1738-wh, attributes.availability): ANY(\"OUT_OF_STOCK\")) ))"
+    ]
+  },
+  "pageCategories": [
+    "seasonal"
+  ],
+  "observability": {
+    "correlationId": "78bf14a5-676f-442b-818a-61ab38596a21",
+    "durationMs": 121,
+    "errorInfo": null
+  },
+  "breadcrumb": {
+    "name": "Holiday & Seasonal",
+    "url": "seasonal"
+  }
+}

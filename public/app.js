@@ -27,6 +27,27 @@ function getIdentifierDisplay(prod) {
   return parts.length > 0 ? parts.join(' | ') : 'No Identifier';
 }
 
+function formatTimeAgo(dateStr) {
+  if (!dateStr) return '';
+  // Parse date string (appending 'Z' if missing to ensure UTC evaluation)
+  const utcStr = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
+  const updatedDate = new Date(utcStr);
+  if (isNaN(updatedDate.getTime())) return '';
+
+  const diffMs = new Date() - updatedDate;
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'Updated just now';
+  if (diffMins < 60) return `Updated ${diffMins}m ago`;
+  if (diffHours < 24) return `Updated ${diffHours}h ago`;
+  if (diffDays === 1) return 'Updated yesterday';
+  if (diffDays < 30) return `Updated ${diffDays}d ago`;
+  
+  return `Updated ${updatedDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+}
+
 // ==========================================
 // FAVORITES & LOCAL STORAGE HELPERS
 // ==========================================
@@ -155,12 +176,14 @@ async function saveLocation(id) {
     });
 
     if (response.ok) {
+    	const currentIsoTime = new Date().toISOString();
       if (itemInBrowse) {
         itemInBrowse.aisle = newAisle;
         itemInBrowse.bay = newBay;
         itemInBrowse.is_wrong = finalIsWrong;
+        itemInBrowse.updated_at = currentIsoTime;
       }
-      renderLocationDisplay(id, newAisle, newBay, finalIsWrong);
+      renderLocationDisplay(id, newAisle, newBay, finalIsWrong, currentIsoTime);
     } else {
       alert('Failed to update product location in database.');
     }
@@ -256,6 +279,9 @@ function handleSearchInput(e) {
 function renderResultsUI(results) {
   const container = document.getElementById('results');
   const countEl = document.getElementById('count');
+  const timeAgoText = formatTimeAgo(prod.updated_at);
+	const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
+  
   if (!container) return;
 
   countEl.textContent = `${results.length} item${results.length === 1 ? '' : 's'} found`;
@@ -310,6 +336,7 @@ function renderResultsUI(results) {
           </span>
           ${incorrectBtn}
         </span>
+        ${timeAgoHtml}
       </div>
       ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
     </div>
@@ -447,6 +474,8 @@ function updatePaginationUI() {
 function renderBrowsePage() {
   updatePaginationUI();
   const container = document.getElementById('browseListContainer');
+  const timeAgoText = formatTimeAgo(prod.updated_at);
+	const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
   if (!container) return;
 
   const favorites = getFavorites();
@@ -494,6 +523,7 @@ function renderBrowsePage() {
               </span>
               ${incorrectBtn}
             </span>
+            ${timeAgoHtml}
           </div>
         </div>
         <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
@@ -512,14 +542,15 @@ function renderBrowseByAislePage() {
     return;
   }
 
-  const grouped = {};
+  // 1. Group by Aisle
+  const aisleGroups = {};
   browseData.forEach(prod => {
-    const key = `Aisle ${prod.aisle}`;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(prod);
+    const aisleKey = prod.aisle ? `Aisle ${prod.aisle}` : 'Aisle Unassigned';
+    if (!aisleGroups[aisleKey]) aisleGroups[aisleKey] = [];
+    aisleGroups[aisleKey].push(prod);
   });
 
-  const sortedAisles = Object.keys(grouped).sort((a, b) => {
+  const sortedAisles = Object.keys(aisleGroups).sort((a, b) => {
     const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
     const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
     return numA - numB;
@@ -529,8 +560,21 @@ function renderBrowseByAislePage() {
   const favoriteIds = new Set(favorites.map(f => f.id));
 
   container.innerHTML = sortedAisles.map(aisleKey => {
-    const items = grouped[aisleKey];
-    items.sort((a, b) => (parseInt(a.bay, 10) || 0) - (parseInt(b.bay, 10) || 0));
+    const aisleItems = aisleGroups[aisleKey];
+
+    // 2. Sub-group items in this Aisle by Bay
+    const bayGroups = {};
+    aisleItems.forEach(prod => {
+      const bayKey = prod.bay ? `Bay ${prod.bay}` : 'Bay Unassigned';
+      if (!bayGroups[bayKey]) bayGroups[bayKey] = [];
+      bayGroups[bayKey].push(prod);
+    });
+
+    const sortedBays = Object.keys(bayGroups).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+      return numA - numB;
+    });
 
     return `
       <div class="aisle-group">
@@ -538,51 +582,62 @@ function renderBrowseByAislePage() {
           ${aisleKey}
         </h2>
         <div class="aisle-group-body">
-          ${items.map(prod => {
-            const isFav = favoriteIds.has(prod.id);
-            const identifierText = getIdentifierDisplay(prod);
-            const favClass = isFav ? 'fav-btn active' : 'fav-btn';
-            const aisle = prod.aisle || '';
-            const bay = prod.bay || '';
-            const isWrong = prod.is_wrong ? 1 : 0;
-            const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
-            const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
-
-            let incorrectBtn = '';
-            if (aisle) {
-              if (prod.is_wrong) {
-                incorrectBtn = `
-                  <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-                    Reported as incorrect
-                  </button>
-                `;
-              } else {
-                incorrectBtn = `
-                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
-                    Report as incorrect
-                  </button>
-                `;
-              }
-            }
-
-            const safeAisle = String(aisle).replace(/'/g, "\\'");
-            const safeBay = String(bay).replace(/'/g, "\\'");
+          ${sortedBays.map(bayKey => {
+            const items = bayGroups[bayKey];
+            const subHeadingText = aisleKey !== 'Aisle Unassigned' && bayKey !== 'Bay Unassigned'
+              ? `${aisleKey} -${bayKey}`
+              : bayKey;
 
             return `
-              <div class="browse-product-row aisle-item-row">
-                <div class="browse-product-details">
-                  <div class="browse-product-title"><strong>${prod.product_name}</strong></div>
-                  <div class="product-details">
-                    ${identifierText} | 
-                    <span id="loc-edit-${prod.id}">
-                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
-                        ${locationStr} &#9998;
-                      </span>
-                      ${incorrectBtn}
-                    </span>
-                  </div>
-                </div>
-                <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+              <div class="bay-subgroup">
+                <h3 class="bay-group-header">${subHeadingText}</h3>${items.map(prod => {
+                  const isFav = favoriteIds.has(prod.id);
+                  const identifierText = getIdentifierDisplay(prod);
+                  const favClass = isFav ? 'fav-btn active' : 'fav-btn';
+                  const aisle = prod.aisle || '';
+                  const bay = prod.bay || '';
+                  const isWrong = prod.is_wrong ? 1 : 0;
+                  const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
+                  const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+
+                  let incorrectBtn = '';
+                  if (aisle) {
+                    if (prod.is_wrong) {
+                      incorrectBtn = `
+                        <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
+                          Reported as incorrect
+                        </button>
+                      `;
+                    } else {
+                      incorrectBtn = `
+                        <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
+                          Report as incorrect
+                        </button>
+                      `;
+                    }
+                  }
+
+                  const safeAisle = String(aisle).replace(/'/g, "\\'");
+                  const safeBay = String(bay).replace(/'/g, "\\'");
+
+                  return `
+                    <div class="browse-product-row aisle-item-row">
+                      <div class="browse-product-details">
+                        <div class="browse-product-title"><strong>${prod.product_name}</strong></div>
+                        <div class="product-details">
+                          ${identifierText} | 
+                          <span id="loc-edit-${prod.id}">
+                            <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
+                              ${locationStr} &#9998;
+                            </span>
+                            ${incorrectBtn}
+                          </span>
+                        </div>
+                      </div>
+                      <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+                    </div>
+                  `;
+                }).join('')}
               </div>
             `;
           }).join('')}
@@ -731,3 +786,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+function toggleFilterDrawer(open) {
+  const drawer = document.getElementById('filterDrawer');
+  const backdrop = document.getElementById('filterDrawerBackdrop');
+  
+  if (open) {
+    backdrop.style.display = 'block';
+    drawer.style.right = '0px';
+  } else {
+    drawer.style.right = '-300px';
+    backdrop.style.display = 'none';
+  }
+}
+
+function onBrowseSortChange(sortValue) {
+  // Trigger re-fetch / re-sort of products in browse view
+  startBrowse(1); 
+}
+
+function applyFilters() {
+  toggleFilterDrawer(false);
+  startBrowse(1); // Reload browse results using current dropdown selections
+}
+
+function resetFilters() {
+  document.getElementById('filterCategorySelect').value = '';
+  document.getElementById('filterAisleSelect').value = '';
+  document.getElementById('showReportedCheckbox').checked = false;
+  applyFilters();
+}

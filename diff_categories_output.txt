@@ -1,0 +1,77 @@
+C:\Personal\Coding\WarehouseItemFinder>python diff_categories.py
+[+] Loading CSV files...
+Old CSV Total Rows: 2362 | Unique Categories: 71
+New CSV Total Rows: 1588 | Unique Categories: 83
+
+================================================================================
+1. CATEGORIES THAT FAILED COMPLETELY (Had items previously, now 0 items): 45
+================================================================================
+  - [2 -> 0] https://www.costco.com/airpods.html
+  - [44 -> 0] https://www.costco.com/all-costco-grocery.html
+  - [8 -> 0] https://www.costco.com/apple-smart-watch.html
+  - [28 -> 0] https://www.costco.com/audio-video.html
+  - [1 -> 0] https://www.costco.com/batteries.html
+  - [6 -> 0] https://www.costco.com/beauty-tools-accessories.html
+  - [4 -> 0] https://www.costco.com/bedroom-furniture.html
+  - [5 -> 0] https://www.costco.com/cameras-camcorders.html
+  - [4 -> 0] https://www.costco.com/cell-phone-chargers-batteries.html
+  - [2 -> 0] https://www.costco.com/cell-phones.html
+  - [2 -> 0] https://www.costco.com/computer-accessories.html
+  - [1 -> 0] https://www.costco.com/cooling-air-treatment-heating.html
+  - [2 -> 0] https://www.costco.com/cosmetics.html
+  - [8 -> 0] https://www.costco.com/desktops-servers.html
+  - [3 -> 0] https://www.costco.com/dining-kitchen.html
+  - [2 -> 0] https://www.costco.com/dryers.html
+  - [3 -> 0] https://www.costco.com/freezers-ice-makers.html
+  - [15 -> 0] https://www.costco.com/french-door-refrigerators.html
+  - [4 -> 0] https://www.costco.com/garage.html
+  - [3 -> 0] https://www.costco.com/generators.html
+  - [16 -> 0] https://www.costco.com/hair-care.html
+  - [1 -> 0] https://www.costco.com/hard-drives-memory.html
+  - [7 -> 0] https://www.costco.com/home-alarm-systems-automation.html
+  - [26 -> 0] https://www.costco.com/laptops.html
+  - [16 -> 0] https://www.costco.com/lighting.html
+  - [9 -> 0] https://www.costco.com/living-room.html
+  - [1 -> 0] https://www.costco.com/mens-clothing.html
+  - [1 -> 0] https://www.costco.com/microwaves.html
+  - [6 -> 0] https://www.costco.com/monitors.html
+  - [1 -> 0] https://www.costco.com/musical-instruments.html
+  - [3 -> 0] https://www.costco.com/office-furniture.html
+  - [3 -> 0] https://www.costco.com/pc-gaming.html
+  - [2 -> 0] https://www.costco.com/refrigerators.html
+  - [1 -> 0] https://www.costco.com/routers-networking.html
+  - [18 -> 0] https://www.costco.com/skin-care.html
+  - [25 -> 0] https://www.costco.com/small-kitchen-appliances.html
+  - [1 -> 0] https://www.costco.com/small-space-appliances.html
+  - [1 -> 0] https://www.costco.com/storage-organization.html
+  - [11 -> 0] https://www.costco.com/tablet-computers-accessories.html
+  - [42 -> 0] https://www.costco.com/televisions.html
+  - [7 -> 0] https://www.costco.com/tools.html
+  - [14 -> 0] https://www.costco.com/vacuums-floor-care.html
+  - [8 -> 0] https://www.costco.com/video-games.html
+  - [1 -> 0] https://www.costco.com/washers.html
+  - [7 -> 0] https://www.costco.com/wearable-technology.html
+
+================================================================================
+2. CATEGORIES WITH DROPPED PRODUCTS: 18
+================================================================================
+  - [679 -> 71 | Loss: -608] https://www.costco.com/grocery-household.html
+  - [343 -> 90 | Loss: -253] https://www.costco.com/health-beauty.html
+  - [96 -> 2 | Loss: -94] https://www.costco.com/clothing.html
+  - [102 -> 30 | Loss: -72] https://www.costco.com/kirkland-signature-groceries.html
+  - [59 -> 12 | Loss: -47] https://www.costco.com/household-cleaning.html
+  - [35 -> 3 | Loss: -32] https://www.costco.com/costco-direct.html
+  - [71 -> 41 | Loss: -30] https://www.costco.com/beverages.html
+  - [12 -> 1 | Loss: -11] https://www.costco.com/mattresses.html
+  - [18 -> 8 | Loss: -10] https://www.costco.com/furniture.html
+  - [17 -> 8 | Loss: -9] https://www.costco.com/frozen-meals.html
+  - [52 -> 43 | Loss: -9] https://www.costco.com/hardware.html
+  - [97 -> 89 | Loss: -8] https://www.costco.com/snacks.html
+  - [68 -> 63 | Loss: -5] https://www.costco.com/computers.html
+  - [61 -> 57 | Loss: -4] https://www.costco.com/appliances.html
+  - [20 -> 16 | Loss: -4] https://www.costco.com/sports-fitness.html
+  - [20 -> 18 | Loss: -2] https://www.costco.com/candy.html
+  - [25 -> 23 | Loss: -2] https://www.costco.com/dairy-eggs-cheese.html
+  - [45 -> 44 | Loss: -1] https://www.costco.com/deli.html
+
+[+] Full breakdown exported to 'category_diff_report.csv'

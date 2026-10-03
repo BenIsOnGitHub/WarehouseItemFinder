@@ -423,3 +423,59 @@ header {
   padding: 12px;
   color: #666;
 }
+
+/* Aisle & Bay Grouping Styles */
+.aisle-group {
+  margin-bottom: 20px;
+}
+
+.aisle-group-header {
+  font-size: 15px;
+  background: #0060a9;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px 6px 0 0;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.aisle-group-body {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 0;
+}
+
+.bay-subgroup {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bay-subgroup:last-child {
+  border-bottom: none;
+}
+
+.bay-group-header {
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 6px 12px;
+  margin: 0;
+  border-bottom: 1px solid #dee2e6;
+  position: sticky;
+  top: 33px; /* Stacks directly under the sticky blue Aisle header */
+  z-index: 9;
+}
+
+.browse-product-row.aisle-item-row {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.browse-product-row.aisle-item-row:last-child {
+  border-bottom: none;
+}

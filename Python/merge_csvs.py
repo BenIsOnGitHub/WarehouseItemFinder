@@ -1,19 +1,18 @@
 import csv
 import os
 
-FULL_RUN_CSV = "warehouse_products_full_run.csv"
-TRIMMED_RUN_CSV = "warehouse_products_trimmed_run.csv"
+FULL_RUN_CSV = "warehouse_products_full.csv"
+CURRENT_RUN_CSV = "warehouse_products.csv"
 MERGED_OUTPUT_CSV = "warehouse_products_master_merged.csv"
 
 # Adjust if your unique identifier column name is different
 KEY_COLUMN = "sku"
 
-
 def merge_and_dedupe():
     merged_products = {}
     header = None
 
-    for filepath in [FULL_RUN_CSV, TRIMMED_RUN_CSV]:
+    for filepath in [FULL_RUN_CSV, CURRENT_RUN_CSV]:
         if not os.path.exists(filepath):
             print(f"Warning: File '{filepath}' not found. Skipping.")
             continue

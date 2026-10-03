@@ -3,103 +3,2812 @@
 
 ============================================================
 ACTION REQUIRED IN BROWSER WINDOW:
-1. Click 'Delivery Location' / 'My Warehouse' at top header.
-2. Enter your zip code and select your target warehouse.
-3. Check the 'In-Warehouse' (or 'Buy In Warehouse') checkbox.
-4. Return to this terminal and press ENTER when finished.
+1. Confirm warehouse location in header.
+2. Confirm 'In-Warehouse' filter is set on the page.
+3. Return to this terminal and press ENTER when finished.
 ============================================================
 
-Press ENTER after setting location & filter in Chrome...[+] Found Warehouse ID in cookie 'WAREHOUSEDELIVERY_WHS': 1738
-[*] Proceeding with Warehouse ID: 1738
+Press ENTER after setting location & filter in Chrome...[+] Active warehouse ID detected: 1738
+[+] Scraping strictly with Warehouse ID: 1738
 
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ACID-RELIEF.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/acid-relief.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 12 products (Total recorded: 12).
+
+[Page 2] Navigating: https://www.costco.com/acid-relief.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/acid-relief.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/acid-relief.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/acid-relief.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ADULT-MULTI-LETTER-VITAMINS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/adult-multi-letter-vitamins.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 24 products (Total recorded: 36).
+
+[Page 2] Navigating: https://www.costco.com/adult-multi-letter-vitamins.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 23 products (Total recorded: 59).
+
+[Page 3] Navigating: https://www.costco.com/adult-multi-letter-vitamins.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 5 products (Total recorded: 64).
+
+[Page 4] Navigating: https://www.costco.com/adult-multi-letter-vitamins.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/adult-multi-letter-vitamins.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/AIDS-FOR-INDEPENDENT-LIVING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/aids-for-independent-living.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/aids-for-independent-living.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/aids-for-independent-living.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/aids-for-independent-living.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/aids-for-independent-living.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/AIR-FRYERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/air-fryers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 4 products (Total recorded: 68).
+
+[Page 2] Navigating: https://www.costco.com/air-fryers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/air-fryers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/air-fryers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/air-fryers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ALLERGY-SINUS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/allergy-sinus.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 22 products (Total recorded: 90).
+
+[Page 2] Navigating: https://www.costco.com/allergy-sinus.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/allergy-sinus.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/allergy-sinus.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/allergy-sinus.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/APPLIANCES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 23 products (Total recorded: 113).
+
+[Page 2] Navigating: https://www.costco.com/appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 21 products (Total recorded: 134).
+
+[Page 3] Navigating: https://www.costco.com/appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 11 products (Total recorded: 145).
+
+[Page 4] Navigating: https://www.costco.com/appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BABIES-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/babies-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/babies-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/babies-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/babies-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/babies-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BACKPACKS-BAGS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/backpacks-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/backpacks-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/backpacks-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/backpacks-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/backpacks-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BAKEWARE-COOKWARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/bakeware-cookware.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 8 products (Total recorded: 153).
+
+[Page 2] Navigating: https://www.costco.com/bakeware-cookware.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/bakeware-cookware.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/bakeware-cookware.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/bakeware-cookware.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BAKING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/baking.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 11 products (Total recorded: 164).
+
+[Page 2] Navigating: https://www.costco.com/baking.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/baking.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/baking.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/baking.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BATH-BODY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/bath-body.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 165).
+
+[Page 2] Navigating: https://www.costco.com/bath-body.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/bath-body.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/bath-body.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/bath-body.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BEANS-GRAINS-RICE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/beans-grains-rice.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 13 products (Total recorded: 178).
+
+[Page 2] Navigating: https://www.costco.com/beans-grains-rice.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/beans-grains-rice.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/beans-grains-rice.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/beans-grains-rice.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BEAUTY-TOOLS-ACCESSORIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/beauty-tools-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 6 products (Total recorded: 184).
+
+[Page 2] Navigating: https://www.costco.com/beauty-tools-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/beauty-tools-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/beauty-tools-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/beauty-tools-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BEVERAGES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/beverages.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 24 products (Total recorded: 208).
+
+[Page 2] Navigating: https://www.costco.com/beverages.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 24 products (Total recorded: 232).
+
+[Page 3] Navigating: https://www.costco.com/beverages.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 22 products (Total recorded: 254).
+
+[Page 4] Navigating: https://www.costco.com/beverages.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/beverages.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BLENDERS-JUICERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/blenders-juicers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/blenders-juicers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/blenders-juicers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/blenders-juicers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/blenders-juicers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BOTTLED-WATER.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/bottled-water.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/bottled-water.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/bottled-water.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/bottled-water.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/bottled-water.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BREAKFAST.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/breakfast.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 13 products (Total recorded: 267).
+
+[Page 2] Navigating: https://www.costco.com/breakfast.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/breakfast.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/breakfast.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/breakfast.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BUTTER.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/butter.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 270).
+
+[Page 2] Navigating: https://www.costco.com/butter.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/butter.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/butter.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/butter.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/BUY-IN-BULK.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/buy-in-bulk.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/buy-in-bulk.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/buy-in-bulk.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/buy-in-bulk.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/buy-in-bulk.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CA-SOCIAL-COMPLIANCE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/ca-social-compliance.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/ca-social-compliance.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/ca-social-compliance.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/ca-social-compliance.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/ca-social-compliance.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CAKES-COOKIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/cakes-cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 4 products (Total recorded: 274).
+
+[Page 2] Navigating: https://www.costco.com/cakes-cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/cakes-cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/cakes-cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/cakes-cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CANDY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 19 products (Total recorded: 293).
+
+[Page 2] Navigating: https://www.costco.com/candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CANNED-GOODS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/canned-goods.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 18 products (Total recorded: 311).
+
+[Page 2] Navigating: https://www.costco.com/canned-goods.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/canned-goods.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/canned-goods.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/canned-goods.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CHARACTER-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/character-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/character-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/character-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/character-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/character-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CHARITABLE-GIVING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/charitable-giving.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/charitable-giving.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/charitable-giving.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/charitable-giving.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/charitable-giving.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CHEESE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/cheese.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 14 products (Total recorded: 325).
+
+[Page 2] Navigating: https://www.costco.com/cheese.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/cheese.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/cheese.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/cheese.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CHIPS-PRETZELS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/chips-pretzels.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 19 products (Total recorded: 344).
+
+[Page 2] Navigating: https://www.costco.com/chips-pretzels.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/chips-pretzels.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/chips-pretzels.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/chips-pretzels.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CHOCOLATES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/chocolates.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/chocolates.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/chocolates.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/chocolates.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/chocolates.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CHROMEBOOKS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/chromebooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/chromebooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/chromebooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/chromebooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/chromebooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CLEANING-SUPPLIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/cleaning-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 9 products (Total recorded: 353).
+
+[Page 2] Navigating: https://www.costco.com/cleaning-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/cleaning-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/cleaning-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/cleaning-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COFFEE-ESPRESSO-MAKERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/coffee-espresso-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/coffee-espresso-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/coffee-espresso-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/coffee-espresso-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/coffee-espresso-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COFFEE-SWEETENERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/coffee-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 24 products (Total recorded: 377).
+
+[Page 2] Navigating: https://www.costco.com/coffee-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 5 products (Total recorded: 382).
+
+[Page 3] Navigating: https://www.costco.com/coffee-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/coffee-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/coffee-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COLLEGE-APPAREL.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/college-apparel.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/college-apparel.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/college-apparel.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/college-apparel.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/college-apparel.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CONCIERGE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/concierge.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/concierge.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/concierge.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/concierge.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/concierge.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CONDIMENTS-SAUCES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/condiments-sauces.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 15 products (Total recorded: 397).
+
+[Page 2] Navigating: https://www.costco.com/condiments-sauces.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/condiments-sauces.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/condiments-sauces.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/condiments-sauces.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CONFIDENTIAL-ETHICS-HOTLINE-FOR-SUPPLIERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/confidential-ethics-hotline-for-suppliers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/confidential-ethics-hotline-for-suppliers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/confidential-ethics-hotline-for-suppliers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/confidential-ethics-hotline-for-suppliers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/confidential-ethics-hotline-for-suppliers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CONSUMER-HEALTH-DATA-PRIVACY-POLICY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/consumer-health-data-privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/consumer-health-data-privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/consumer-health-data-privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/consumer-health-data-privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/consumer-health-data-privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COOKIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 14 products (Total recorded: 411).
+
+[Page 2] Navigating: https://www.costco.com/cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/cookies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COSMETICS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/cosmetics.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 412).
+
+[Page 2] Navigating: https://www.costco.com/cosmetics.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/cosmetics.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/cosmetics.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/cosmetics.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COSTCO-APP.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/costco-app.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/costco-app.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/costco-app.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/costco-app.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/costco-app.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COSTCO-GROCERY-FAQ.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/costco-grocery-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/costco-grocery-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/costco-grocery-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/costco-grocery-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/costco-grocery-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COUGH-COLD.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/cough-cold.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 14 products (Total recorded: 426).
+
+[Page 2] Navigating: https://www.costco.com/cough-cold.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/cough-cold.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/cough-cold.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/cough-cold.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COUNTERTOP-MICROWAVES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/countertop-microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/countertop-microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/countertop-microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/countertop-microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/countertop-microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/COVID-TEST.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/covid-test.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/covid-test.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/covid-test.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/covid-test.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/covid-test.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/CRACKERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/crackers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 12 products (Total recorded: 438).
+
+[Page 2] Navigating: https://www.costco.com/crackers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/crackers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/crackers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/crackers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DELI-MEATS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/deli-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 441).
+
+[Page 2] Navigating: https://www.costco.com/deli-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/deli-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/deli-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/deli-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DELI.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/deli.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 22 products (Total recorded: 463).
+
+[Page 2] Navigating: https://www.costco.com/deli.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 21 products (Total recorded: 484).
+
+[Page 3] Navigating: https://www.costco.com/deli.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/deli.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/deli.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DESKTOPS-SERVERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/desktops-servers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 8 products (Total recorded: 492).
+
+[Page 2] Navigating: https://www.costco.com/desktops-servers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/desktops-servers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/desktops-servers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/desktops-servers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DIAPERS-WIPES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/diapers-wipes.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 494).
+
+[Page 2] Navigating: https://www.costco.com/diapers-wipes.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/diapers-wipes.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/diapers-wipes.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/diapers-wipes.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DIET-NUTRITION.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/diet-nutrition.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 24 products (Total recorded: 518).
+
+[Page 2] Navigating: https://www.costco.com/diet-nutrition.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 9 products (Total recorded: 527).
+
+[Page 3] Navigating: https://www.costco.com/diet-nutrition.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/diet-nutrition.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/diet-nutrition.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DIETARY-SUPPLEMENTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 7 products (Total recorded: 534).
+
+[Page 2] Navigating: https://www.costco.com/dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DIPS-SPREADS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/dips-spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/dips-spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/dips-spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/dips-spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/dips-spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DISCLOSURE-REGARDING-HUMAN-TRAFFICKING-AND-ANTI-SLAVERY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/disclosure-regarding-human-trafficking-and-anti-slavery.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/disclosure-regarding-human-trafficking-and-anti-slavery.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/disclosure-regarding-human-trafficking-and-anti-slavery.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/disclosure-regarding-human-trafficking-and-anti-slavery.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/disclosure-regarding-human-trafficking-and-anti-slavery.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DISH-DETERGENT.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/dish-detergent.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 9 products (Total recorded: 543).
+
+[Page 2] Navigating: https://www.costco.com/dish-detergent.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/dish-detergent.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/dish-detergent.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/dish-detergent.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DRESSWEAR.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/dresswear.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/dresswear.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/dresswear.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/dresswear.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/dresswear.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DRIED-FRUIT.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/dried-fruit.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 546).
+
+[Page 2] Navigating: https://www.costco.com/dried-fruit.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/dried-fruit.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/dried-fruit.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/dried-fruit.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/DRINK-MIX.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/drink-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/drink-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/drink-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/drink-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/drink-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ELECTRIC-GRILLS-GRIDDLES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/electric-grills-griddles.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/electric-grills-griddles.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/electric-grills-griddles.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/electric-grills-griddles.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/electric-grills-griddles.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ELECTRONICS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/electronics.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 24 products (Total recorded: 570).
+
+[Page 2] Navigating: https://www.costco.com/electronics.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 24 products (Total recorded: 594).
+
+[Page 3] Navigating: https://www.costco.com/electronics.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 22 products (Total recorded: 616).
+
+[Page 4] Navigating: https://www.costco.com/electronics.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GRS API Capture] Saved 20 products (Total recorded: 636).
+
+[Page 5] Navigating: https://www.costco.com/electronics.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GRS API Capture] Saved 22 products (Total recorded: 658).
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/EMAIL-SIGN-UP.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/email-sign-up.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/email-sign-up.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/email-sign-up.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/email-sign-up.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/email-sign-up.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/EMPLOYEE-WEBSITE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/employee-website.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/employee-website.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/employee-website.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/employee-website.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/employee-website.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ENERGY-DRINKS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/energy-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/energy-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/energy-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/energy-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/energy-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ESPRESSO-MACHINES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/espresso-machines.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/espresso-machines.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/espresso-machines.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/espresso-machines.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/espresso-machines.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/EXECUTIVE-REWARDS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/executive-rewards.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/executive-rewards.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/executive-rewards.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/executive-rewards.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/executive-rewards.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/EYE-CARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/eye-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 9 products (Total recorded: 667).
+
+[Page 2] Navigating: https://www.costco.com/eye-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/eye-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/eye-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/eye-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FEATURED-BRANDS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/featured-brands.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/featured-brands.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/featured-brands.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/featured-brands.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/featured-brands.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FLOOR-BATHROOM-CLEANERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/floor-bathroom-cleaners.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 11 products (Total recorded: 678).
+
+[Page 2] Navigating: https://www.costco.com/floor-bathroom-cleaners.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/floor-bathroom-cleaners.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/floor-bathroom-cleaners.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/floor-bathroom-cleaners.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FOOD-PREPARATION-AND-PRESERVATION.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/food-preparation-and-preservation.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 683).
+
+[Page 2] Navigating: https://www.costco.com/food-preparation-and-preservation.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/food-preparation-and-preservation.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/food-preparation-and-preservation.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/food-preparation-and-preservation.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FOOD-PROCESSORS-MIXERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/food-processors-mixers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/food-processors-mixers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/food-processors-mixers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/food-processors-mixers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/food-processors-mixers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FORMULA-FEEDING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/formula-feeding.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 7 products (Total recorded: 690).
+
+[Page 2] Navigating: https://www.costco.com/formula-feeding.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/formula-feeding.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/formula-feeding.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/formula-feeding.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FROZEN-TREAT-ICE-CREAM-MAKERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/frozen-treat-ice-cream-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/frozen-treat-ice-cream-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/frozen-treat-ice-cream-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/frozen-treat-ice-cream-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/frozen-treat-ice-cream-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FRUIT-SNACKS-APPLESAUCE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/fruit-snacks-applesauce.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 695).
+
+[Page 2] Navigating: https://www.costco.com/fruit-snacks-applesauce.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/fruit-snacks-applesauce.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/fruit-snacks-applesauce.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/fruit-snacks-applesauce.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/FURNITURE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/furniture.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 9 products (Total recorded: 704).
+
+[Page 2] Navigating: https://www.costco.com/furniture.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/furniture.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/furniture.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/furniture.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GAMING-LAPTOPS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/gaming-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 707).
+
+[Page 2] Navigating: https://www.costco.com/gaming-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/gaming-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/gaming-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/gaming-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GASOLINE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/gasoline.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/gasoline.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/gasoline.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/gasoline.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/gasoline.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GIFT-BASKETS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/gift-baskets.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 710).
+
+[Page 2] Navigating: https://www.costco.com/gift-baskets.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/gift-baskets.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/gift-baskets.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/gift-baskets.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GLUCOSAMINE-JOINT-SUPPLEMENTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/glucosamine-joint-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 6 products (Total recorded: 716).
+
+[Page 2] Navigating: https://www.costco.com/glucosamine-joint-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/glucosamine-joint-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/glucosamine-joint-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/glucosamine-joint-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GOPAPERLESS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/gopaperless.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/gopaperless.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/gopaperless.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/gopaperless.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/gopaperless.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GROCERY-HEALTH-BEAUTY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/grocery-health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 23 products (Total recorded: 739).
+
+[Page 2] Navigating: https://www.costco.com/grocery-health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 11 products (Total recorded: 750).
+
+[Page 3] Navigating: https://www.costco.com/grocery-health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/grocery-health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/grocery-health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
 
 ============================================================
 Starting Category: HTTPS://WWW.COSTCO.COM/GROCERY-HOUSEHOLD.HTML
 ============================================================
 
 [Page 1] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
-      [GDX API Intercept] Captured 24 new items (Total saved: 24)
+      [GRS API Capture] Saved 24 products (Total recorded: 774).
 
 [Page 2] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
-      [GDX API Intercept] Captured 24 new items (Total saved: 48)
+      [GRS API Capture] Saved 9 products (Total recorded: 783).
 
 [Page 3] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
-      [GDX API Intercept] Captured 24 new items (Total saved: 72)
+      [GRS API Capture] Saved 14 products (Total recorded: 797).
 
 [Page 4] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
-      [GDX API Intercept] Captured 24 new items (Total saved: 96)
+      [GRS API Capture] Saved 10 products (Total recorded: 807).
 
 [Page 5] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
-      [GDX API Intercept] Captured 24 new items (Total saved: 120)
+      [GRS API Capture] Saved 12 products (Total recorded: 819).
 
-[Page 6] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=6
-      [GDX API Intercept] Captured 24 new items (Total saved: 144)
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GROCERY-PROGRAM-FAQ.HTML
+============================================================
 
-[Page 7] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=7
-      [GDX API Intercept] Captured 24 new items (Total saved: 168)
+[Page 1] Navigating: https://www.costco.com/grocery-program-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
 
-[Page 8] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=8
-      [GDX API Intercept] Captured 24 new items (Total saved: 192)
+[Page 2] Navigating: https://www.costco.com/grocery-program-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
 
-[Page 9] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=9
-      [GDX API Intercept] Captured 24 new items (Total saved: 216)
+[Page 3] Navigating: https://www.costco.com/grocery-program-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
 
-[Page 10] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=10
-      [GDX API Intercept] Captured 24 new items (Total saved: 240)
+[Page 4] Navigating: https://www.costco.com/grocery-program-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
 
-[Page 11] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=11
-      [GDX API Intercept] Captured 24 new items (Total saved: 264)
+[Page 5] Navigating: https://www.costco.com/grocery-program-faq.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
 
-[Page 12] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=12
-      [GDX API Intercept] Captured 24 new items (Total saved: 288)
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/GUM-MINTS.HTML
+============================================================
 
-[Page 13] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=13
-      [GDX API Intercept] Captured 24 new items (Total saved: 312)
+[Page 1] Navigating: https://www.costco.com/gum-mints.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
 
-[Page 14] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=14
-      [GDX API Intercept] Captured 24 new items (Total saved: 336)
+[Page 2] Navigating: https://www.costco.com/gum-mints.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
 
-[Page 15] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=15
-      [GDX API Intercept] Captured 24 new items (Total saved: 360)
+[Page 3] Navigating: https://www.costco.com/gum-mints.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
 
-[Page 16] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=16
-      [GDX API Intercept] Captured 24 new items (Total saved: 384)
+[Page 4] Navigating: https://www.costco.com/gum-mints.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
 
-[Page 17] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=17
-      [GDX API Intercept] Captured 22 new items (Total saved: 406)
+[Page 5] Navigating: https://www.costco.com/gum-mints.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
 
-[Page 18] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=18
-      [GDX API Intercept] Captured 24 new items (Total saved: 430)
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HAIR-CARE.HTML
+============================================================
 
-[Page 19] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=19
-      [GDX API Intercept] Captured 24 new items (Total saved: 454)
+[Page 1] Navigating: https://www.costco.com/hair-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 15 products (Total recorded: 834).
 
-[Page 20] Navigating: https://www.costco.com/grocery-household.html?refinement=buyInWarehouse%3Dtrue&currentPage=20
-      [GDX API Intercept] Captured 24 new items (Total saved: 478)
-Traceback (most recent call last):
-  File "C:\Python314\Lib\asyncio\runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "C:\Python314\Lib\asyncio\base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "C:\Personal\Coding\WarehouseItemFinder\warehouseProductScraper.py", line 569, in main
-    await asyncio.sleep(2.5)
-  File "C:\Python314\Lib\asyncio\tasks.py", line 702, in sleep
-    return await future
-           ^^^^^^^^^^^^
-asyncio.exceptions.CancelledError
+[Page 2] Navigating: https://www.costco.com/hair-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
 
-During handling of the above exception, another exception occurred:
+[Page 3] Navigating: https://www.costco.com/hair-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
 
-Traceback (most recent call last):
-  File "C:\Personal\Coding\WarehouseItemFinder\warehouseProductScraper.py", line 625, in <module>
-    asyncio.run(main())
-    ~~~~~~~~~~~^^^^^^^^
-  File "C:\Python314\Lib\asyncio\runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "C:\Python314\Lib\asyncio\runners.py", line 132, in run
-    raise KeyboardInterrupt()
-KeyboardInterrupt
-^C
+[Page 4] Navigating: https://www.costco.com/hair-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hair-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HANDBAGS-WALLETS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/handbags-wallets.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/handbags-wallets.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/handbags-wallets.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/handbags-wallets.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/handbags-wallets.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HARD-DRIVES-MEMORY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hard-drives-memory.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 835).
+
+[Page 2] Navigating: https://www.costco.com/hard-drives-memory.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hard-drives-memory.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hard-drives-memory.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hard-drives-memory.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HARD-GUMMY-CANDY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hard-gummy-candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/hard-gummy-candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hard-gummy-candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hard-gummy-candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hard-gummy-candy.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HARDWARE-KITCHEN.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hardware-kitchen.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 7 products (Total recorded: 842).
+
+[Page 2] Navigating: https://www.costco.com/hardware-kitchen.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hardware-kitchen.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hardware-kitchen.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hardware-kitchen.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HARDWARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hardware.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 21 products (Total recorded: 863).
+
+[Page 2] Navigating: https://www.costco.com/hardware.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 17 products (Total recorded: 880).
+
+[Page 3] Navigating: https://www.costco.com/hardware.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 9 products (Total recorded: 889).
+
+[Page 4] Navigating: https://www.costco.com/hardware.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hardware.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HEADPHONES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/headphones.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/headphones.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/headphones.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/headphones.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/headphones.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HEALTH-BEAUTY-SPA-GIFTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/health-beauty-spa-gifts.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 890).
+
+[Page 2] Navigating: https://www.costco.com/health-beauty-spa-gifts.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/health-beauty-spa-gifts.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/health-beauty-spa-gifts.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/health-beauty-spa-gifts.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HEALTH-BEAUTY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 14 products (Total recorded: 904).
+
+[Page 2] Navigating: https://www.costco.com/health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 15 products (Total recorded: 919).
+
+[Page 3] Navigating: https://www.costco.com/health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 9 products (Total recorded: 928).
+
+[Page 4] Navigating: https://www.costco.com/health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GRS API Capture] Saved 15 products (Total recorded: 943).
+
+[Page 5] Navigating: https://www.costco.com/health-beauty.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GRS API Capture] Saved 11 products (Total recorded: 954).
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HEALTHY-SNACKS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/healthy-snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/healthy-snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/healthy-snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/healthy-snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/healthy-snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HEARING-AID-CENTER.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hearing-aid-center.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/hearing-aid-center.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hearing-aid-center.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hearing-aid-center.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hearing-aid-center.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HEARING-CARE-PRODUCTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hearing-care-products.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/hearing-care-products.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hearing-care-products.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hearing-care-products.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hearing-care-products.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HOLIDAY-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/holiday-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/holiday-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/holiday-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/holiday-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/holiday-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HOME-HEALTH-CARE-FIRST-AID.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/home-health-care-first-aid.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 955).
+
+[Page 2] Navigating: https://www.costco.com/home-health-care-first-aid.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/home-health-care-first-aid.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/home-health-care-first-aid.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/home-health-care-first-aid.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HOME-HEALTH-CARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/home-health-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/home-health-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/home-health-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/home-health-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/home-health-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HONEY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/honey.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 957).
+
+[Page 2] Navigating: https://www.costco.com/honey.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/honey.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/honey.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/honey.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HOT-DOGS-BACON-SAUSAGE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hot-dogs-bacon-sausage.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/hot-dogs-bacon-sausage.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hot-dogs-bacon-sausage.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hot-dogs-bacon-sausage.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hot-dogs-bacon-sausage.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HOUSEHOLD-CLEANING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/household-cleaning.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 4 products (Total recorded: 961).
+
+[Page 2] Navigating: https://www.costco.com/household-cleaning.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 14 products (Total recorded: 975).
+
+[Page 3] Navigating: https://www.costco.com/household-cleaning.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 6 products (Total recorded: 981).
+
+[Page 4] Navigating: https://www.costco.com/household-cleaning.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/household-cleaning.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HOUSEHOLD.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/household.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 986).
+
+[Page 2] Navigating: https://www.costco.com/household.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/household.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/household.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/household.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/HYDRATION.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/hydration.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/hydration.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/hydration.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/hydration.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/hydration.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ICE-MAKERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/ice-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/ice-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/ice-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/ice-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/ice-makers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/IMMUNE-SUPPORT.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/immune-support.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 988).
+
+[Page 2] Navigating: https://www.costco.com/immune-support.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/immune-support.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/immune-support.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/immune-support.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/IMMUNIZATIONS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/immunizations.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/immunizations.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/immunizations.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/immunizations.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/immunizations.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/JANITORIAL-SUPPLIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/janitorial-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 989).
+
+[Page 2] Navigating: https://www.costco.com/janitorial-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/janitorial-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/janitorial-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/janitorial-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/JERKY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/jerky.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 994).
+
+[Page 2] Navigating: https://www.costco.com/jerky.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/jerky.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/jerky.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/jerky.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/JOBS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/jobs.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/jobs.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/jobs.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/jobs.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/jobs.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/JOIN-COSTCO.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/join-costco.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/join-costco.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/join-costco.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/join-costco.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/join-costco.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/JUICE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/juice.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/juice.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/juice.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/juice.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/juice.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/KETTLES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/kettles.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/kettles.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/kettles.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/kettles.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/kettles.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/KIDS-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/kids-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/kids-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/kids-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/kids-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/kids-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/KIRKLAND-SIGNATURE-GROCERIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/kirkland-signature-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 997).
+
+[Page 2] Navigating: https://www.costco.com/kirkland-signature-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 8 products (Total recorded: 1005).
+
+[Page 3] Navigating: https://www.costco.com/kirkland-signature-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 13 products (Total recorded: 1018).
+
+[Page 4] Navigating: https://www.costco.com/kirkland-signature-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GRS API Capture] Saved 11 products (Total recorded: 1029).
+
+[Page 5] Navigating: https://www.costco.com/kirkland-signature-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GRS API Capture] Saved 14 products (Total recorded: 1043).
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/KITCHEN-DINING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/kitchen-dining.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 1045).
+
+[Page 2] Navigating: https://www.costco.com/kitchen-dining.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/kitchen-dining.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/kitchen-dining.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/kitchen-dining.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/LAUNDRY-SUPPLIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/laundry-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/laundry-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/laundry-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/laundry-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/laundry-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/LUGGAGE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/luggage.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/luggage.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/luggage.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/luggage.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/luggage.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MACBOOKS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/macbooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/macbooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/macbooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/macbooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/macbooks.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MASSAGE-RELAXATION.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/massage-relaxation.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 1046).
+
+[Page 2] Navigating: https://www.costco.com/massage-relaxation.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/massage-relaxation.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/massage-relaxation.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/massage-relaxation.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MATTRESSES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/mattresses.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 6 products (Total recorded: 1052).
+
+[Page 2] Navigating: https://www.costco.com/mattresses.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/mattresses.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/mattresses.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/mattresses.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MEMBER-PRIVILEGES-CONDITIONS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/member-privileges-conditions.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/member-privileges-conditions.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/member-privileges-conditions.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/member-privileges-conditions.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/member-privileges-conditions.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MEMBERSHIP-INFORMATION.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/membership-information.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/membership-information.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/membership-information.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/membership-information.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/membership-information.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MENS-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/mens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 1054).
+
+[Page 2] Navigating: https://www.costco.com/mens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/mens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/mens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/mens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MICROSOFT-SURFACE-LAPTOPS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/microsoft-surface-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/microsoft-surface-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/microsoft-surface-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/microsoft-surface-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/microsoft-surface-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MICROWAVES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/microwaves.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MILK.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/milk.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/milk.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/milk.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/milk.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/milk.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/MOISTURIZERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/moisturizers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 3 products (Total recorded: 1057).
+
+[Page 2] Navigating: https://www.costco.com/moisturizers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/moisturizers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/moisturizers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/moisturizers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/NEW-LOCATIONS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/new-locations.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/new-locations.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/new-locations.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/new-locations.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/new-locations.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/NON-PRESCRIPTION-REMEDIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/non-prescription-remedies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 1062).
+
+[Page 2] Navigating: https://www.costco.com/non-prescription-remedies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 13 products (Total recorded: 1075).
+
+[Page 3] Navigating: https://www.costco.com/non-prescription-remedies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 9 products (Total recorded: 1084).
+
+[Page 4] Navigating: https://www.costco.com/non-prescription-remedies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GRS API Capture] Saved 11 products (Total recorded: 1095).
+
+[Page 5] Navigating: https://www.costco.com/non-prescription-remedies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GRS API Capture] Saved 7 products (Total recorded: 1102).
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/NUTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/nuts.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 6 products (Total recorded: 1108).
+
+[Page 2] Navigating: https://www.costco.com/nuts.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/nuts.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/nuts.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/nuts.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/OILS-BALSAMIC.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/oils-balsamic.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 1110).
+
+[Page 2] Navigating: https://www.costco.com/oils-balsamic.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/oils-balsamic.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/oils-balsamic.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/oils-balsamic.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/OPTICAL.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/optical.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/optical.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/optical.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/optical.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/optical.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ORGANIC-GROCERIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/organic-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/organic-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/organic-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/organic-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/organic-groceries.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/OVENS-TOASTERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/ovens-toasters.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/ovens-toasters.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/ovens-toasters.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/ovens-toasters.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/ovens-toasters.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PAIN-FEVER.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/pain-fever.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/pain-fever.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/pain-fever.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/pain-fever.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/pain-fever.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PANTRY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/pantry.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 1 products (Total recorded: 1111).
+
+[Page 2] Navigating: https://www.costco.com/pantry.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 2 products (Total recorded: 1113).
+
+[Page 3] Navigating: https://www.costco.com/pantry.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 5 products (Total recorded: 1118).
+
+[Page 4] Navigating: https://www.costco.com/pantry.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GRS API Capture] Saved 5 products (Total recorded: 1123).
+
+[Page 5] Navigating: https://www.costco.com/pantry.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PAPER-PRODUCTS-FOOD-STORAGE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/paper-products-food-storage.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 12 products (Total recorded: 1135).
+
+[Page 2] Navigating: https://www.costco.com/paper-products-food-storage.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 14 products (Total recorded: 1149).
+
+[Page 3] Navigating: https://www.costco.com/paper-products-food-storage.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/paper-products-food-storage.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/paper-products-food-storage.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PASTRIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/pastries.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 1151).
+
+[Page 2] Navigating: https://www.costco.com/pastries.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/pastries.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/pastries.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/pastries.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PATIO-LAWN-GARDEN.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/patio-lawn-garden.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 19 products (Total recorded: 1170).
+
+[Page 2] Navigating: https://www.costco.com/patio-lawn-garden.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 2 products (Total recorded: 1172).
+
+[Page 3] Navigating: https://www.costco.com/patio-lawn-garden.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/patio-lawn-garden.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/patio-lawn-garden.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PC-LAPTOPS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/pc-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 16 products (Total recorded: 1188).
+
+[Page 2] Navigating: https://www.costco.com/pc-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/pc-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/pc-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/pc-laptops.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PERSONAL-CARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/personal-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/personal-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 4 products (Total recorded: 1192).
+
+[Page 3] Navigating: https://www.costco.com/personal-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 8 products (Total recorded: 1200).
+
+[Page 4] Navigating: https://www.costco.com/personal-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/personal-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PET-SUPPLIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/pet-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 15 products (Total recorded: 1215).
+
+[Page 2] Navigating: https://www.costco.com/pet-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/pet-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/pet-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/pet-supplies.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PHOTO.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/photo.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/photo.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/photo.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/photo.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/photo.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/POPCORN.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/popcorn.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 1217).
+
+[Page 2] Navigating: https://www.costco.com/popcorn.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/popcorn.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/popcorn.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/popcorn.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PREMIUM-CLEANSERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/premium-cleansers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/premium-cleansers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/premium-cleansers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/premium-cleansers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/premium-cleansers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PREPARED-FOOD-SOUPS-SALADS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/prepared-food-soups-salads.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/prepared-food-soups-salads.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/prepared-food-soups-salads.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/prepared-food-soups-salads.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/prepared-food-soups-salads.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PREPARED-FOOD.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/prepared-food.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/prepared-food.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/prepared-food.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/prepared-food.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/prepared-food.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PRESSURE-SLOW-COOKERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/pressure-slow-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/pressure-slow-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/pressure-slow-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/pressure-slow-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/pressure-slow-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PRIVACY-POLICY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/privacy-policy.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PROSCIUTTO-SMOKED-CURED-MEATS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/prosciutto-smoked-cured-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/prosciutto-smoked-cured-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/prosciutto-smoked-cured-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/prosciutto-smoked-cured-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/prosciutto-smoked-cured-meats.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/PROTEIN.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/protein.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/protein.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/protein.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/protein.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/protein.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/QUICK-AND-EASY-RECIPE-VIDEOS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/quick-and-easy-recipe-videos.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/quick-and-easy-recipe-videos.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/quick-and-easy-recipe-videos.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/quick-and-easy-recipe-videos.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/quick-and-easy-recipe-videos.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/READING-GLASSES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/reading-glasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 1222).
+
+[Page 2] Navigating: https://www.costco.com/reading-glasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/reading-glasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/reading-glasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/reading-glasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/REBATES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/rebates.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/rebates.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/rebates.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/rebates.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/rebates.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/RECALLS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/recalls.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/recalls.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/recalls.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/recalls.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/recalls.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/RECOMMENDATIONS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/recommendations.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/recommendations.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/recommendations.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/recommendations.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/recommendations.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/RICE-COOKERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/rice-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/rice-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/rice-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/rice-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/rice-cookers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/ROUTERS-NETWORKING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/routers-networking.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/routers-networking.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/routers-networking.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/routers-networking.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/routers-networking.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SERUMS-SKIN-TREATMENTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/serums-skin-treatments.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 9 products (Total recorded: 1231).
+
+[Page 2] Navigating: https://www.costco.com/serums-skin-treatments.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/serums-skin-treatments.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/serums-skin-treatments.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/serums-skin-treatments.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SERVEWARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/serveware.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/serveware.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/serveware.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/serveware.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/serveware.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SERVICES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/services.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/services.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/services.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/services.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/services.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SHOES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/shoes.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/shoes.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/shoes.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/shoes.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/shoes.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SNACKS-BARS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/snacks-bars.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 17 products (Total recorded: 1248).
+
+[Page 2] Navigating: https://www.costco.com/snacks-bars.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+      [GRS API Capture] Saved 1 products (Total recorded: 1249).
+
+[Page 3] Navigating: https://www.costco.com/snacks-bars.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/snacks-bars.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/snacks-bars.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SNACKS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/snacks.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GRS API Capture] Saved 1 products (Total recorded: 1250).
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SOFT-DRINKS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/soft-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/soft-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/soft-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/soft-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/soft-drinks.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SOUP.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/soup.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/soup.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/soup.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/soup.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/soup.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SPECIAL-EVENTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/special-events.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/special-events.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/special-events.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/special-events.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/special-events.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SPECIALTY-KITCHEN-APPLIANCES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/specialty-kitchen-appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/specialty-kitchen-appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/specialty-kitchen-appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/specialty-kitchen-appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/specialty-kitchen-appliances.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SPICES-SEASONINGS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/spices-seasonings.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/spices-seasonings.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/spices-seasonings.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/spices-seasonings.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/spices-seasonings.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SPORTS-FITNESS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/sports-fitness.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 19 products (Total recorded: 1269).
+
+[Page 2] Navigating: https://www.costco.com/sports-fitness.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/sports-fitness.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/sports-fitness.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/sports-fitness.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SPREADS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/spreads.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SUGAR-SWEETENERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/sugar-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/sugar-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/sugar-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/sugar-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/sugar-sweeteners.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SUN-CARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/sun-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/sun-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/sun-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/sun-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/sun-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SUNGLASSES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/sunglasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/sunglasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/sunglasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/sunglasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/sunglasses.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/SUSTAINABILITY-INTRODUCTION.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/sustainability-introduction.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/sustainability-introduction.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/sustainability-introduction.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/sustainability-introduction.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/sustainability-introduction.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/TABLET-COMPUTERS-ACCESSORIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/tablet-computers-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 6 products (Total recorded: 1275).
+
+[Page 2] Navigating: https://www.costco.com/tablet-computers-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/tablet-computers-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/tablet-computers-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/tablet-computers-accessories.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/TEA.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/tea.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/tea.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/tea.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/tea.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/tea.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/TERMS-AND-CONDITIONS-OF-USE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/terms-and-conditions-of-use.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/terms-and-conditions-of-use.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/terms-and-conditions-of-use.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/terms-and-conditions-of-use.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/terms-and-conditions-of-use.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/TRAIL-SNACK-MIX.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/trail-snack-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 2 products (Total recorded: 1277).
+
+[Page 2] Navigating: https://www.costco.com/trail-snack-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/trail-snack-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/trail-snack-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/trail-snack-mix.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/TRASH-BAGS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/trash-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/trash-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/trash-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/trash-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/trash-bags.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/UPGRADE-MEMBERSHIP.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/upgrade-membership.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/upgrade-membership.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/upgrade-membership.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/upgrade-membership.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/upgrade-membership.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/VACUUM-SEALERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/vacuum-sealers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/vacuum-sealers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/vacuum-sealers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/vacuum-sealers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/vacuum-sealers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/VACUUMS-FLOOR-CARE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/vacuums-floor-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/vacuums-floor-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/vacuums-floor-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/vacuums-floor-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/vacuums-floor-care.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/VENDOR-INQUIRIES.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/vendor-inquiries.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/vendor-inquiries.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/vendor-inquiries.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/vendor-inquiries.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/vendor-inquiries.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/VITAMINS-HERBALS-DIETARY-SUPPLEMENTS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/vitamins-herbals-dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/vitamins-herbals-dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/vitamins-herbals-dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+      [GRS API Capture] Saved 12 products (Total recorded: 1289).
+
+[Page 4] Navigating: https://www.costco.com/vitamins-herbals-dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+      [GRS API Capture] Saved 8 products (Total recorded: 1297).
+
+[Page 5] Navigating: https://www.costco.com/vitamins-herbals-dietary-supplements.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+      [GRS API Capture] Saved 8 products (Total recorded: 1305).
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/WATER-DISPENSERS-FILTRATION-WATER-COOLERS-DISPENSERS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/water-dispensers-filtration-water-coolers-dispensers.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/water-dispensers-filtration-water-coolers-dispensers.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/water-dispensers-filtration-water-coolers-dispensers.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/water-dispensers-filtration-water-coolers-dispensers.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/water-dispensers-filtration-water-coolers-dispensers.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/WEARABLE-TECHNOLOGY.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/wearable-technology.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/wearable-technology.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/wearable-technology.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/wearable-technology.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/wearable-technology.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/WINDOWS-COPILOT-PCS.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/windows-copilot-pcs.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/windows-copilot-pcs.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/windows-copilot-pcs.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/windows-copilot-pcs.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/windows-copilot-pcs.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/WINE.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/wine.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/wine.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/wine.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/wine.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/wine.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/WOMENS-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/womens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/womens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/womens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/womens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/womens-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/YOGURT.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/yogurt.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+      [GRS API Capture] Saved 5 products (Total recorded: 1310).
+
+[Page 2] Navigating: https://www.costco.com/yogurt.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/yogurt.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/yogurt.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/yogurt.html?refinement=buyInWarehouse%3Dtrue&currentPage=5
+
+============================================================
+Starting Category: HTTPS://WWW.COSTCO.COM/YOUTH-CLOTHING.HTML
+============================================================
+
+[Page 1] Navigating: https://www.costco.com/youth-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=1
+
+[Page 2] Navigating: https://www.costco.com/youth-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=2
+
+[Page 3] Navigating: https://www.costco.com/youth-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=3
+
+[Page 4] Navigating: https://www.costco.com/youth-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=4
+
+[Page 5] Navigating: https://www.costco.com/youth-clothing.html?refinement=buyInWarehouse%3Dtrue&currentPage=5

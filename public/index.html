@@ -41,7 +41,7 @@
       </select>
     </div>
     <div class="search-box" style="display: flex; align-items: center; gap: 8px;">
-      <input type="text" id="searchBox" placeholder="Search product name or SKU..." />
+      <input type="text" id="searchBox" placeholder="Search product name, item number, or SKU..." />
       <button id="micBtn" title="Search by voice" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px;">
         &#127908;
       </button>
@@ -75,10 +75,23 @@
       </select>
     </div>
 
-    <!-- Browse Mode Toggle Buttons -->
-    <div class="browse-mode-toggle" style="margin: 15px 0; display: flex; gap: 10px;">
-      <button id="browseByNameBtn" class="toggle-btn active" onclick="setBrowseMode('name')">By Name</button>
-      <button id="browseByAisleBtn" class="toggle-btn" onclick="setBrowseMode('aisle')">By Aisle</button>
+<!-- Sort & Filter Control Bar -->
+    <div class="browse-controls-bar" style="margin: 15px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <label for="browseSortSelect" style="font-weight: 600; font-size: 14px; color: #555;">Sort By</label>
+        <select id="browseSortSelect" onchange="onBrowseSortChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
+          <option value="name">Name</option>
+          <option value="category">Subcategory</option>
+          <option value="aisle">Aisle</option>
+          <option value="item_number">Item Number</option>
+          <option value="sku">SKU</option>
+          <option value="date_added">Date Added</option>
+        </select>
+      </div>
+
+      <button id="openFilterBtn" class="toggle-btn" onclick="toggleFilterDrawer(true)" style="padding: 6px 14px; cursor: pointer;">
+        Filter &#9881;
+      </button>
     </div>
 
     <div id="browseContent">
@@ -120,6 +133,42 @@
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeHelpModal()">&times;</button>
       <img src="images/help.jpg" alt="Aisle and Bay Location Guide" class="help-image">
+    </div>
+  </div>
+
+<!-- Filter Drawer Overlay & Panel -->
+  <div id="filterDrawerBackdrop" class="drawer-backdrop" onclick="toggleFilterDrawer(false)" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;"></div>
+  
+  <div id="filterDrawer" class="drawer-panel" style="position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: #fff; box-shadow: -2px 0 8px rgba(0,0,0,0.2); z-index: 1001; transition: right 0.3s ease; display: flex; flex-direction: column;">
+    <div style="padding: 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 18px;">Filter Products</h3>
+      <button onclick="toggleFilterDrawer(false)" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+    </div>
+
+    <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
+      <div>
+        <label for="filterCategorySelect" style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #444;">Subcategory</label>
+        <select id="filterCategorySelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+          <option value="">All Subcategories</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="filterAisleSelect" style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #444;">Aisle</label>
+        <select id="filterAisleSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+          <option value="">All Aisles</option>
+        </select>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+        <input type="checkbox" id="showReportedCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+        <label for="showReportedCheckbox" style="font-size: 14px; cursor: pointer;">Show products reported as incorrect</label>
+      </div>
+    </div>
+
+    <div style="padding: 16px; border-top: 1px solid #eee; display: flex; gap: 10px;">
+      <button onclick="resetFilters()" style="flex: 1; padding: 10px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 6px; cursor: pointer;">Reset</button>
+      <button onclick="applyFilters()" style="flex: 1; padding: 10px; border: none; background: #0070d2; color: #fff; font-weight: bold; border-radius: 6px; cursor: pointer;">Apply</button>
     </div>
   </div>
 
