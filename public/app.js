@@ -807,8 +807,14 @@ function toggleFilterDrawer(open) {
 }
 
 function onBrowseSortChange(sortValue) {
-  // Trigger re-fetch / re-sort of products in browse view
-  startBrowse(1); 
+  // If event object was passed instead of value string, extract value safely
+  const value = (typeof sortValue === 'string') ? sortValue : sortValue?.target?.value;
+  
+  if (value) {
+    currentBrowseMode = value; // Update global browse mode
+  }
+  
+  startBrowse(1); // Re-fetch products with the updated sort order
 }
 
 function applyFilters() {
