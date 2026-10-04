@@ -12,6 +12,7 @@ let currentBrowsePageNum = 1;
 let showDiscontinuedItems = false; // Moved to global declarations
 let totalBrowsePages = 1;
 const ITEMS_PER_PAGE = 20;
+let showReportedIncorrectOnly = false;
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
@@ -422,7 +423,10 @@ async function startBrowse(page = 1) {
   if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}`);
+    // Added &show_incorrect=${showReportedIncorrectOnly} to API query
+    const url = `${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}`;
+    
+    const res = await fetch(url);
     const data = await res.json();
 
     if (!res.ok || data.error) {
@@ -440,14 +444,11 @@ async function startBrowse(page = 1) {
     browseData = data.products || [];
     totalBrowsePages = data.totalPages || 1;
 
-// Client-side fallback sorting for numeric/text identifiers
-    if (currentBrowseMode === 'item_number') {
-      browseData.sort((a, b) => (parseInt(a.item_number, 10) || 0) - (parseInt(b.item_number, 10) || 0));
-    } else if (currentBrowseMode === 'sku') {
-      browseData.sort((a, b) => (parseInt(a.sku, 10) || 0) - (parseInt(b.sku, 10) || 0));
+    // Optional: Front-end fallback filtering if backend API doesn't filter `is_wrong` yet
+    if (showReportedIncorrectOnly) {
+      browseData = browseData.filter(prod => prod.is_wrong === 1 || prod.is_wrong === true);
     }
 
-    // Use grouped Aisle view only when specifically sorting by aisle
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
     } else {
@@ -835,4 +836,12 @@ function resetFilters() {
   document.getElementById('filterAisleSelect').value = '';
   document.getElementById('showReportedCheckbox').checked = false;
   applyFilters();
+}
+
+function onToggleIncorrectFilter(checked) {
+  // Support either passing boolean or event object
+  const isChecked = typeof checked === 'boolean' ? checked : checked?.target?.checked;
+  
+  showReportedIncorrectOnly = !!isChecked;
+  startBrowse(1); // Reset to page 1 and refresh list
 }
