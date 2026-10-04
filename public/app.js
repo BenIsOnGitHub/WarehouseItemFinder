@@ -590,7 +590,7 @@ function renderBrowseByAislePage() {
           ${sortedBays.map(bayKey => {
             const items = bayGroups[bayKey];
             const subHeadingText = aisleKey !== 'Aisle Unassigned' && bayKey !== 'Bay Unassigned'
-              ? `${aisleKey} -${bayKey}`
+              ? `${aisleKey} - ${bayKey}`
               : bayKey;
 
             return `
