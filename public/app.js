@@ -413,7 +413,7 @@ function setBrowseMode(mode) {
 
   if (byNameBtn) byNameBtn.classList.toggle('active', mode === 'name');
   if (byAisleBtn) byAisleBtn.classList.toggle('active', mode === 'aisle');
-
+	populateAisleDropdown();
   startBrowse(1);
 }
 
@@ -423,7 +423,7 @@ async function startBrowse(page = 1) {
   if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
 
   try {
-    const url = `${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}`;
+    const url = `${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}&aisle=${encodeURIComponent(selectedAisle)}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -694,7 +694,7 @@ async function loadWarehouses() {
 function onWarehouseChange(newWarehouseId) {
   CURRENT_WAREHOUSE = newWarehouseId;
   localStorage.setItem('selected_warehouse', newWarehouseId);
-
+	populateAisleDropdown();
   document.querySelectorAll('.warehouse-select-dropdown, #warehouseSelect').forEach(selectEl => {
     selectEl.value = newWarehouseId;
   });
@@ -706,6 +706,7 @@ function onWarehouseChange(newWarehouseId) {
 
   const activeView = document.querySelector('.page-view.active');
   if (activeView && activeView.id === 'browse-view') {
+    populateAisleDropdown();
     startBrowse(1);
   }
 }
@@ -736,6 +737,7 @@ function toggleShowDiscontinued(checkbox) {
   const activeView = document.querySelector('.page-view.active');
 
   if (activeView && activeView.id === 'browse-view') {
+  	populateAisleDropdown();
     startBrowse(1);
   } else {
     const searchBox = document.getElementById('searchBox');
@@ -816,12 +818,13 @@ function onBrowseSortChange(sortValue) {
   if (value) {
     currentBrowseMode = value; // Update global browse mode
   }
-  
+  populateAisleDropdown();
   startBrowse(1); // Re-fetch products with the updated sort order
 }
 
 function applyFilters() {
   toggleFilterDrawer(false);
+  populateAisleDropdown();
   startBrowse(1); // Reload browse results using current dropdown selections
 }
 
@@ -838,4 +841,38 @@ function onToggleIncorrectFilter(checked) {
   
   showReportedIncorrectOnly = !!isChecked;
   startBrowse(1); // Reset to page 1 and refresh list
+}
+
+async function populateAisleDropdown() {
+  const aisleSelect = document.getElementById('browseAisleSelect'); // Adjust ID to match your HTML
+  if (!aisleSelect) return;
+
+  try {
+    // Fetch products or distinct aisles for the current warehouse
+    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&limit=1000`);
+    const data = await res.json();
+    const products = data.products || [];
+
+    // Extract non-empty unique aisles and sort them numerically/alphabetically
+    const uniqueAisles = [...new Set(
+      products
+        .map(p => p.aisle ? String(p.aisle).trim() : '')
+        .filter(aisle => aisle !== '')
+    )].sort((a, b) => (parseInt(a, 10) || a) - (parseInt(b, 10) || b));
+
+    // Preserve default "All Aisles" option
+    let optionsHtml = '<option value="">All Aisles</option>';
+    optionsHtml += uniqueAisles.map(aisle => `<option value="${aisle}">Aisle ${aisle}</option>`).join('');
+
+    aisleSelect.innerHTML = optionsHtml;
+  } catch (err) {
+    console.error('Failed to populate aisle dropdown:', err);
+  }
+}
+
+let selectedAisle = '';
+
+function onAisleFilterChange(value) {
+  selectedAisle = value;
+  startBrowse(1);
 }

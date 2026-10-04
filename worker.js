@@ -49,6 +49,7 @@ export default {
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
         const showIncorrect = url.searchParams.get('show_incorrect') === 'true' || url.searchParams.get('show_incorrect') === '1';;
         const offset = (page - 1) * limit;
+				const selectedAisle = url.searchParams.get('aisle');
 
         try {
           // 1. Build WHERE conditions dynamically
@@ -67,6 +68,11 @@ export default {
           if (sort === 'aisle') {
             whereConditions.push("(aisle IS NOT NULL AND TRIM(aisle) != '')");
           }
+
+					if (selectedAisle) {
+  				whereConditions.push("aisle = ?");
+  				bindParams.push(selectedAisle);
+					}
 
           const whereClause = "WHERE " + whereConditions.join(" AND ");
 
