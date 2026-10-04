@@ -279,8 +279,7 @@ function handleSearchInput(e) {
 function renderResultsUI(results) {
   const container = document.getElementById('results');
   const countEl = document.getElementById('count');
-  const timeAgoText = formatTimeAgo(prod.updated_at);
-	const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
+  
   
   if (!container) return;
 
@@ -303,6 +302,9 @@ function renderResultsUI(results) {
     const isWrong = prod.is_wrong ? 1 : 0;
     const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
     const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+
+		const timeAgoText = formatTimeAgo(prod.updated_at);
+		const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
 
     let incorrectBtn = '';
     if (aisle) {
@@ -474,8 +476,6 @@ function updatePaginationUI() {
 function renderBrowsePage() {
   updatePaginationUI();
   const container = document.getElementById('browseListContainer');
-  const timeAgoText = formatTimeAgo(prod.updated_at);
-	const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
   if (!container) return;
 
   const favorites = getFavorites();
@@ -490,6 +490,12 @@ function renderBrowsePage() {
     const isWrong = prod.is_wrong ? 1 : 0;
     const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
     const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+
+    // Compute updated time badge per product
+    const timeAgoText = formatTimeAgo(prod.updated_at);
+    const timeAgoHtml = timeAgoText 
+      ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` 
+      : '';
 
     let incorrectBtn = '';
     if (aisle) {

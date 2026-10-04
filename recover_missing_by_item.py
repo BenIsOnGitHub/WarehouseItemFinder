@@ -7,6 +7,16 @@ MISSING_FILE = "missing_1017_items.csv"
 OUTPUT_RECOVERY = "direct_item_recoveries.csv"
 
 
+def classify_number(num_str):
+    """Classifies digits: 3-7 digits -> item_number, 8-10 digits -> sku."""
+    digits = re.sub(r"\D", "", str(num_str or ""))
+    if 3 <= len(digits) <= 7:
+        return "item_number", digits
+    elif 8 <= len(digits) <= 10:
+        return "sku", digits
+    return None, ""
+
+
 def load_missing_items():
     items = []
     with open(MISSING_FILE, mode="r", encoding="utf-8-sig") as f:
@@ -18,7 +28,6 @@ def load_missing_items():
             clean_item = re.sub(r"\D", "", raw_item)
             clean_sku = re.sub(r"\D", "", raw_sku)
 
-            # Use whichever numeric string exists as the search query key
             lookup_id = clean_item or clean_sku
             if lookup_id:
                 items.append((lookup_id, row))
@@ -63,6 +72,7 @@ async def main():
                     print(f"   -> ID #{lookup_id}: Confirmed Out of Stock / Not Found.")
                     continue
 
+                # Extract title, price, body text, and current URL
                 product_data = await page.evaluate("""() => {
                     const titleEl = document.querySelector('h1[data-title]') || document.querySelector('h1');
                     let title = titleEl ? titleEl.innerText.trim() : '';
@@ -73,38 +83,66 @@ async def main():
                     const priceEl = document.querySelector('.price') || document.querySelector('[data-automation-id="productPrice"]');
                     const price = priceEl ? priceEl.innerText.trim() : '';
 
-                    const itemNumEl = document.querySelector('#product-body-item-number') || document.querySelector('.item-number');
-                    const itemNum = itemNumEl ? itemNumEl.innerText.replace(/[^0-9]/g, '') : '';
+                    const bodyText = document.body ? document.body.innerText : '';
 
-                    return { title, price, itemNum };
+                    return { title, price, bodyText, currentUrl: window.location.href };
                 }""")
 
                 title = product_data.get("title", "")
                 if title and title.lower() != "loading":
                     recovered_row = dict(original_row)
-
-                    # Update product name
                     recovered_row["product_name"] = title
 
-                    # Optional price update if present in schema
                     if "price" in original_row and product_data.get("price"):
                         recovered_row["price"] = product_data["price"]
 
-                    # Explicitly update item_number ONLY if found in page DOM
-                    scraped_item_num = product_data.get("itemNum", "")
+                    final_item_number = ""
+                    final_sku = ""
+
+                    # 1. Preserve original missing_file values if valid
+                    orig_item_type, orig_item_val = classify_number(original_row.get("item_number", ""))
+                    if orig_item_type == "item_number":
+                        final_item_number = orig_item_val
+                    elif orig_item_type == "sku":
+                        final_sku = orig_item_val
+
+                    orig_sku_type, orig_sku_val = classify_number(original_row.get("sku", ""))
+                    if orig_sku_type == "sku" and not final_sku:
+                        final_sku = orig_sku_val
+                    elif orig_sku_type == "item_number" and not final_item_number:
+                        final_item_number = orig_sku_val
+
+                    # 2. Extract explicitly printed "Item <number>" or "Item # <number>" from body text
+                    body_text = product_data.get("bodyText", "")
+                    item_matches = re.findall(r"Item\s*#?\s*(\d+)", body_text, flags=re.IGNORECASE)
+                    for match_num in item_matches:
+                        match_type, match_val = classify_number(match_num)
+                        if match_type == "item_number" and not final_item_number:
+                            final_item_number = match_val
+                        elif match_type == "sku" and not final_sku:
+                            final_sku = match_val
+
+                    # 3. Fall back to current URL numbers if either field is still missing
+                    current_url = product_data.get("currentUrl", target_url)
+                    url_numbers = re.findall(r"\d+", current_url)
+                    for num_str in url_numbers:
+                        url_type, url_val = classify_number(num_str)
+                        if url_type == "item_number" and not final_item_number:
+                            final_item_number = url_val
+                        elif url_type == "sku" and not final_sku:
+                            final_sku = url_val
+
+                    # Assign clean outputs
                     if "item_number" in recovered_row:
-                        recovered_row["item_number"] = scraped_item_num if scraped_item_num else ""
-
-                    # Leave SKU blank unless explicitly present or scraped
+                        recovered_row["item_number"] = final_item_number
                     if "sku" in recovered_row:
-                        scraped_sku = product_data.get("sku", "")
-                        recovered_row["sku"] = scraped_sku if scraped_sku else ""
+                        recovered_row["sku"] = final_sku
 
-                    rec_key = scraped_item_num or lookup_id
+                    rec_key = final_item_number or final_sku or lookup_id
                     if rec_key not in seen_keys:
                         seen_keys.add(rec_key)
                         recovered_rows.append(recovered_row)
-                        print(f"   -> ID #{lookup_id}: RECOVERED! ({title[:40]}...)")
+                        print(f"   -> ID #{lookup_id}: RECOVERED! Item: '{final_item_number}', SKU: '{final_sku}' ({title[:30]}...)")
 
             except Exception as e:
                 print(f"   [!] Error/Timeout on ID #{lookup_id}: {e}")
