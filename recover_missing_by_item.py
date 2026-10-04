@@ -5,7 +5,7 @@ from playwright.async_api import async_playwright
 
 MISSING_FILE = "missing_1017_items.csv"
 OUTPUT_RECOVERY = "direct_item_recoveries.csv"
-
+FALLBACK_TEXT = "We're sorry. We were not able to find a match."
 
 def classify_number(num_str):
     """Classifies digits: 3-7 digits -> item_number, 8-10 digits -> sku."""
@@ -27,7 +27,7 @@ def load_missing_items():
 
             clean_item = re.sub(r"\D", "", raw_item)
             clean_sku = re.sub(r"\D", "", raw_sku)
-
+            url = row.get("product_url", "").strip()
             lookup_id = clean_item or clean_sku
             if lookup_id:
                 items.append((lookup_id, row))
@@ -49,7 +49,7 @@ async def main():
         page = await context.new_page()
 
         for idx, (lookup_id, original_row) in enumerate(missing_items, start=1):
-            target_url = f"https://www.costco.com/CatalogSearch?keyword={lookup_id}&refinement=buyInWarehouse%3Dtrue"
+            target_url = f"{url}&refinement=buyInWarehouse%3Dtrue"
             print(f"[{idx}/{len(missing_items)}] Direct lookup for ID #{lookup_id}...")
 
             try:
