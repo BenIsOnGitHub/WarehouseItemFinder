@@ -47,7 +47,7 @@ export default {
         const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
         const sort = url.searchParams.get('sort') || 'name';
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
-        const showIncorrect = url.searchParams.get('show_incorrect') === 'true';
+        const showIncorrect = url.searchParams.get('show_incorrect') === 'true' || url.searchParams.get('show_incorrect') === '1';;
         const offset = (page - 1) * limit;
 
         try {
@@ -60,7 +60,7 @@ export default {
           }
 
           if (showIncorrect) {
-            whereConditions.push("is_wrong = 1");
+            whereConditions.push("(is_wrong = 1 OR is_wrong = '1' OR is_wrong IS TRUE)");
           }
 
           // If sorting by aisle, only include items that actually have an aisle assigned

@@ -423,9 +423,8 @@ async function startBrowse(page = 1) {
   if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
 
   try {
-    // Added &show_incorrect=${showReportedIncorrectOnly} to API query
     const url = `${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}`;
-    
+
     const res = await fetch(url);
     const data = await res.json();
 
@@ -443,11 +442,6 @@ async function startBrowse(page = 1) {
 
     browseData = data.products || [];
     totalBrowsePages = data.totalPages || 1;
-
-    // Optional: Front-end fallback filtering if backend API doesn't filter `is_wrong` yet
-    if (showReportedIncorrectOnly) {
-      browseData = browseData.filter(prod => prod.is_wrong === 1 || prod.is_wrong === true);
-    }
 
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
