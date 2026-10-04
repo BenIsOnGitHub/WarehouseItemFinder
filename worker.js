@@ -24,7 +24,7 @@ export default {
         const discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
 
         const { results } = await env.DB.prepare(`
-          SELECT id, warehouse_id, sku, item_number, product_name, product_url, aisle, bay, is_wrong, is_discontinued
+          SELECT id, warehouse_id, sku, item_number, product_name, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
           FROM products
           WHERE warehouse_id = ?
             ${discontinuedClause}
@@ -47,6 +47,7 @@ export default {
         const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
         const sort = url.searchParams.get('sort') || 'name';
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
+        const showIncorrect = url.searchParams.get('show_incorrect') === 'true';
         const offset = (page - 1) * limit;
 
         try {
@@ -56,6 +57,10 @@ export default {
 
           if (!showDiscontinued) {
             whereConditions.push("(is_discontinued IS NULL OR is_discontinued = 0)");
+          }
+
+          if (showIncorrect) {
+            whereConditions.push("is_wrong = 1");
           }
 
           // If sorting by aisle, only include items that actually have an aisle assigned
@@ -70,7 +75,7 @@ export default {
           const countStmt = await env.DB.prepare(countQuery).bind(...bindParams).first();
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
-          // 3. Order By Clause
+          // 3. Dynamic Order By Clause
           let orderByClause = "ORDER BY product_name ASC";
           if (sort === 'aisle') {
             orderByClause = `
@@ -79,11 +84,17 @@ export default {
                 CAST(bay AS INTEGER) ASC, 
                 product_name ASC
             `;
+          } else if (sort === 'item_number') {
+            orderByClause = `ORDER BY CAST(item_number AS INTEGER) ASC, item_number ASC`;
+          } else if (sort === 'sku') {
+            orderByClause = `ORDER BY CAST(sku AS INTEGER) ASC, sku ASC`;
+          } else if (sort === 'updated_at' || sort === 'updated') {
+            orderByClause = `ORDER BY updated_at DESC`;
           }
 
-          // 4. Select Query
+          // 4. Select Query (Includes updated_at for time badges)
           const selectQuery = `
-            SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued
+            SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
             FROM products
             ${whereClause}
             ${orderByClause}
