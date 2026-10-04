@@ -120,9 +120,12 @@ function moveFavorite(index, direction) {
 // ==========================================
 // INTERACTIVE LOCATION UPDATE (D1 API)
 // ==========================================
-function openLocationEditor(productId, currentAisle, currentBay, isWrong) {
-  const container = document.getElementById(`loc-edit-${productId}`);
+function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
+  const container = document.getElementById(`loc-edit-${id}`);
   if (!container) return;
+
+  const safeAisle = String(currentAisle).replace(/'/g, "\\'");
+  const safeBay = String(currentBay).replace(/'/g, "\\'");
 
   const bayOptions = [
     ...Array.from({ length: 10 }, (_, i) => String(i + 1)),
@@ -131,8 +134,8 @@ function openLocationEditor(productId, currentAisle, currentBay, isWrong) {
   ];
 
   const baySelectHtml = `
-    <select id="input-bay-${productId}" class="location-select">
-      <option value="">-- Select Bay --</option>
+    <select id="bay-input-${id}" class="loc-edit-input bay-input">
+      <option value="">Bay</option>
       ${bayOptions.map(opt => `
         <option value="${opt}" ${String(currentBay) === opt ? 'selected' : ''}>
           ${opt}
@@ -142,19 +145,14 @@ function openLocationEditor(productId, currentAisle, currentBay, isWrong) {
   `;
 
   container.innerHTML = `
-    <div class="location-edit-controls">
-      <input 
-        type="number" 
-        id="input-aisle-${productId}" 
-        class="location-input" 
-        value="${currentAisle || ''}" 
-        placeholder="100-199 or 300-399"
-      />
+    <div class="loc-edit-form">
+      <input type="number" id="aisle-input-${id}" class="loc-edit-input aisle-input" placeholder="Aisle" value="${currentAisle || ''}">
       ${baySelectHtml}
-      <button class="save-loc-btn" onclick="saveLocation('${productId}')">Save</button>
-      <button class="cancel-loc-btn" onclick="cancelLocationEdit('${productId}', '${currentAisle}', '${currentBay}', ${isWrong})">Cancel</button>
-      <div id="error-msg-${productId}" class="location-error-text" style="color: red; font-size: 0.85em; display: none;"></div>
+      <button class="help-icon-btn" onclick="openHelpModal()" type="button" title="Where do I find the Bay number?">?</button>
+      <button class="btn btn-save" onclick="saveLocation('${id}')">Save</button>
+      <button class="btn btn-cancel" onclick="cancelLocationEdit('${id}', '${safeAisle}', '${safeBay}', ${isWrong})">Cancel</button>
     </div>
+    <div id="aisle-error-${id}" style="color: #d9534f; font-size: 0.85em; display: none; margin-top: 4px;"></div>
   `;
 }
 
@@ -168,35 +166,68 @@ function closeHelpModal(event) {
   if (modal) modal.classList.remove('active');
 }
 
-function saveLocation(productId) {
-  const aisleInput = document.getElementById(`input-aisle-${productId}`);
-  const baySelect = document.getElementById(`input-bay-${productId}`);
-  const errorDiv = document.getElementById(`error-msg-${productId}`);
+async function saveLocation(id) {
+  const aisleInput = document.getElementById(`aisle-input-${id}`);
+  const bayInput = document.getElementById(`bay-input-${id}`);
+  const errorDiv = document.getElementById(`aisle-error-${id}`);
 
-  if (!aisleInput || !baySelect) return;
+  const newAisle = aisleInput ? aisleInput.value.trim() : '';
+  const newBay = bayInput ? bayInput.value.trim() : '';
 
-  const aisleVal = aisleInput.value.trim();
-  const bayVal = baySelect.value;
+  // Validate Aisle range (100-199 or 300-399) if an aisle is provided
+  if (newAisle !== '') {
+    const aisleNum = parseInt(newAisle, 10);
+    const isValid = (aisleNum >= 100 && aisleNum <= 199) || (aisleNum >= 300 && aisleNum <= 399);
 
-  if (aisleVal !== '') {
-    const aisleNum = parseInt(aisleVal, 10);
-    const isValidAisle = (aisleNum >= 100 && aisleNum <= 199) || (aisleNum >= 300 && aisleNum <= 399);
-
-    if (isNaN(aisleNum) || !isValidAisle) {
+    if (isNaN(aisleNum) || !isValid) {
       if (errorDiv) {
-        errorDiv.textContent = 'Aisle must be between 100-199 or 300-399.';
+        errorDiv.textContent = 'Aisle must be between 100–199 or 300–399.';
         errorDiv.style.display = 'block';
       }
       return;
     }
   }
 
-  if (errorDiv) {
-    errorDiv.style.display = 'none';
+  if (errorDiv) errorDiv.style.display = 'none';
+
+  const itemInBrowse = browseData.find(p => p.id === id);
+  let clearFlag = 0;
+
+  if (itemInBrowse && itemInBrowse.is_wrong === 1) {
+    const userConfirmed = confirm('This location had been flagged as incorrect. Have you corrected it?');
+    if (userConfirmed) clearFlag = 1;
   }
 
-  // Proceed with your existing save/API update logic
-  updateProductLocation(productId, aisleVal, bayVal);
+  const finalIsWrong = (itemInBrowse && itemInBrowse.is_wrong === 1 && !clearFlag) ? 1 : 0;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/update-location`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: id,
+        aisle: newAisle,
+        bay: newBay,
+        is_wrong: finalIsWrong
+      })
+    });
+
+    if (response.ok) {
+      const currentIsoTime = new Date().toISOString();
+      if (itemInBrowse) {
+        itemInBrowse.aisle = newAisle;
+        itemInBrowse.bay = newBay;
+        itemInBrowse.is_wrong = finalIsWrong;
+        itemInBrowse.updated_at = currentIsoTime;
+      }
+      renderLocationDisplay(id, newAisle, newBay, finalIsWrong, currentIsoTime);
+    } else {
+      alert('Failed to update product location in database.');
+    }
+  } catch (err) {
+    console.error('Error updating location:', err);
+    alert('Error connecting to database server.');
+  }
 }
 
 function cancelLocationEdit(id, aisle, bay, isWrong = 0) {
