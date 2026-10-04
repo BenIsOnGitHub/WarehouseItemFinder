@@ -47,12 +47,11 @@ export default {
         const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
         const sort = url.searchParams.get('sort') || 'name';
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
-        const showIncorrect = url.searchParams.get('show_incorrect') === 'true' || url.searchParams.get('show_incorrect') === '1';;
+        const showIncorrect = url.searchParams.get('show_incorrect') === 'true' || url.searchParams.get('show_incorrect') === '1';
         const offset = (page - 1) * limit;
-				const selectedAisle = url.searchParams.get('aisle');
+        const selectedAisle = url.searchParams.get('aisle');
 
         try {
-          // 1. Build WHERE conditions dynamically
           const whereConditions = ["warehouse_id = ?"];
           const bindParams = [warehouseId];
 
@@ -64,24 +63,21 @@ export default {
             whereConditions.push("(is_wrong = 1 OR is_wrong = '1' OR is_wrong IS TRUE)");
           }
 
-          // If sorting by aisle, only include items that actually have an aisle assigned
           if (sort === 'aisle') {
             whereConditions.push("(aisle IS NOT NULL AND TRIM(aisle) != '')");
           }
 
-					if (selectedAisle) {
-  				whereConditions.push("aisle = ?");
-  				bindParams.push(selectedAisle);
-					}
+          if (selectedAisle) {
+            whereConditions.push("aisle = ?");
+            bindParams.push(selectedAisle);
+          }
 
           const whereClause = "WHERE " + whereConditions.join(" AND ");
 
-          // 2. Count Query (Matching exact filters)
           const countQuery = `SELECT COUNT(*) AS total FROM products ${whereClause}`;
           const countStmt = await env.DB.prepare(countQuery).bind(...bindParams).first();
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
-          // 3. Dynamic Order By Clause
           let orderByClause = "ORDER BY product_name ASC";
           if (sort === 'aisle') {
             orderByClause = `
@@ -98,7 +94,6 @@ export default {
             orderByClause = `ORDER BY updated_at DESC`;
           }
 
-          // 4. Select Query (Includes updated_at for time badges)
           const selectQuery = `
             SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
             FROM products
@@ -127,7 +122,23 @@ export default {
         }
       }
 
-      // 3. Update Location API
+      // 3. Distinct Aisles API (PLACED INSIDE FETCH HANDLER)
+      if (pathname === '/api/aisles') {
+        const warehouseId = url.searchParams.get('warehouse') || '1738';
+        const { results } = await env.DB.prepare(`
+          SELECT DISTINCT aisle 
+          FROM products 
+          WHERE warehouse_id = ? 
+            AND aisle IS NOT NULL 
+            AND TRIM(aisle) != ''
+          ORDER BY CAST(aisle AS INTEGER) ASC, aisle ASC
+        `).bind(warehouseId).all();
+
+        const aisles = (results || []).map(r => r.aisle);
+        return new Response(JSON.stringify(aisles), { headers: corsHeaders });
+      }
+
+      // 4. Update Location API
       if (pathname === '/api/update-location' && request.method === 'POST') {
         const { id, aisle, bay, is_wrong } = await request.json();
         if (!id) return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
@@ -141,7 +152,7 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-      // 4. Warehouses API
+      // 5. Warehouses API
       if (pathname === '/api/warehouses') {
         const { results } = await env.DB.prepare(`
           SELECT warehouse_id, warehouse_name FROM warehouses ORDER BY warehouse_id ASC
@@ -150,7 +161,7 @@ export default {
         return new Response(JSON.stringify(results || []), { headers: corsHeaders });
       }
 
-      // 5. Flag Location Incorrect API
+      // 6. Flag Location Incorrect API
       if (pathname === '/api/flag-incorrect' && request.method === 'POST') {
         const { id } = await request.json();
         if (!id) return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
@@ -162,7 +173,7 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-      // 6. Flag Product as Discontinued API
+      // 7. Flag Product as Discontinued API
       if (pathname === '/api/flag-discontinued' && request.method === 'POST') {
         const { id, is_discontinued } = await request.json();
         if (!id) return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
@@ -181,19 +192,3 @@ export default {
     }
   }
 };
-
-// Distinct Aisles API
-if (pathname === '/api/aisles') {
-  const warehouseId = url.searchParams.get('warehouse') || '1738';
-  const { results } = await env.DB.prepare(`
-    SELECT DISTINCT aisle 
-    FROM products 
-    WHERE warehouse_id = ? 
-      AND aisle IS NOT NULL 
-      AND TRIM(aisle) != ''
-    ORDER BY CAST(aisle AS INTEGER) ASC, aisle ASC
-  `).bind(warehouseId).all();
-
-  const aisles = (results || []).map(r => r.aisle);
-  return new Response(JSON.stringify(aisles), { headers: corsHeaders });
-}

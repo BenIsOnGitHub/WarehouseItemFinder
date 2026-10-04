@@ -7,6 +7,7 @@ let CURRENT_WAREHOUSE = localStorage.getItem('selected_warehouse') || '1738';
 const FAVORITES_KEY = 'product_favorites';
 const NOTES_KEY = 'product_notes';
 
+let selectedAisle = '';
 let browseData = [];
 let currentBrowsePageNum = 1;
 let showDiscontinuedItems = false; // Moved to global declarations
@@ -898,7 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-let selectedAisle = '';
+
 
 function onAisleFilterChange(value) {
   selectedAisle = value;
