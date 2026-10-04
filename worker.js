@@ -181,3 +181,19 @@ export default {
     }
   }
 };
+
+// Distinct Aisles API
+if (pathname === '/api/aisles') {
+  const warehouseId = url.searchParams.get('warehouse') || '1738';
+  const { results } = await env.DB.prepare(`
+    SELECT DISTINCT aisle 
+    FROM products 
+    WHERE warehouse_id = ? 
+      AND aisle IS NOT NULL 
+      AND TRIM(aisle) != ''
+    ORDER BY CAST(aisle AS INTEGER) ASC, aisle ASC
+  `).bind(warehouseId).all();
+
+  const aisles = (results || []).map(r => r.aisle);
+  return new Response(JSON.stringify(aisles), { headers: corsHeaders });
+}

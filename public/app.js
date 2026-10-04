@@ -829,9 +829,17 @@ function applyFilters() {
 }
 
 function resetFilters() {
-  document.getElementById('filterCategorySelect').value = '';
-  document.getElementById('filterAisleSelect').value = '';
-  document.getElementById('showReportedCheckbox').checked = false;
+  selectedAisle = '';
+  showReportedIncorrectOnly = false;
+  
+  const categorySelect = document.getElementById('filterCategorySelect');
+  const aisleSelect = document.getElementById('filterAisleSelect');
+  const reportedCheckbox = document.getElementById('showReportedCheckbox');
+
+  if (categorySelect) categorySelect.value = '';
+  if (aisleSelect) aisleSelect.value = '';
+  if (reportedCheckbox) reportedCheckbox.checked = false;
+
   applyFilters();
 }
 
@@ -844,31 +852,51 @@ function onToggleIncorrectFilter(checked) {
 }
 
 async function populateAisleDropdown() {
-  const aisleSelect = document.getElementById('browseAisleSelect'); // Adjust ID to match your HTML
+  const aisleSelect = document.getElementById('filterAisleSelect') || document.getElementById('browseAisleSelect');
   if (!aisleSelect) return;
 
   try {
-    // Fetch products or distinct aisles for the current warehouse
-    const res = await fetch(`${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&limit=1000`);
-    const data = await res.json();
-    const products = data.products || [];
+    const res = await fetch(`${API_BASE_URL}/api/aisles?warehouse=${CURRENT_WAREHOUSE}`);
+    const aisles = await res.json();
 
-    // Extract non-empty unique aisles and sort them numerically/alphabetically
-    const uniqueAisles = [...new Set(
-      products
-        .map(p => p.aisle ? String(p.aisle).trim() : '')
-        .filter(aisle => aisle !== '')
-    )].sort((a, b) => (parseInt(a, 10) || a) - (parseInt(b, 10) || b));
-
-    // Preserve default "All Aisles" option
     let optionsHtml = '<option value="">All Aisles</option>';
-    optionsHtml += uniqueAisles.map(aisle => `<option value="${aisle}">Aisle ${aisle}</option>`).join('');
+    optionsHtml += (Array.isArray(aisles) ? aisles : []).map(aisle => {
+      const isSelected = String(aisle) === String(selectedAisle) ? 'selected' : '';
+      return `<option value="${aisle}" ${isSelected}>Aisle ${aisle}</option>`;
+    }).join('');
 
     aisleSelect.innerHTML = optionsHtml;
   } catch (err) {
     console.error('Failed to populate aisle dropdown:', err);
   }
 }
+
+// Ensure populateAisleDropdown runs when the app loads
+document.addEventListener('DOMContentLoaded', () => {
+  loadWarehouses();
+  populateAisleDropdown(); // <-- Populates aisles on load
+  startBrowse(1);
+
+  const searchBox = document.getElementById('searchBox');
+  if (searchBox) {
+    searchBox.addEventListener('input', handleSearchInput);
+  }
+
+  const menuToggle = document.getElementById('menuToggle');
+  const navDropdown = document.getElementById('navDropdown');
+  if (menuToggle && navDropdown) {
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navDropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!navDropdown.contains(e.target) && !menuToggle.contains(e.target)) {
+        navDropdown.classList.remove('active');
+      }
+    });
+  }
+});
 
 let selectedAisle = '';
 
