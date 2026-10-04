@@ -10,7 +10,7 @@ const NOTES_KEY = 'product_notes';
 let selectedAisle = '';
 let browseData = [];
 let currentBrowsePageNum = 1;
-let showDiscontinuedItems = false; // Moved to global declarations
+let showDiscontinuedItems = false;
 let totalBrowsePages = 1;
 const ITEMS_PER_PAGE = 20;
 let showReportedIncorrectOnly = false;
@@ -31,7 +31,6 @@ function getIdentifierDisplay(prod) {
 
 function formatTimeAgo(dateStr) {
   if (!dateStr) return '';
-  // Parse date string (appending 'Z' if missing to ensure UTC evaluation)
   const utcStr = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
   const updatedDate = new Date(utcStr);
   if (isNaN(updatedDate.getTime())) return '';
@@ -178,7 +177,7 @@ async function saveLocation(id) {
     });
 
     if (response.ok) {
-    	const currentIsoTime = new Date().toISOString();
+      const currentIsoTime = new Date().toISOString();
       if (itemInBrowse) {
         itemInBrowse.aisle = newAisle;
         itemInBrowse.bay = newBay;
@@ -282,7 +281,6 @@ function renderResultsUI(results) {
   const container = document.getElementById('results');
   const countEl = document.getElementById('count');
   
-  
   if (!container) return;
 
   countEl.textContent = `${results.length} item${results.length === 1 ? '' : 's'} found`;
@@ -305,8 +303,8 @@ function renderResultsUI(results) {
     const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
     const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
 
-		const timeAgoText = formatTimeAgo(prod.updated_at);
-		const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
+    const timeAgoText = formatTimeAgo(prod.updated_at);
+    const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
 
     let incorrectBtn = '';
     if (aisle) {
@@ -329,24 +327,24 @@ function renderResultsUI(results) {
     const safeBay = String(bay).replace(/'/g, "\\'");
 
     return `
-  <li class="product-card">
-    <div class="product-info">
-      <div class="product-title">${prod.product_name}</div>
-      <div class="product-details">
-        ${identifierText} | 
-        <span id="loc-edit-${prod.id}">
-          <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})">
-            ${locationStr} &#9998;
-          </span>
-          ${incorrectBtn}
-        </span>
-        ${timeAgoHtml}
-      </div>
-      ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
-    </div>
-    <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
-  </li>
-`;
+      <li class="product-card">
+        <div class="product-info">
+          <div class="product-title">${prod.product_name}</div>
+          <div class="product-details">
+            ${identifierText} | 
+            <span id="loc-edit-${prod.id}">
+              <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})">
+                ${locationStr} &#9998;
+              </span>
+              ${incorrectBtn}
+            </span>
+            ${timeAgoHtml}
+          </div>
+          ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
+        </div>
+        <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+      </li>
+    `;
   }).join('');
 }
 
@@ -377,27 +375,27 @@ function renderFavoritesUI() {
     const isLast = index === favorites.length - 1;
 
     return `
-	  <li class="product-card">
-	    <div class="reorder-btns">
-	      <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
-	      <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
-	    </div>
-	    <div class="product-info">
-	      <div class="product-title">${prod.product_name}</div>
-	      <div class="product-details">${identifierText}</div>
-	      <div class="note-container">
-	        <input 
-	          type="text" 
-	          class="note-input" 
-	          placeholder="Add note (e.g. check endcap)" 
-	          value="${prodNote.replace(/"/g, '&quot;')}"
-	          onchange="saveNote('${prod.id}', this.value)"
-	        />
-	      </div>
-	    </div>
-	    <button class="fav-btn active" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
-	  </li>
-	`;
+      <li class="product-card">
+        <div class="reorder-btns">
+          <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
+          <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
+        </div>
+        <div class="product-info">
+          <div class="product-title">${prod.product_name}</div>
+          <div class="product-details">${identifierText}</div>
+          <div class="note-container">
+            <input 
+              type="text" 
+              class="note-input" 
+              placeholder="Add note (e.g. check endcap)" 
+              value="${prodNote.replace(/"/g, '&quot;')}"
+              onchange="saveNote('${prod.id}', this.value)"
+            />
+          </div>
+        </div>
+        <button class="fav-btn active" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+      </li>
+    `;
   }).join('');
 }
 
@@ -414,7 +412,7 @@ function setBrowseMode(mode) {
 
   if (byNameBtn) byNameBtn.classList.toggle('active', mode === 'name');
   if (byAisleBtn) byAisleBtn.classList.toggle('active', mode === 'aisle');
-	populateAisleDropdown();
+  populateAisleDropdown();
   startBrowse(1);
 }
 
@@ -495,7 +493,6 @@ function renderBrowsePage() {
     const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
     const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
 
-    // Compute updated time badge per product
     const timeAgoText = formatTimeAgo(prod.updated_at);
     const timeAgoHtml = timeAgoText 
       ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` 
@@ -552,7 +549,6 @@ function renderBrowseByAislePage() {
     return;
   }
 
-  // 1. Group by Aisle
   const aisleGroups = {};
   browseData.forEach(prod => {
     const aisleKey = prod.aisle ? `Aisle ${prod.aisle}` : 'Aisle Unassigned';
@@ -572,7 +568,6 @@ function renderBrowseByAislePage() {
   container.innerHTML = sortedAisles.map(aisleKey => {
     const aisleItems = aisleGroups[aisleKey];
 
-    // 2. Sub-group items in this Aisle by Bay
     const bayGroups = {};
     aisleItems.forEach(prod => {
       const bayKey = prod.bay ? `Bay ${prod.bay}` : 'Bay Unassigned';
@@ -695,7 +690,7 @@ async function loadWarehouses() {
 function onWarehouseChange(newWarehouseId) {
   CURRENT_WAREHOUSE = newWarehouseId;
   localStorage.setItem('selected_warehouse', newWarehouseId);
-	populateAisleDropdown();
+  populateAisleDropdown();
   document.querySelectorAll('.warehouse-select-dropdown, #warehouseSelect').forEach(selectEl => {
     selectEl.value = newWarehouseId;
   });
@@ -738,7 +733,7 @@ function toggleShowDiscontinued(checkbox) {
   const activeView = document.querySelector('.page-view.active');
 
   if (activeView && activeView.id === 'browse-view') {
-  	populateAisleDropdown();
+    populateAisleDropdown();
     startBrowse(1);
   } else {
     const searchBox = document.getElementById('searchBox');
@@ -773,32 +768,8 @@ async function flagDiscontinued(id, currentStatus) {
 }
 
 // ==========================================
-// APP INITIALIZATION
+// FILTER DRAWER & SORT HELPERS
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-  loadWarehouses();
-
-  const searchBox = document.getElementById('searchBox');
-  if (searchBox) {
-    searchBox.addEventListener('input', handleSearchInput);
-  }
-
-  const menuToggle = document.getElementById('menuToggle');
-  const navDropdown = document.getElementById('navDropdown');
-  if (menuToggle && navDropdown) {
-    menuToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      navDropdown.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!navDropdown.contains(e.target) && !menuToggle.contains(e.target)) {
-        navDropdown.classList.remove('active');
-      }
-    });
-  }
-});
-
 function toggleFilterDrawer(open) {
   const drawer = document.getElementById('filterDrawer');
   const backdrop = document.getElementById('filterDrawerBackdrop');
@@ -813,20 +784,19 @@ function toggleFilterDrawer(open) {
 }
 
 function onBrowseSortChange(sortValue) {
-  // If event object was passed instead of value string, extract value safely
   const value = (typeof sortValue === 'string') ? sortValue : sortValue?.target?.value;
   
   if (value) {
-    currentBrowseMode = value; // Update global browse mode
+    currentBrowseMode = value;
   }
   populateAisleDropdown();
-  startBrowse(1); // Re-fetch products with the updated sort order
+  startBrowse(1);
 }
 
 function applyFilters() {
   toggleFilterDrawer(false);
   populateAisleDropdown();
-  startBrowse(1); // Reload browse results using current dropdown selections
+  startBrowse(1);
 }
 
 function resetFilters() {
@@ -845,11 +815,10 @@ function resetFilters() {
 }
 
 function onToggleIncorrectFilter(checked) {
-  // Support either passing boolean or event object
   const isChecked = typeof checked === 'boolean' ? checked : checked?.target?.checked;
   
   showReportedIncorrectOnly = !!isChecked;
-  startBrowse(1); // Reset to page 1 and refresh list
+  startBrowse(1);
 }
 
 async function populateAisleDropdown() {
@@ -872,10 +841,17 @@ async function populateAisleDropdown() {
   }
 }
 
-// Ensure populateAisleDropdown runs when the app loads
+function onAisleFilterChange(value) {
+  selectedAisle = value;
+  startBrowse(1);
+}
+
+// ==========================================
+// APP INITIALIZATION
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   loadWarehouses();
-  populateAisleDropdown(); // <-- Populates aisles on load
+  populateAisleDropdown();
   startBrowse(1);
 
   const searchBox = document.getElementById('searchBox');
@@ -898,10 +874,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-
-
-function onAisleFilterChange(value) {
-  selectedAisle = value;
-  startBrowse(1);
-}
