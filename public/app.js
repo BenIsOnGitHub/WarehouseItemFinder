@@ -440,6 +440,14 @@ async function startBrowse(page = 1) {
     browseData = data.products || [];
     totalBrowsePages = data.totalPages || 1;
 
+// Client-side fallback sorting for numeric/text identifiers
+    if (currentBrowseMode === 'item_number') {
+      browseData.sort((a, b) => (parseInt(a.item_number, 10) || 0) - (parseInt(b.item_number, 10) || 0));
+    } else if (currentBrowseMode === 'sku') {
+      browseData.sort((a, b) => (parseInt(a.sku, 10) || 0) - (parseInt(b.sku, 10) || 0));
+    }
+
+    // Use grouped Aisle view only when specifically sorting by aisle
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
     } else {
