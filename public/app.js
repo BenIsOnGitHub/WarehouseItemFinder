@@ -23,17 +23,17 @@ if ('serviceWorker' in navigator) {
 }
 
 function getIdentifierDisplay(prod) {
-  const hasItemNumber = product.item_number && String(product.item_number).trim() !== '';
-  const hasSku = product.sku && String(product.sku).trim() !== '';
+  const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
+  const hasSku = prod.sku && String(prod.sku).trim() !== '';
 
   // Rule 0: Both missing
   if (!hasItemNumber && !hasSku) {
     return `
       <div class="product-identifiers">
-        <span class="clickable-identifier missing" onclick="promptEditItemNumber('${product.id}')">
+        <span class="clickable-identifier missing" onclick="promptEditItemNumber('${prod.id}')">
           Item number: Unknown
         </span> | 
-        <span class="clickable-identifier missing" onclick="promptEditSku('${product.id}')">
+        <span class="clickable-identifier missing" onclick="promptEditSku('${prod.id}')">
           SKU: Unknown
         </span>
       </div>
@@ -42,13 +42,13 @@ function getIdentifierDisplay(prod) {
 
   // Item text format
   const itemText = hasItemNumber 
-    ? `Item: ${escapeHtml(product.item_number)}`
-    : `<span class="clickable-identifier missing" onclick="promptEditItemNumber('${product.id}')">Item: Unknown</span>`;
+    ? `Item: ${escapeHtml(prod.item_number)}`
+    : `<span class="clickable-identifier missing" onclick="promptEditItemNumber('${prod.id}')">Item: Unknown</span>`;
 
   // Rule 1: SKU always visible
   const skuText = hasSku
-    ? `SKU: ${escapeHtml(product.sku)}`
-    : `<span class="clickable-identifier missing" onclick="promptEditSku('${product.id}')">SKU: Unknown</span>`;
+    ? `SKU: ${escapeHtml(prod.sku)}`
+    : `<span class="clickable-identifier missing" onclick="promptEditSku('${prod.id}')">SKU: Unknown</span>`;
 
   return `
     <div class="product-identifiers">
@@ -1137,4 +1137,14 @@ async function updateProductIdentifier(productId, updates) {
     console.error("Update identifier error:", err);
     alert("Network error updating identifier.");
   }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
