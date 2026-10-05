@@ -418,3 +418,49 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 
   return null;
 }
+
+// Add inside worker fetch handler:
+if (pathname === '/api/update-identifier' && request.method === 'POST') {
+  const { id, item_number, sku } = await request.json();
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
+  }
+
+  // Verify product exists and check current state
+  const existing = await env.DB.prepare('SELECT item_number, sku FROM products WHERE id = ?').bind(id).first();
+  if (!existing) {
+    return new Response(JSON.stringify({ error: 'Product not found' }), { status: 404, headers: corsHeaders });
+  }
+
+  let updateFields = [];
+  let bindParams = [];
+
+  // Rule 3 Enforcement: Only update item_number if it was previously empty/null
+  if (item_number !== undefined) {
+    const isCurrentlyEmpty = !existing.item_number || String(existing.item_number).trim() === '';
+    if (isCurrentlyEmpty) {
+      updateFields.push('item_number = ?');
+      bindParams.push(item_number.trim());
+    } else {
+      return new Response(JSON.stringify({ error: 'Item number is already set and cannot be edited.' }), { status: 400, headers: corsHeaders });
+    }
+  }
+
+  // Rule 2: Update SKU if provided
+  if (sku !== undefined) {
+    updateFields.push('sku = ?');
+    bindParams.push(sku.trim());
+  }
+
+  if (updateFields.length === 0) {
+    return new Response(JSON.stringify({ error: 'No valid fields to update' }), { status: 400, headers: corsHeaders });
+  }
+
+  updateFields.push("updated_at = datetime('now')");
+  bindParams.push(id);
+
+  const query = `UPDATE products SET ${updateFields.join(', ')} WHERE id = ?`;
+  await env.DB.prepare(query).bind(...bindParams).run();
+
+  return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+}

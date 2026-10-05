@@ -23,10 +23,38 @@ if ('serviceWorker' in navigator) {
 }
 
 function getIdentifierDisplay(prod) {
-  const parts = [];
-  if (prod.item_number) parts.push(`Item #${prod.item_number}`);
-  if (prod.sku) parts.push(`SKU: ${prod.sku}`);
-  return parts.length > 0 ? parts.join(' | ') : 'No Identifier';
+  const hasItemNumber = product.item_number && String(product.item_number).trim() !== '';
+  const hasSku = product.sku && String(product.sku).trim() !== '';
+
+  // Rule 0: Both missing
+  if (!hasItemNumber && !hasSku) {
+    return `
+      <div class="product-identifiers">
+        <span class="clickable-identifier missing" onclick="promptEditItemNumber('${product.id}')">
+          Item number: Unknown
+        </span> | 
+        <span class="clickable-identifier missing" onclick="promptEditSku('${product.id}')">
+          SKU: Unknown
+        </span>
+      </div>
+    `;
+  }
+
+  // Item text format
+  const itemText = hasItemNumber 
+    ? `Item: ${escapeHtml(product.item_number)}`
+    : `<span class="clickable-identifier missing" onclick="promptEditItemNumber('${product.id}')">Item: Unknown</span>`;
+
+  // Rule 1: SKU always visible
+  const skuText = hasSku
+    ? `SKU: ${escapeHtml(product.sku)}`
+    : `<span class="clickable-identifier missing" onclick="promptEditSku('${product.id}')">SKU: Unknown</span>`;
+
+  return `
+    <div class="product-identifiers">
+      ${itemText} | ${skuText}
+    </div>
+  `;
 }
 
 function formatTimeAgo(dateStr) {
@@ -993,3 +1021,120 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Rule 3: Allow editing item_number ONLY when it's unknown/blank
+async function promptEditItemNumber(productId) {
+  const newItemNumber = prompt("Enter Item Number:");
+  if (!newItemNumber || !newItemNumber.trim()) return;
+
+  await updateProductIdentifier(productId, { item_number: newItemNumber.trim() });
+}
+
+// Rule 2: Allow typing manually OR scanning barcode via camera when SKU is missing
+async function promptEditSku(productId) {
+  const choice = confirm("Press 'OK' to type a SKU manually, or 'Cancel' to open the camera scanner.");
+
+  if (choice) {
+    // Manual Input
+    const newSku = prompt("Enter SKU manually:");
+    if (!newSku || !newSku.trim()) return;
+    await updateProductIdentifier(productId, { sku: newSku.trim() });
+  } else {
+    // Phone Camera Barcode Scanner
+    startCameraBarcodeScanner(async (scannedBarcode) => {
+      if (scannedBarcode) {
+        await updateProductIdentifier(productId, { sku: scannedBarcode });
+      }
+    });
+  }
+}
+
+// Native HTML5 Camera Barcode Scanner implementation
+async function startCameraBarcodeScanner(onScanned) {
+  if (!('BarcodeDetector' in window)) {
+    // Fallback if BarcodeDetector API isn't supported natively on device
+    const manualFallback = prompt("Camera scanning not natively supported on this browser. Enter SKU manually:");
+    if (manualFallback) onScanned(manualFallback.trim());
+    return;
+  }
+
+  // Create video overlay modal
+  const video = document.createElement('video');
+  video.style.position = 'fixed';
+  video.style.top = '0';
+  video.style.left = '0';
+  video.style.width = '100vw';
+  video.style.height = '100vh';
+  video.style.zIndex = '9999';
+  video.style.backgroundColor = 'black';
+  video.autoplay = true;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.innerText = 'Close Scanner';
+  closeBtn.style.position = 'fixed';
+  closeBtn.style.top = '20px';
+  closeBtn.style.right = '20px';
+  closeBtn.style.zIndex = '10000';
+  closeBtn.style.padding = '10px 15px';
+  closeBtn.onclick = () => stopScanner();
+
+  document.body.appendChild(video);
+  document.body.appendChild(closeBtn);
+
+  let stream = null;
+  let intervalId = null;
+
+  function stopScanner() {
+    if (intervalId) clearInterval(intervalId);
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    video.remove();
+    closeBtn.remove();
+  }
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    video.srcObject = stream;
+
+    const barcodeDetector = new BarcodeDetector({ formats: ['upc_a', 'upc_e', 'ean_13', 'code_128', 'qr_code'] });
+
+    intervalId = setInterval(async () => {
+      try {
+        const barcodes = await barcodeDetector.detect(video);
+        if (barcodes.length > 0) {
+          const code = barcodes[0].rawValue;
+          stopScanner();
+          onScanned(code);
+        }
+      } catch (err) {
+        console.error("Barcode detection error:", err);
+      }
+    }, 500);
+
+  } catch (err) {
+    alert("Could not access camera for scanning: " + err.message);
+    stopScanner();
+  }
+}
+
+// API Call to update database
+async function updateProductIdentifier(productId, updates) {
+  try {
+    const res = await fetch('/api/update-identifier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: productId, ...updates })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert("Updated successfully!");
+      // Refresh current search or browse list
+      if (typeof performSearch === 'function') performSearch();
+    } else {
+      alert("Error: " + (data.error || "Failed to update identifier"));
+    }
+  } catch (err) {
+    console.error("Update identifier error:", err);
+    alert("Network error updating identifier.");
+  }
+}
