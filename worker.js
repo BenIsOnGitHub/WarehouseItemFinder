@@ -379,7 +379,8 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Cookie': cookieHeader
-      }
+      },
+      redirect: 'follow'
     });
 
     if (!response.ok) return null;
@@ -393,13 +394,21 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
     let extractedCategory = '';
     let productTitle = '';
 
-    // Extract JSON-LD safely
-    const jsonLdRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
-    let match;
+    // 1. Check meta tags for Category (e.g. <meta name="category" content="..."> or <meta property="category" ...>)
+    const metaCategoryMatch = html.match(/<meta[^>]*name=["']category["'][^>]*content=["']([^"']+)["']/i) ||
+                              html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']category["']/i);
+    if (metaCategoryMatch && metaCategoryMatch[1]) {
+      extractedCategory = metaCategoryMatch[1].trim();
+    }
 
-    while ((match = jsonLdRegex.exec(html)) !== null) {
+    // 2. Extract from JSON-LD schema
+    const scriptBlocks = html.split('<script type="application/ld+json">');
+    for (let i = 1; i < scriptBlocks.length; i++) {
+      const blockContent = scriptBlocks[i].split('</script>')[0];
+      if (!blockContent) continue;
+
       try {
-        const metadata = JSON.parse(match[1]);
+        const metadata = JSON.parse(blockContent.trim());
         const items = Array.isArray(metadata) ? metadata : [metadata];
 
         for (const item of items) {
@@ -407,12 +416,12 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 
           if (item['@type'] === 'Product' && item.name) {
             productTitle = item.name;
-            if (typeof item.category === 'string') {
+            if (!extractedCategory && typeof item.category === 'string') {
               extractedCategory = item.category;
             }
           }
 
-          if (item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
+          if (!extractedCategory && item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
             const crumbs = item.itemListElement
               .map(c => c.name || (c.item && c.item.name))
               .filter(Boolean)
@@ -424,11 +433,31 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
           }
         }
       } catch (parseErr) {
-        // Skip malformed JSON-LD scripts on the page
+        // Skip malformed script blocks
       }
     }
 
-    // Fallback title check from H1 tag
+    // 3. Fallback: Search for category links in HTML anchor tags ending in .html (e.g. href=".../commercial-restaurant.html")
+    if (!extractedCategory) {
+      const categoryLinkMatch = html.match(/href=["']https:\/\/www\.costco\.com\/([a-z0-9-]+)\.html["'][^>]*>([\s\S]*?)<\/a>/gi);
+      if (categoryLinkMatch) {
+        for (const linkHtml of categoryLinkMatch) {
+          // Ignore general non-category landing pages
+          if (!linkHtml.includes('.product.') && 
+              !linkHtml.includes('Grocery') && 
+              !linkHtml.includes('Customer-Service') &&
+              !linkHtml.includes('Warehouse-Locations')) {
+            const cleanText = linkHtml.replace(/<[^>]+>/g, '').trim();
+            if (cleanText && cleanText.length > 2 && cleanText.length < 50) {
+              extractedCategory = cleanText;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // 4. Fallback H1 Title Check
     if (!productTitle) {
       const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
       if (titleMatch) {
@@ -436,13 +465,21 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       }
     }
 
+    // Format and clean category text
+    if (extractedCategory) {
+      extractedCategory = extractedCategory
+        .replace(/&amp;/g, '&')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
     if (productTitle) {
       return {
-        id: crypto.randomUUID(),
+        id: '',
         item_number: itemNumber,
         product_name: productTitle,
-        category: extractedCategory,
-        product_url: targetUrl,
+        category: extractedCategory || '',
+        product_url: response.url || targetUrl,
         warehouse_id: warehouseId,
         aisle: '',
         bay: ''
