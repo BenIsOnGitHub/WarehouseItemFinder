@@ -133,13 +133,15 @@ export default {
       }
 
       // 5. Warehouses API
-      if (pathname === '/api/warehouses') {
-        const { results } = await env.DB.prepare(`
-          SELECT warehouse_id, warehouse_name FROM warehouses ORDER BY warehouse_id ASC
-        `).all();
+			if (pathname === '/api/warehouses') {
+			  const { results } = await env.DB.prepare(`
+			    SELECT warehouse_id, warehouse_name, street_address, city, state, zip_code 
+			    FROM warehouses 
+			    ORDER BY warehouse_id ASC
+			  `).all();
 
-        return new Response(JSON.stringify(results || []), { headers: corsHeaders });
-      }
+			  return new Response(JSON.stringify(results || []), { headers: corsHeaders });
+			}
 
       // 6. Flag Location Incorrect API
       if (pathname === '/api/flag-incorrect' && request.method === 'POST') {

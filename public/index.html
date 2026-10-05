@@ -19,6 +19,24 @@
   <div class="header-title">
     <img src="images/icon-192-square.png" alt="App Logo" class="header-logo"> Warehouse Item Finder
   </div>
+  
+  <!-- Single Shared Warehouse Picker -->
+  <div id="warehouse-picker-container" class="header-warehouse-picker">
+    <div class="warehouse-search-wrapper">
+      <input 
+        type="text" 
+        id="warehouse-search-input" 
+        placeholder="Search warehouse (name, city, ID...)" 
+        autocomplete="off"
+      />
+      <ul id="warehouse-search-results" class="warehouse-dropdown-list" hidden></ul>
+    </div>
+    
+    <div id="active-warehouse-badge" class="active-warehouse-badge">
+      <span id="active-warehouse-text">Loading warehouse...</span>
+      <button type="button" id="set-favorite-btn" title="Save as default store">⭐ Favorite</button>
+    </div>
+  </div>
   <button class="hamburger-btn" id="menuToggle" aria-label="Open Navigation Menu">&#9776;</button>
   
   <div class="nav-dropdown" id="navDropdown">
@@ -34,12 +52,10 @@
   <section id="search-view" class="page-view active">
     <h1>Product Search</h1>
 <!-- Warehouse Selector -->
-    <div style="margin-top: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
       <label for="warehouseSearchSelect" style="font-weight: 600; font-size: 14px; color: #555;">Warehouse:</label>
       <select class="warehouse-select-dropdown" onchange="onWarehouseChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
         <option value="1738">The Villages, FL #1738</option>
       </select>
-    </div>
     
     <!--
     <div class="search-box" style="display: flex; align-items: center; gap: 8px;">
@@ -113,12 +129,10 @@
   <section id="browse-view" class="page-view">
     <h1>Browse Products</h1>
     <!-- Dynamic Warehouse Drop-down Selector -->
-    <div style="margin-top: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
       <label for="warehouseSelect" style="font-weight: 600; font-size: 14px; color: #555;">Warehouse:</label>
       <select id="warehouseSelect" onchange="onWarehouseChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
         <option value="1738">The Villages, FL #1738</option>
       </select>
-    </div>
 
 <!-- Sort & Filter Control Bar -->
     <div class="browse-controls-bar" style="margin: 15px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
@@ -171,7 +185,9 @@
   
 </div>
 
+<script src="warehousePicker.js"></script>
 <script src="app.js"></script>
+
 
   <!-- Location Help Modal -->
   <div id="helpModal" class="modal-overlay" onclick="closeHelpModal(event)">
