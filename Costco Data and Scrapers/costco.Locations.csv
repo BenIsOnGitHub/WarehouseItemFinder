@@ -1,0 +1,619 @@
+store_name,city_name,state_id,lat,lng
+Costco Wholesale,Madison,AL,34.752,-86.753
+Costco Wholesale,Hoover,AL,33.379,-86.813
+Costco Wholesale,Mobile,AL,30.648,-88.119
+Costco Wholesale,Huntsville,AL,34.744,-86.603
+Costco Wholesale,Montgomery,AL,32.364,-86.15
+Costco Wholesale,Anchorage,AK,61.145,-149.886
+Costco Wholesale,Anchorage,AK,61.143,-149.88
+Costco Wholesale,Fairbanks,AK,64.853,-147.708
+Costco Wholesale,Juneau,AK,58.359,-134.483
+Costco Wholesale,Anchorage,AK,61.21,-149.806
+Costco Wholesale,Buckeye,AZ,33.46,-112.502
+Costco Wholesale,Phoenix,AZ,33.671,-112.028
+Costco Wholesale,Avondale,AZ,33.468,-112.275
+Costco Wholesale,Chandler,AZ,33.294,-111.899
+Costco Wholesale,Gilbert,AZ,33.376,-111.841
+Costco Wholesale,Glendale,AZ,33.643,-112.233
+Costco Wholesale,Mesa,AZ,33.389,-111.669
+Costco Wholesale,Phoenix,AZ,33.66,-112.116
+Costco Wholesale,Tucson,AZ,32.326,-111.05
+Costco Wholesale,Prescott,AZ,34.548,-112.397
+Costco Wholesale,Queen Creek,AZ,33.265,-111.637
+Costco Wholesale,Phoenix,AZ,33.604,-111.986
+Costco Wholesale,Scottsdale,AZ,33.623,-111.901
+Costco Wholesale,Gilbert,AZ,33.296,-111.745
+Costco Wholesale,Tempe,AZ,33.347,-111.962
+Costco Wholesale,Surprise,AZ,33.608,-112.411
+Costco Wholesale,Tucson,AZ,32.18,-110.947
+Costco Wholesale,Phoenix,AZ,33.474,-111.985
+Costco Wholesale,Tucson,AZ,32.252,-110.859
+Costco Wholesale,Alhambra,CA,34.088,-118.148
+Costco Wholesale,Azusa,CA,34.132,-117.926
+Costco Wholesale,Antioch,CA,38.009,-121.835
+Costco Wholesale,Little Rock,AR,34.757,-92.454
+Costco Wholesale,San Jose,CA,37.253,-121.88
+Costco Wholesale,Bakersfield,CA,35.386,-119.05
+Costco Wholesale,Burbank,CA,34.186,-118.324
+Costco Wholesale,Brentwood,CA,37.958,-121.751
+Costco Wholesale,Sacramento,CA,38.597,-121.453
+Costco Wholesale,Carlsbad,CA,33.121,-117.315
+Costco Wholesale,San Diego,CA,32.988,-117.078
+Costco Wholesale,Chino Hills,CA,34.014,-117.742
+Costco Wholesale,Citrus Heights,CA,38.69,-121.297
+Costco Wholesale,Chico,CA,39.721,-121.81
+Costco Wholesale,City of Industry,CA,33.995,-117.922
+Costco Wholesale,Chula Vista,CA,32.607,-117.081
+Costco Wholesale,Clovis,CA,36.806,-119.703
+Costco Wholesale,Corona,CA,33.887,-117.524
+Costco Wholesale,Marina Del Rey,CA,33.993,-118.446
+Costco Wholesale,Cypress,CA,33.804,-118.038
+Costco Wholesale,Concord,CA,37.958,-122.033
+Costco Wholesale,Danville,CA,37.782,-121.973
+Costco Wholesale,Eastvale,CA,33.997,-117.556
+Costco Wholesale,El Centro,CA,32.812,-115.573
+Costco Wholesale,South San Francisco,CA,37.665,-122.449
+Costco Wholesale,Elk Grove,CA,38.406,-121.413
+Costco Wholesale,Eureka,CA,40.792,-124.181
+Costco Wholesale,Folsom,CA,38.645,-121.111
+Costco Wholesale,Fairfield,CA,38.214,-122.145
+Costco Wholesale,Fontana,CA,34.138,-117.443
+Costco Wholesale,Foster City,CA,37.562,-122.274
+Costco Wholesale,Fountain Valley,CA,33.703,-117.932
+Costco Wholesale,Fremont,CA,37.502,-121.972
+Costco Wholesale,Gilroy,CA,37.008,-121.556
+Costco Wholesale,Fresno,CA,36.81,-119.874
+Costco Wholesale,Garden Grove,CA,33.773,-117.941
+Costco Wholesale,Fullerton,CA,33.862,-117.922
+Costco Wholesale,Goleta,CA,34.428,-119.874
+Costco Wholesale,Hanford,CA,36.327,-119.607
+Costco Wholesale,San Jose,CA,37.244,-121.786
+Costco Wholesale,Hayward,CA,37.615,-122.088
+Costco Wholesale,Hawthorne,CA,33.899,-118.373
+Costco Wholesale,Highland,CA,34.109,-117.193
+Costco Wholesale,Inglewood,CA,33.943,-118.334
+Costco Wholesale,La Habra,CA,33.933,-117.97
+Costco Wholesale,Huntington Beach,CA,33.733,-117.996
+Costco Wholesale,Irvine,CA,33.66,-117.745
+Costco Wholesale,La Mesa,CA,32.774,-117.025
+Costco Wholesale,La Quinta,CA,33.704,-116.273
+Costco Wholesale,Laguna Niguel,CA,33.567,-117.711
+Costco Wholesale,Laguna Niguel,CA,33.555,-117.677
+Costco Wholesale,Lake Elsinore,CA,33.697,-117.339
+Costco Wholesale,Lakewood,CA,33.85,-118.137
+Costco Wholesale,Lodi,CA,38.1,-121.264
+Costco Wholesale,Lancaster,CA,34.662,-118.152
+Costco Wholesale,Loomis,CA,38.809,-121.205
+Costco Wholesale,Los Angeles,CA,34.129,-118.264
+Costco Wholesale,Livermore,CA,37.703,-121.812
+Costco Wholesale,Linda,CA,39.125,-121.57
+Costco Wholesale,Manteca,CA,37.786,-121.26
+Costco Wholesale,Merced,CA,37.303,-120.498
+Costco Wholesale,San Diego,CA,32.78,-117.129
+Costco Wholesale,Montclair,CA,34.083,-117.691
+Costco Wholesale,Modesto,CA,37.702,-121.067
+Costco Wholesale,Monterey Park,CA,34.037,-118.104
+Costco Wholesale,San Diego,CA,32.822,-117.225
+Costco Wholesale,Moreno Valley,CA,33.936,-117.276
+Costco Wholesale,Mountain View,CA,37.421,-122.095
+Costco Wholesale,Murrieta,CA,33.6,-117.171
+Costco Wholesale,Visalia,CA,36.359,-119.365
+Costco Wholesale,Fresno,CA,36.839,-119.788
+Costco Wholesale,Napa,CA,38.249,-122.278
+Costco Wholesale,Sacramento,CA,38.64,-121.522
+Costco Wholesale,Northridge,CA,34.23,-118.551
+Costco Wholesale,Newark,CA,37.526,-122.0
+Costco Wholesale,San Jose,CA,37.391,-121.885
+Costco Wholesale,Novato,CA,38.089,-122.552
+Costco Wholesale,Norwalk,CA,33.92,-118.102
+Costco Wholesale,Oxnard,CA,34.225,-119.148
+Costco Wholesale,Pacoima,CA,34.272,-118.426
+Costco Wholesale,Ontario,CA,34.062,-117.528
+Costco Wholesale,Pleasanton,CA,37.695,-121.918
+Costco Wholesale,Poway,CA,32.936,-117.034
+Costco Wholesale,Palm Desert,CA,33.804,-116.39
+Costco Wholesale,Rancho Cucamonga,CA,34.079,-117.548
+Costco Wholesale,Rancho Cordova,CA,38.59,-121.264
+Costco Wholesale,Chula Vista,CA,32.638,-117.022
+Costco Wholesale,Redding,CA,40.541,-122.354
+Costco Wholesale,Redwood City,CA,37.478,-122.216
+Costco Wholesale,Richmond,CA,37.899,-122.32
+Costco Wholesale,Riverbank,CA,37.711,-120.954
+Costco Wholesale,Rohnert Park,CA,38.352,-122.716
+Costco Wholesale,Roseville,CA,38.781,-121.266
+Costco Wholesale,South San Francisco,CA,37.642,-122.401
+Costco Wholesale,Sacramento,CA,38.468,-121.415
+Costco Wholesale,Salinas,CA,36.704,-121.669
+Costco Wholesale,San Bernardino,CA,34.068,-117.263
+Costco Wholesale,San Dimas,CA,34.112,-117.826
+Costco Wholesale,San Francisco,CA,37.77,-122.411
+Costco Wholesale,San Jose,CA,37.31,-121.852
+Costco Wholesale,San Leandro,CA,37.72,-122.182
+Costco Wholesale,San Juan Capistrano,CA,33.47,-117.678
+Costco Wholesale,San Luis Obispo,CA,35.252,-120.691
+Costco Wholesale,San Marcos,CA,33.135,-117.125
+Costco Wholesale,Santa Clara,CA,37.356,-121.939
+Costco Wholesale,Santa Clarita,CA,34.404,-118.461
+Costco Wholesale,Sand City,CA,36.617,-121.845
+Costco Wholesale,Santa Cruz,CA,36.984,-122.034
+Costco Wholesale,Santa Rosa,CA,38.42,-122.712
+Costco Wholesale,Santa Maria,CA,34.927,-120.419
+Costco Wholesale,Santee,CA,32.84,-116.988
+Costco Wholesale,San Diego,CA,32.713,-117.114
+Costco Wholesale,Signal Hill,CA,33.805,-118.166
+Costco Wholesale,Simi Valley,CA,34.283,-118.796
+Costco Wholesale,Stockton,CA,38.019,-121.293
+Costco Wholesale,Sunnyvale,CA,37.372,-121.995
+Costco Wholesale,Temecula,CA,33.522,-117.155
+Costco Wholesale,Bakersfield,CA,35.298,-119.058
+Costco Wholesale,Torrance,CA,33.807,-118.334
+Costco Wholesale,Tracy,CA,37.752,-121.475
+Costco Wholesale,Turlock,CA,37.519,-120.888
+Costco Wholesale,Tustin,CA,33.7,-117.823
+Costco Wholesale,Tustin,CA,33.728,-117.796
+Costco Wholesale,Ukiah,CA,39.127,-123.197
+Costco Wholesale,Vacaville,CA,38.351,-121.98
+Costco Wholesale,Vallejo,CA,38.133,-122.213
+Costco Wholesale,Van Nuys,CA,34.182,-118.464
+Costco Wholesale,Victorville,CA,34.516,-117.318
+Costco Wholesale,Visalia,CA,36.293,-119.307
+Costco Wholesale,Roseville,CA,38.753,-121.366
+Costco Wholesale,Vista,CA,33.188,-117.276
+Costco Wholesale,Westlake Village,CA,34.152,-118.797
+Costco Wholesale,Woodland,CA,38.672,-121.723
+Costco Wholesale,Woodland Hills,CA,34.187,-118.604
+Costco Wholesale,Arvada,CO,39.79,-105.083
+Costco Wholesale,Yorba Linda,CA,33.876,-117.744
+Costco Wholesale,Aurora,CO,39.691,-104.866
+Costco Wholesale,Littleton,CO,39.558,-104.877
+Costco Wholesale,Colorado Springs,CO,38.893,-104.718
+Costco Wholesale,Gypsum,CO,39.64,-106.904
+Costco Wholesale,Denver,CO,39.78,-104.795
+Costco Wholesale,Longmont,CO,40.151,-105.087
+Costco Wholesale,Parker,CO,39.556,-104.776
+Costco Wholesale,Sheridan,CO,39.644,-105.006
+Costco Wholesale,Littleton,CO,39.638,-105.087
+Costco Wholesale,Superior,CO,39.961,-105.175
+Costco Wholesale,Timnath,CO,40.521,-104.99
+Costco Wholesale,Colorado Springs,CO,38.905,-104.822
+Costco Wholesale,Thornton,CO,39.991,-104.983
+Costco Wholesale,Westminster,CO,39.862,-105.066
+Costco Wholesale,Brookfield,CT,41.442,-73.406
+Costco Wholesale,East Lyme,CT,41.36,-72.213
+Costco Wholesale,Enfield,CT,41.994,-72.576
+Costco Wholesale,Milford,CT,41.251,-73.025
+Costco Wholesale,Norwalk,CT,41.092,-73.451
+Costco Wholesale,New Britain,CT,41.709,-72.763
+Costco Wholesale,Waterbury,CT,41.54,-72.968
+Costco Wholesale,South Windsor,CT,41.817,-72.556
+Costco Wholesale,Newark,DE,39.676,-75.65
+Costco Wholesale,Altamonte Springs,FL,28.661,-81.418
+Costco Wholesale,Boca Raton,FL,26.413,-80.1
+Costco Wholesale,Bradenton,FL,27.495,-82.47
+Costco Wholesale,Brandon,FL,27.922,-82.331
+Costco Wholesale,Clearwater,FL,27.956,-82.728
+Costco Wholesale,Clermont,FL,28.549,-81.667
+Costco Wholesale,Coral Springs,FL,26.288,-80.279
+Costco Wholesale,Davie,FL,26.097,-80.251
+Costco Wholesale,Daytona Beach,FL,29.196,-81.076
+Costco Wholesale,Jacksonville,FL,30.252,-81.534
+Costco Wholesale,Winter Park,FL,28.599,-81.3
+Costco Wholesale,Miami,FL,25.653,-80.412
+Costco Wholesale,Fort Myers,FL,26.49,-81.786
+Costco Wholesale,Lantana,FL,26.589,-80.071
+Costco Wholesale,Fort Myers,FL,26.544,-81.874
+Costco Wholesale,Melbourne,FL,28.19,-80.719
+Costco Wholesale,Miami Lakes,FL,25.923,-80.299
+Costco Wholesale,Naples,FL,26.22,-81.775
+Costco Wholesale,Miami,FL,25.77,-80.323
+Costco Wholesale,North Miami,FL,25.913,-80.155
+Costco Wholesale,Palm Beach Gardens,FL,26.807,-80.088
+Costco Wholesale,Pembroke Pines,FL,26.008,-80.361
+Costco Wholesale,North Port,FL,27.044,-82.312
+Costco Wholesale,Pensacola,FL,30.533,-87.265
+Costco Wholesale,Pompano Beach,FL,26.273,-80.15
+Costco Wholesale,Royal Palm Beach,FL,26.683,-80.225
+Costco Wholesale,Orlando,FL,28.496,-81.425
+Costco Wholesale,Sarasota,FL,27.235,-82.493
+Costco Wholesale,St. Augustine,FL,29.983,-81.464
+Costco Wholesale,Stuart,FL,27.165,-80.247
+Costco Wholesale,Tallahassee,FL,30.461,-84.213
+Costco Wholesale,Jacksonville,FL,30.201,-81.757
+Costco Wholesale,Tampa,FL,28.042,-82.581
+Costco Wholesale,The Villages,FL,28.93,-82.023
+Costco Wholesale,Lutz,FL,28.189,-82.394
+Costco Wholesale,Alpharetta,GA,34.091,-84.278
+Costco Wholesale,Athens,GA,33.92,-83.457
+Costco Wholesale,Augusta,GA,33.525,-82.02
+Costco Wholesale,Atlanta,GA,33.873,-84.336
+Costco Wholesale,Cumming,GA,34.214,-84.116
+Costco Wholesale,Atlanta,GA,33.882,-84.47
+Costco Wholesale,Dallas,GA,33.921,-84.764
+Costco Wholesale,Ringgold,GA,34.969,-85.195
+Costco Wholesale,Duluth,GA,33.948,-84.143
+Costco Wholesale,Atlanta,GA,33.929,-84.355
+Costco Wholesale,Buford,GA,34.062,-83.995
+Costco Wholesale,Sharpsburg,GA,33.397,-84.619
+Costco Wholesale,Mcdonough,GA,33.48,-84.221
+Costco Wholesale,Pooler,GA,32.081,-81.277
+Costco Wholesale,Kennesaw,GA,34.006,-84.57
+Costco Wholesale,Woodstock,GA,34.12,-84.515
+Costco Wholesale,Honolulu,HI,21.319,-157.872
+Costco Wholesale,Lihue,HI,21.967,-159.383
+Costco Wholesale,Honolulu,HI,21.283,-157.712
+Costco Wholesale,Kapolei,HI,21.327,-158.088
+Costco Wholesale,Kailua Kona,HI,19.686,-156.017
+Costco Wholesale,Kahului,HI,20.888,-156.448
+Costco Wholesale,Pearl City,HI,21.392,-157.963
+Costco Wholesale,Boise,ID,43.585,-116.276
+Costco Wholesale,Idaho Falls,ID,43.514,-111.985
+Costco Wholesale,Waipahu,HI,21.427,-158.0
+Costco Wholesale,Coeur D' Alene,ID,47.709,-116.783
+Costco Wholesale,Meridian,ID,43.661,-116.437
+Costco Wholesale,Nampa,ID,43.615,-116.59
+Costco Wholesale,Pocatello,ID,42.905,-112.455
+Costco Wholesale,Twin Falls,ID,42.593,-114.463
+Costco Wholesale,Bloomingdale,IL,41.941,-88.133
+Costco Wholesale,Bolingbrook,IL,41.727,-88.033
+Costco Wholesale,Chicago,IL,41.863,-87.668
+Costco Wholesale,Champaign,IL,40.142,-88.247
+Costco Wholesale,Glenview,IL,42.107,-87.821
+Costco Wholesale,East Peoria,IL,40.669,-89.585
+Costco Wholesale,Lake in the Hills,IL,42.179,-88.337
+Costco Wholesale,Lake Zurich,IL,42.187,-88.094
+Costco Wholesale,Chicago,IL,41.93,-87.677
+Costco Wholesale,Mettawa,IL,42.236,-87.902
+Costco Wholesale,Melrose Park,IL,41.909,-87.837
+Costco Wholesale,Loves Park,IL,42.322,-88.962
+Costco Wholesale,Mount Prospect,IL,42.083,-87.932
+Costco Wholesale,Naperville,IL,41.746,-88.204
+Costco Wholesale,North Riverside,IL,41.845,-87.806
+Costco Wholesale,Niles,IL,42.015,-87.781
+Costco Wholesale,Oak Brook,IL,41.846,-87.961
+Costco Wholesale,Naperville,IL,41.796,-88.123
+Costco Wholesale,Orland Park,IL,41.6,-87.862
+Costco Wholesale,Schaumburg,IL,42.055,-88.043
+Costco Wholesale,Saint Charles,IL,41.909,-88.343
+Costco Wholesale,Plainfield,IL,41.588,-88.168
+Costco Wholesale,Avon,IN,39.766,-86.366
+Costco Wholesale,Yorkville,IL,41.656,-88.438
+Costco Wholesale,Indianapolis,IN,39.913,-86.061
+Costco Wholesale,Evansville,IN,37.988,-87.463
+Costco Wholesale,Fort Wayne,IN,41.126,-85.158
+Costco Wholesale,Indianapolis,IN,39.917,-86.227
+Costco Wholesale,Merrillville,IN,41.475,-87.322
+Costco Wholesale,Granger,IN,41.719,-86.171
+Costco Wholesale,Ankeny,IA,41.764,-93.567
+Costco Wholesale,Indianapolis,IN,39.638,-86.09
+Costco Wholesale,Noblesville,IN,40.004,-86.003
+Costco Wholesale,Coralville,IA,41.697,-91.617
+Costco Wholesale,Davenport,IA,41.577,-90.534
+Costco Wholesale,Lenexa,KS,38.959,-94.734
+Costco Wholesale,West Des Moines,IA,41.562,-93.806
+Costco Wholesale,Overland Park,KS,38.907,-94.671
+Costco Wholesale,Wichita,KS,37.68,-97.224
+Costco Wholesale,Louisville,KY,38.204,-85.669
+Costco Wholesale,Florence,KY,38.989,-84.646
+Costco Wholesale,Lexington,KY,38.024,-84.41
+Costco Wholesale,Louisville,KY,38.316,-85.573
+Costco Wholesale,New Orleans,LA,29.968,-90.11
+Costco Wholesale,Covington,LA,30.447,-90.132
+Costco Wholesale,Scarborough,ME,43.609,-70.358
+Costco Wholesale,Baton Rouge,LA,30.419,-91.073
+Costco Wholesale,Lafayette,LA,30.156,-92.042
+Costco Wholesale,Hanover,MD,39.156,-76.731
+Costco Wholesale,Brandywine,MD,38.67,-76.873
+Costco Wholesale,Elkridge,MD,39.187,-76.794
+Costco Wholesale,Beltsville,MD,39.033,-76.909
+Costco Wholesale,Frederick,MD,39.402,-77.408
+Costco Wholesale,Gaithersburg,MD,39.157,-77.213
+Costco Wholesale,Glen Burnie,MD,39.197,-76.6
+Costco Wholesale,Baltimore,MD,39.358,-76.445
+Costco Wholesale,Owings Mills,MD,39.407,-76.789
+Costco Wholesale,Wheaton,MD,39.037,-77.053
+Costco Wholesale,Avon,MA,42.137,-71.066
+Costco Wholesale,Glenarden,MD,38.923,-76.851
+Costco Wholesale,Danvers,MA,42.556,-70.977
+Costco Wholesale,Dedham,MA,42.232,-71.173
+Costco Wholesale,Everett,MA,42.397,-71.071
+Costco Wholesale,West Springfield,MA,42.132,-72.621
+Costco Wholesale,Auburn Hills,MI,42.706,-83.294
+Costco Wholesale,Waltham,MA,42.394,-71.266
+Costco Wholesale,Bloomfield,MI,42.607,-83.293
+Costco Wholesale,Sharon,MA,42.105,-71.225
+Costco Wholesale,Commerce Township,MI,42.535,-83.445
+Costco Wholesale,Fruitport,MI,43.142,-86.206
+Costco Wholesale,East Lansing,MI,42.752,-84.444
+Costco Wholesale,Grand Rapids,MI,42.911,-85.543
+Costco Wholesale,Flint,MI,42.938,-83.722
+Costco Wholesale,Brighton,MI,42.504,-83.762
+Costco Wholesale,Livonia,MI,42.433,-83.43
+Costco Wholesale,Shelby Township,MI,42.63,-82.98
+Costco Wholesale,Kalamazoo,MI,42.272,-85.651
+Costco Wholesale,Madison Heights,MI,42.516,-83.118
+Costco Wholesale,Midland,MI,43.604,-84.169
+Costco Wholesale,Livonia,MI,42.382,-83.332
+Costco Wholesale,Roseville,MI,42.496,-82.936
+Costco Wholesale,Ann Arbor,MI,42.231,-83.743
+Costco Wholesale,Traverse City,MI,44.734,-85.573
+Costco Wholesale,Baxter,MN,46.349,-94.248
+Costco Wholesale,Burnsville,MN,44.75,-93.294
+Costco Wholesale,Wyoming,MI,42.876,-85.764
+Costco Wholesale,Chaska,MN,44.84,-93.602
+Costco Wholesale,Minneapolis,MN,45.199,-93.348
+Costco Wholesale,Eagan,MN,44.86,-93.14
+Costco Wholesale,Duluth,MN,46.824,-92.172
+Costco Wholesale,Eden Prairie,MN,44.861,-93.436
+Costco Wholesale,Maple Grove,MN,45.093,-93.424
+Costco Wholesale,Maplewood,MN,45.029,-93.04
+Costco Wholesale,Rochester,MN,44.047,-92.517
+Costco Wholesale,Saint Cloud,MN,45.548,-94.199
+Costco Wholesale,Saint Louis Park,MN,44.967,-93.354
+Costco Wholesale,Woodbury,MN,44.937,-92.963
+Costco Wholesale,Kansas City,MO,39.068,-94.581
+Costco Wholesale,Independence,MO,39.036,-94.357
+Costco Wholesale,Ridgeland,MS,32.423,-90.147
+Costco Wholesale,Manchester,MO,38.598,-90.508
+Costco Wholesale,Springfield,MO,37.207,-93.224
+Costco Wholesale,Saint Louis,MO,38.509,-90.339
+Costco Wholesale,Kansas City,MO,39.254,-94.598
+Costco Wholesale,Saint Peters,MO,38.797,-90.609
+Costco Wholesale,Saint Louis,MO,38.676,-90.359
+Costco Wholesale,Bozeman,MT,45.712,-111.071
+Costco Wholesale,Helena,MT,46.615,-112.002
+Costco Wholesale,Billings,MT,45.734,-108.614
+Costco Wholesale,Kalispell,MT,48.252,-114.328
+Costco Wholesale,Missoula,MT,46.896,-114.038
+Costco Wholesale,Lincoln,NE,40.739,-96.697
+Costco Wholesale,La Vista,NE,41.177,-96.109
+Costco Wholesale,Omaha,NE,41.29,-96.191
+Costco Wholesale,Omaha,NE,41.265,-96.106
+Costco Wholesale,Carson City,NV,39.116,-119.778
+Costco Wholesale,Las Vegas,NV,36.279,-115.21
+Costco Wholesale,Henderson,NV,36.069,-115.038
+Costco Wholesale,Reno,NV,39.503,-119.785
+Costco Wholesale,Sparks,NV,39.579,-119.739
+Costco Wholesale,Las Vegas,NV,36.063,-115.258
+Costco Wholesale,Henderson,NV,35.987,-115.138
+Costco Wholesale,Nashua,NH,42.703,-71.443
+Costco Wholesale,Las Vegas,NV,36.163,-115.333
+Costco Wholesale,Bayonne,NJ,40.674,-74.104
+Costco Wholesale,Brick,NJ,40.055,-74.158
+Costco Wholesale,Bridgewater,NJ,40.563,-74.558
+Costco Wholesale,Cherry Hill,NJ,39.926,-75.041
+Costco Wholesale,Clifton,NJ,40.831,-74.137
+Costco Wholesale,East Hanover,NJ,40.809,-74.381
+Costco Wholesale,Edison,NJ,40.529,-74.377
+Costco Wholesale,Flemington,NJ,40.523,-74.853
+Costco Wholesale,Stafford Township,NJ,39.707,-74.288
+Costco Wholesale,Hazlet,NJ,40.42,-74.171
+Costco Wholesale,Morganville,NJ,40.361,-74.304
+Costco Wholesale,Mount Laurel,NJ,39.969,-74.911
+Costco Wholesale,North Plainfield,NJ,40.612,-74.459
+Costco Wholesale,North Brunswick,NJ,40.436,-74.506
+Costco Wholesale,Ocean,NJ,40.233,-74.046
+Costco Wholesale,Lawrence Township,NJ,40.282,-74.675
+Costco Wholesale,Teterboro,NJ,40.861,-74.064
+Costco Wholesale,Union,NJ,40.694,-74.288
+Costco Wholesale,Wharton,NJ,40.907,-74.568
+Costco Wholesale,Albuquerque,NM,35.137,-106.614
+Costco Wholesale,Wayne,NJ,40.892,-74.251
+Costco Wholesale,Albuquerque,NM,35.196,-106.662
+Costco Wholesale,Albuquerque,NM,35.068,-106.531
+Costco Wholesale,Brooklyn,NY,40.656,-74.009
+Costco Wholesale,Holbrook,NY,40.773,-73.051
+Costco Wholesale,New York,NY,40.795,-73.932
+Costco Wholesale,Commack,NY,40.807,-73.287
+Costco Wholesale,Lawrence,NY,40.63,-73.74
+Costco Wholesale,Melville,NY,40.758,-73.42
+Costco Wholesale,Nesconset,NY,40.859,-73.13
+Costco Wholesale,Nanuet,NY,41.107,-74.025
+Costco Wholesale,Oceanside,NY,40.619,-73.652
+Costco Wholesale,New Rochelle,NY,40.896,-73.794
+Costco Wholesale,Port Chester,NY,40.999,-73.662
+Costco Wholesale,Rego Park,NY,40.734,-73.863
+Costco Wholesale,Long Island City,NY,40.761,-73.943
+Costco Wholesale,Rochester,NY,43.114,-77.613
+Costco Wholesale,Riverhead,NY,40.923,-72.703
+Costco Wholesale,Staten Island,NY,40.573,-74.168
+Costco Wholesale,Camillus,NY,43.039,-76.281
+Costco Wholesale,Yonkers,NY,40.975,-73.861
+Costco Wholesale,Apex,NC,35.746,-78.828
+Costco Wholesale,Charlotte,NC,35.162,-80.885
+Costco Wholesale,Westbury,NY,40.744,-73.598
+Costco Wholesale,Durham,NC,36.029,-78.914
+Costco Wholesale,Matthews,NC,35.13,-80.705
+Costco Wholesale,Greensboro,NC,36.057,-79.883
+Costco Wholesale,Mooresville,NC,35.583,-80.854
+Costco Wholesale,Raleigh,NC,35.668,-78.699
+Costco Wholesale,Raleigh,NC,35.818,-78.622
+Costco Wholesale,Winston Salem,NC,36.064,-80.318
+Costco Wholesale,Wilmington,NC,34.248,-77.873
+Costco Wholesale,Bismarck,ND,46.865,-100.769
+Costco Wholesale,West Fargo,ND,46.845,-96.887
+Costco Wholesale,Avon,OH,41.461,-82.012
+Costco Wholesale,Centerville,OH,39.662,-84.106
+Costco Wholesale,Boston Heights,OH,41.266,-81.507
+Costco Wholesale,Columbus,OH,40.149,-82.976
+Costco Wholesale,Cincinnati,OH,39.296,-84.303
+Costco Wholesale,Columbus,OH,40.053,-82.905
+Costco Wholesale,Cleveland,OH,41.526,-81.447
+Costco Wholesale,Liberty Township,OH,39.37,-84.357
+Costco Wholesale,Plain City,OH,40.107,-83.256
+Costco Wholesale,North Canton,OH,40.886,-81.44
+Costco Wholesale,Perrysburg,OH,41.535,-83.635
+Costco Wholesale,Strongsville,OH,41.317,-81.816
+Costco Wholesale,Toledo,OH,41.676,-83.625
+Costco Wholesale,Tulsa,OK,36.223,-95.85
+Costco Wholesale,Moore,OK,35.313,-97.496
+Costco Wholesale,Oklahoma City,OK,35.604,-97.53
+Costco Wholesale,Tulsa,OK,36.014,-95.889
+Costco Wholesale,Albany,OR,44.639,-123.065
+Costco Wholesale,Bend,OR,44.106,-121.305
+Costco Wholesale,Aloha,OR,45.509,-122.842
+Costco Wholesale,Central Point,OR,42.374,-122.888
+Costco Wholesale,Eugene,OR,44.089,-123.067
+Costco Wholesale,Clackamas,OR,45.428,-122.575
+Costco Wholesale,Hillsboro,OR,45.536,-122.936
+Costco Wholesale,Portland,OR,45.56,-122.525
+Costco Wholesale,Roseburg,OR,43.261,-123.35
+Costco Wholesale,Salem,OR,44.884,-123.007
+Costco Wholesale,Tigard,OR,45.435,-122.758
+Costco Wholesale,Wilsonville,OR,45.333,-122.764
+Costco Wholesale,Warrenton,OR,46.147,-123.914
+Costco Wholesale,Allentown,PA,40.567,-75.558
+Costco Wholesale,Warminster,PA,40.197,-75.08
+Costco Wholesale,Glen Mills,PA,39.89,-75.533
+Costco Wholesale,Cranberry Township,PA,40.691,-80.108
+Costco Wholesale,Harrisburg,PA,40.312,-76.799
+Costco Wholesale,Lancaster,PA,40.052,-76.257
+Costco Wholesale,King of Prussia,PA,40.091,-75.386
+Costco Wholesale,Homestead,PA,40.403,-79.921
+Costco Wholesale,Mechanicsburg,PA,40.239,-77.056
+Costco Wholesale,North Wales,PA,40.237,-75.234
+Costco Wholesale,Pittsburgh,PA,40.46,-80.165
+Costco Wholesale,Caguas Bairoa Ward,PR,18.248,-66.018
+Costco Wholesale,San Juan,PR,18.402,-65.996
+Costco Wholesale,Bayamon,PR,18.394,-66.165
+Costco Wholesale,Pottstown,PA,40.239,-75.576
+Costco Wholesale,Bayamon,PR,18.394,-66.147
+Costco Wholesale,Charleston,SC,32.796,-80.036
+Costco Wholesale,Columbia,SC,34.069,-81.139
+Costco Wholesale,San Juan,PR,-31.533,-68.515
+Costco Wholesale,Greenville,SC,34.836,-82.311
+Costco Wholesale,Indian Land,SC,34.969,-80.853
+Costco Wholesale,Mount Pleasant,SC,32.882,-79.769
+Costco Wholesale,Spartanburg,SC,34.94,-81.998
+Costco Wholesale,Myrtle Beach,SC,33.706,-78.915
+Costco Wholesale,Sioux Falls,SD,43.514,-96.741
+Costco Wholesale,Brentwood,TN,35.964,-86.817
+Costco Wholesale,Hendersonville,TN,36.328,-86.625
+Costco Wholesale,Mt. Juliet,TN,36.183,-86.463
+Costco Wholesale,Knoxville,TN,35.896,-84.141
+Costco Wholesale,Murfreesboro,TN,35.827,-86.42
+Costco Wholesale,Allen,TX,33.141,-96.686
+Costco Wholesale,Cordova,TN,35.191,-89.793
+Costco Wholesale,Memphis,TN,35.046,-89.797
+Costco Wholesale,Nashville,TN,36.14,-86.885
+Costco Wholesale,Arlington,TX,32.684,-97.113
+Costco Wholesale,Houston,TX,29.788,-95.53
+Costco Wholesale,Cedar Park,TX,30.527,-97.819
+Costco Wholesale,Austin,TX,30.396,-97.744
+Costco Wholesale,College Station,TX,30.567,-96.263
+Costco Wholesale,Cypress,TX,29.979,-95.712
+Costco Wholesale,Duncanville,TX,32.621,-96.911
+Costco Wholesale,Dallas,TX,32.92,-96.767
+Costco Wholesale,Plano,TX,33.045,-96.7
+Costco Wholesale,El Paso,TX,31.782,-106.411
+Costco Wholesale,Forney,TX,32.775,-96.482
+Costco Wholesale,Fort Worth,TX,32.677,-97.409
+Costco Wholesale,Frisco,TX,33.172,-96.837
+Costco Wholesale,Houston,TX,29.734,-95.439
+Costco Wholesale,Georgetown,TX,30.652,-97.679
+Costco Wholesale,Humble,TX,30.022,-95.267
+Costco Wholesale,Kyle,TX,30.032,-97.851
+Costco Wholesale,Liberty Hill,TX,30.691,-97.885
+Costco Wholesale,Lewisville,TX,32.998,-96.964
+Costco Wholesale,Lubbock,TX,33.564,-101.948
+Costco Wholesale,Midland,TX,31.995,-102.178
+Costco Wholesale,Mckinney,TX,33.219,-96.66
+Costco Wholesale,New Braunfels,TX,29.745,-98.056
+Costco Wholesale,Fort Worth,TX,32.899,-97.32
+Costco Wholesale,San Antonio,TX,29.576,-98.597
+Costco Wholesale,Pflugerville,TX,30.47,-97.591
+Costco Wholesale,Pearland,TX,29.544,-95.391
+Costco Wholesale,Pharr,TX,26.193,-98.203
+Costco Wholesale,Prosper,TX,33.218,-96.689
+Costco Wholesale,Richmond,TX,29.646,-95.707
+Costco Wholesale,Austin,TX,30.219,-97.842
+Costco Wholesale,Rockwall,TX,32.908,-96.446
+Costco Wholesale,Selma,TX,29.576,-98.319
+Costco Wholesale,Southlake,TX,32.942,-97.112
+Costco Wholesale,San Antonio,TX,29.612,-98.476
+Costco Wholesale,Sugar Land,TX,29.584,-95.645
+Costco Wholesale,Conroe,TX,30.209,-95.453
+Costco Wholesale,Tomball,TX,30.069,-95.623
+Costco Wholesale,Katy,TX,29.783,-95.781
+Costco Wholesale,Plano,TX,33.024,-96.832
+Costco Wholesale,San Antonio,TX,29.432,-98.715
+Costco Wholesale,Webster,TX,29.534,-95.14
+Costco Wholesale,Weatherford,TX,32.75,-97.73
+Costco Wholesale,Houston,TX,29.955,-95.548
+Costco Wholesale,West Bountiful,UT,40.89,-111.895
+Costco Wholesale,Murray,UT,40.658,-111.89
+Costco Wholesale,Logan,UT,41.753,-111.857
+Costco Wholesale,Lehi,UT,40.389,-111.823
+Costco Wholesale,Orem,UT,40.28,-111.68
+Costco Wholesale,Riverton,UT,40.513,-112.002
+Costco Wholesale,St. George,UT,37.026,-113.601
+Costco Wholesale,Salt Lake City,UT,40.731,-111.901
+Costco Wholesale,Sandy,UT,40.55,-111.894
+Costco Wholesale,Saratoga Springs,UT,40.382,-111.919
+Costco Wholesale,South Jordan,UT,40.56,-111.976
+Costco Wholesale,Spanish Fork,UT,40.123,-111.648
+Costco Wholesale,Ogden,UT,41.197,-111.978
+Costco Wholesale,Salt Lake City,UT,40.69,-111.954
+Costco Wholesale,Syracuse,UT,41.089,-112.087
+Costco Wholesale,Saint George,UT,37.123,-113.521
+Costco Wholesale,Colchester,VT,44.504,-73.174
+Costco Wholesale,Chantilly,VA,38.896,-77.442
+Costco Wholesale,Charlottesville,VA,38.069,-78.49
+Costco Wholesale,North Chesterfield,VA,37.513,-77.607
+Costco Wholesale,Fairfax,VA,38.85,-77.372
+Costco Wholesale,Fredericksburg,VA,38.291,-77.515
+Costco Wholesale,Manassas,VA,38.785,-77.516
+Costco Wholesale,Harrisonburg,VA,38.428,-78.858
+Costco Wholesale,Alexandria,VA,38.742,-77.088
+Costco Wholesale,Leesburg,VA,39.114,-77.534
+Costco Wholesale,Springfield,VA,38.739,-77.197
+Costco Wholesale,Newport News,VA,37.108,-76.498
+Costco Wholesale,Norfolk,VA,36.852,-76.2
+Costco Wholesale,Arlington,VA,38.861,-77.057
+Costco Wholesale,Woodbridge,VA,38.641,-77.293
+Costco Wholesale,Sterling,VA,39.023,-77.401
+Costco Wholesale,Winchester,VA,39.158,-78.157
+Costco Wholesale,Glen Allen,VA,37.642,-77.561
+Costco Wholesale,Shoreline,WA,47.775,-122.345
+Costco Wholesale,Bellingham,WA,48.792,-122.515
+Costco Wholesale,Burlington,WA,48.454,-122.338
+Costco Wholesale,Clarkston,WA,46.423,-117.043
+Costco Wholesale,Bonney Lake,WA,47.167,-122.158
+Costco Wholesale,Covington,WA,47.355,-122.121
+Costco Wholesale,Camas,WA,45.622,-122.473
+Costco Wholesale,Gig Harbor,WA,47.358,-122.604
+Costco Wholesale,Everett,WA,47.904,-122.208
+Costco Wholesale,Issaquah,WA,47.551,-122.052
+Costco Wholesale,Federal Way,WA,47.287,-122.312
+Costco Wholesale,Kennewick,WA,46.225,-119.237
+Costco Wholesale,Kirkland,WA,47.681,-122.181
+Costco Wholesale,Lacey,WA,47.06,-122.761
+Costco Wholesale,Lake Stevens,WA,47.975,-122.092
+Costco Wholesale,Marysville,WA,48.148,-122.191
+Costco Wholesale,Lynnwood,WA,47.834,-122.273
+Costco Wholesale,Spokane,WA,47.767,-117.383
+Costco Wholesale,Puyallup,WA,47.156,-122.308
+Costco Wholesale,Redmond,WA,47.674,-122.091
+Costco Wholesale,Richland,WA,46.26,-119.313
+Costco Wholesale,Ridgefield,WA,45.82,-122.69
+Costco Wholesale,Sequim,WA,48.077,-123.126
+Costco Wholesale,Seattle,WA,47.565,-122.331
+Costco Wholesale,Silverdale,WA,47.657,-122.681
+Costco Wholesale,Tacoma,WA,47.225,-122.467
+Costco Wholesale,Tumwater,WA,46.996,-122.917
+Costco Wholesale,Tukwila,WA,47.444,-122.248
+Costco Wholesale,Union Gap,WA,46.562,-120.5
+Costco Wholesale,Spokane,WA,47.658,-117.333
+Costco Wholesale,Vancouver,WA,45.685,-122.604
+Costco Wholesale,East Wenatchee,WA,47.401,-120.28
+Costco Wholesale,Woodinville,WA,47.794,-122.134
+Costco Wholesale,Bellevue,WI,44.459,-87.986
+Costco Wholesale,Eau Claire,WI,44.831,-91.449
+Costco Wholesale,Grand Chute,WI,44.27,-88.489
+Costco Wholesale,Grafton,WI,43.311,-87.925
+Costco Wholesale,Menomonee Falls,WI,43.185,-88.112
+Costco Wholesale,Middleton,WI,43.1,-89.523
+Costco Wholesale,New Berlin,WI,42.946,-88.105
+Costco Wholesale,Sun Prairie,WI,43.168,-89.274
+Costco Wholesale,Pewaukee,WI,43.089,-88.231
+Costco Wholesale,Pleasant Prairie,WI,42.565,-87.921
+Costco Wholesale,Verona,WI,42.996,-89.516
