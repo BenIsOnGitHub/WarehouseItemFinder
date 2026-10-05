@@ -217,12 +217,13 @@ async function handleSearch(request, env) {
     if (fetchedProduct) {
       const newId = crypto.randomUUID();
       await env.DB.prepare(`
-        INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
+        INSERT INTO products (id, item_number, product_name, category, product_url, warehouse_id, updated_at)
         VALUES (?, ?, ?, ?, ?, datetime('now'))
       `).bind(
         newId,
         query,
         fetchedProduct.product_name,
+        fetchedProduct.category || '',
         fetchedProduct.product_url,
         warehouseId
       ).run();
@@ -265,34 +266,74 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       return null;
     }
 
-    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
-    
-    if (jsonLdMatch && jsonLdMatch[1]) {
-      const metadata = JSON.parse(jsonLdMatch[1]);
-      const productSchema = Array.isArray(metadata) 
-        ? metadata.find(m => m['@type'] === 'Product') 
-        : metadata;
+    let extractedCategory = '';
 
-      if (productSchema && productSchema.name) {
-        return {
-          id: crypto.randomUUID(),
-          item_number: itemNumber,
-          product_name: productSchema.name,
-          category: productSchema.category || '',
-          product_url: targetUrl,
-          warehouse_id: warehouseId,
-          aisle: '',
-          bay: ''
-        };
+    // 1. Try extracting category from JSON-LD Schema
+    const jsonLdMatches = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)];
+    let productSchema = null;
+
+    for (const match of jsonLdMatches) {
+      try {
+        const metadata = JSON.parse(match[1]);
+        const items = Array.isArray(metadata) ? metadata : [metadata];
+
+        // Check for Product
+        const prod = items.find(m => m && m['@type'] === 'Product');
+        if (prod) productSchema = prod;
+
+        // Check for BreadcrumbList
+        const breadcrumb = items.find(m => m && m['@type'] === 'BreadcrumbList');
+        if (breadcrumb && Array.isArray(breadcrumb.itemListElement)) {
+          // Exclude "Home" (first item) and grab the last sub-category before the product page
+          const categoryNames = breadcrumb.itemListElement
+            .map(item => item.name || (item.item && item.item.name))
+            .filter(Boolean)
+            .filter(name => name.toLowerCase() !== 'home');
+
+          if (categoryNames.length > 0) {
+            extractedCategory = categoryNames.join(' > ');
+          }
+        }
+      } catch (e) {
+        // Continue if JSON parsing fails for a block
       }
     }
 
-    const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-    if (titleMatch) {
+    // Fallback: Check if category is a simple string property on productSchema
+    if (!extractedCategory && productSchema && typeof productSchema.category === 'string') {
+      extractedCategory = productSchema.category;
+    }
+
+    // 2. Fallback: Extract from HTML DOM Breadcrumb navigation if JSON-LD wasn't present
+    if (!extractedCategory) {
+      const breadcrumbMatch = html.match(/<ol[^>]*id="crumb-list"[^>]*>([\s\S]*?)<\/ol>/i) ||
+                              html.match(/<ul[^>]*class="[^"]*breadcrumb[^"]*"[^>]*>([\s\S]*?)<\/ul>/i);
+      if (breadcrumbMatch) {
+        const crumbs = [...breadcrumbMatch[1].matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)]
+          .map(m => m[1].replace(/<[^>]+>/g, '').trim())
+          .filter(text => text && text.toLowerCase() !== 'home');
+
+        if (crumbs.length > 0) {
+          extractedCategory = crumbs.join(' > ');
+        }
+      }
+    }
+
+    // Determine product title
+    let title = productSchema?.name || '';
+    if (!title) {
+      const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      if (titleMatch) {
+        title = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+      }
+    }
+
+    if (title) {
       return {
         id: crypto.randomUUID(),
         item_number: itemNumber,
-        product_name: titleMatch[1].replace(/<[^>]+>/g, '').trim(),
+        product_name: title,
+        category: extractedCategory,
         product_url: targetUrl,
         warehouse_id: warehouseId,
         aisle: '',
