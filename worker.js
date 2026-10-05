@@ -22,7 +22,7 @@ export default {
 
       // 2. Paginated Browse API
       if (pathname === '/api/browse') {
-        const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id') || '1738';
+        const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id');
         const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1);
         const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20);
         const sort = url.searchParams.get('sort') || 'name';
@@ -104,7 +104,7 @@ export default {
 
       // 3. Distinct Aisles API
       if (pathname === '/api/aisles') {
-        const warehouseId = url.searchParams.get('warehouse') || '1738';
+        const warehouseId = url.searchParams.get('warehouse');
         const { results } = await env.DB.prepare(`
           SELECT DISTINCT aisle 
           FROM products 
@@ -308,13 +308,24 @@ async function handleSearch(request, env, corsHeaders) {
 async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
 
+  // 1. Clean the warehouse ID (ensures raw 3-4 digit string like "1738")
+  const cleanWhsId = String(warehouseId).replace(/-wh$/i, '').trim();
+
+  // 2. Build Costco's warehouse cookie payloads
   const whsCookieValue = JSON.stringify({
-    nearestWarehouse: { catalog: `${warehouseId}-wh` }
+    nearestWarehouse: { catalog: `${cleanWhsId}-wh` }
   });
 
+  const myWhsCookieValue = JSON.stringify({
+    warehouseId: cleanWhsId,
+    warehouseName: `Warehouse ${cleanWhsId}`
+  });
+
+  // 3. Format complete cookie string
   const cookieHeader = [
-    `WHSE=${warehouseId}`,
+    `WHSE=${cleanWhsId}`,
     `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
+    `MY_WAREHOUSE=${encodeURIComponent(myWhsCookieValue)}`,
     `buyInWarehouse=true`
   ].join('; ');
 
@@ -401,7 +412,7 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 
     if (!extractedCategory) {
       const metaCategory = html.match(/<meta[^>]*name=["'](category|keywords|search\.category)["'][^>]*content=["']([^"']+)["']/i) ||
-                           html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["'](category|keywords|search\.category)["']/i);
+                           html.match(/<meta[^>]*content=["']([^"']+)["']/i) && html.match(/name=["'](category|keywords|search\.category)["']/i);
       if (metaCategory && metaCategory[2]) {
         extractedCategory = metaCategory[2].split(',')[0].trim();
       }
@@ -439,7 +450,7 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
         product_name: productTitle,
         category: extractedCategory || 'Uncategorized',
         product_url: response.url || targetUrl,
-        warehouse_id: warehouseId,
+        warehouse_id: cleanWhsId,
         aisle: '',
         bay: ''
       };
