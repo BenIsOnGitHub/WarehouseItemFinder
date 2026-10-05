@@ -282,103 +282,6 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Cookie': cookieHeader
-      }
-    });
-
-    if (!response.ok) return null;
-
-    const html = await response.text();
-
-    if (html.includes("We're sorry. We were not able to find a match.")) {
-      return null;
-    }
-
-    let extractedCategory = '';
-    let productTitle = '';
-
-    // Safe JSON-LD script extraction without regex loop
-    const scriptBlocks = html.split('<script type="application/ld+json">');
-    
-    for (let i = 1; i < scriptBlocks.length; i++) {
-      const blockContent = scriptBlocks[i].split('</script>')[0];
-      if (!blockContent) continue;
-
-      try {
-        const metadata = JSON.parse(blockContent.trim());
-        const items = Array.isArray(metadata) ? metadata : [metadata];
-
-        for (const item of items) {
-          if (!item) continue;
-
-          if (item['@type'] === 'Product' && item.name) {
-            productTitle = item.name;
-            if (typeof item.category === 'string') {
-              extractedCategory = item.category;
-            }
-          }
-
-          if (item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
-            const crumbs = item.itemListElement
-              .map(c => c.name || (c.item && c.item.name))
-              .filter(Boolean)
-              .filter(name => name.toLowerCase() !== 'home');
-
-            if (crumbs.length > 0) {
-              extractedCategory = crumbs.join(' > ');
-            }
-          }
-        }
-      } catch (parseErr) {
-        // Skip malformed script blocks
-      }
-    }
-
-    if (!productTitle) {
-      const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-      if (titleMatch) {
-        productTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
-      }
-    }
-
-    if (productTitle) {
-      return {
-        id: '',
-        item_number: itemNumber,
-        product_name: productTitle,
-        category: extractedCategory,
-        product_url: targetUrl,
-        warehouse_id: warehouseId,
-        aisle: '',
-        bay: ''
-      };
-    }
-
-  } catch (err) {
-    console.error('Error fetching live Costco item:', err);
-  }
-
-  return null;
-}
-
-async function fetchCostcoItemDetails(itemNumber, warehouseId) {
-  const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
-
-  const whsCookieValue = JSON.stringify({
-    nearestWarehouse: { catalog: `${warehouseId}-wh` }
-  });
-
-  const cookieHeader = [
-    `WHSE=${warehouseId}`,
-    `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
-    `buyInWarehouse=true`
-  ].join('; ');
-
-  try {
-    const response = await fetch(targetUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Cookie': cookieHeader
       },
       redirect: 'follow'
     });
@@ -394,70 +297,92 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
     let extractedCategory = '';
     let productTitle = '';
 
-    // 1. Check meta tags for Category (e.g. <meta name="category" content="..."> or <meta property="category" ...>)
-    const metaCategoryMatch = html.match(/<meta[^>]*name=["']category["'][^>]*content=["']([^"']+)["']/i) ||
-                              html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']category["']/i);
-    if (metaCategoryMatch && metaCategoryMatch[1]) {
-      extractedCategory = metaCategoryMatch[1].trim();
-    }
+    // 1. Check window.__PRELOADED_STATE__ or window.__INITIAL_STATE__ (Costco Client State)
+    const stateMatches = html.match(/window\.__PRELOADED_STATE__\s*=\s*({[\s\S]*?});<\/script>/i) ||
+                         html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});<\/script>/i);
 
-    // 2. Extract from JSON-LD schema
-    const scriptBlocks = html.split('<script type="application/ld+json">');
-    for (let i = 1; i < scriptBlocks.length; i++) {
-      const blockContent = scriptBlocks[i].split('</script>')[0];
-      if (!blockContent) continue;
-
+    if (stateMatches && stateMatches[1]) {
       try {
-        const metadata = JSON.parse(blockContent.trim());
-        const items = Array.isArray(metadata) ? metadata : [metadata];
+        const state = JSON.parse(stateMatches[1]);
+        
+        // Traverse state object for breadcrumbs or product categories
+        const productData = state.productDetails || state.product || {};
+        productTitle = productData.name || productData.productName || '';
 
-        for (const item of items) {
-          if (!item) continue;
-
-          if (item['@type'] === 'Product' && item.name) {
-            productTitle = item.name;
-            if (!extractedCategory && typeof item.category === 'string') {
-              extractedCategory = item.category;
-            }
-          }
-
-          if (!extractedCategory && item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
-            const crumbs = item.itemListElement
-              .map(c => c.name || (c.item && c.item.name))
-              .filter(Boolean)
-              .filter(name => name.toLowerCase() !== 'home');
-
-            if (crumbs.length > 0) {
-              extractedCategory = crumbs.join(' > ');
-            }
-          }
+        if (Array.isArray(productData.breadcrumbs)) {
+          extractedCategory = productData.breadcrumbs
+            .map(b => b.name || b.label)
+            .filter(Boolean)
+            .filter(name => name.toLowerCase() !== 'home')
+            .join(' > ');
+        } else if (productData.category) {
+          extractedCategory = typeof productData.category === 'string' ? productData.category : productData.category.name;
         }
-      } catch (parseErr) {
-        // Skip malformed script blocks
+      } catch (e) {
+        // Continue if state JSON parsing fails
       }
     }
 
-    // 3. Fallback: Search for category links in HTML anchor tags ending in .html (e.g. href=".../commercial-restaurant.html")
+    // 2. Extract from JSON-LD schema if state object wasn't found
+    if (!extractedCategory || !productTitle) {
+      const scriptBlocks = html.split('<script type="application/ld+json">');
+      for (let i = 1; i < scriptBlocks.length; i++) {
+        const blockContent = scriptBlocks[i].split('</script>')[0];
+        if (!blockContent) continue;
+
+        try {
+          const metadata = JSON.parse(blockContent.trim());
+          const items = Array.isArray(metadata) ? metadata : [metadata];
+
+          for (const item of items) {
+            if (!item) continue;
+
+            if (item['@type'] === 'Product' && item.name) {
+              if (!productTitle) productTitle = item.name;
+              if (!extractedCategory && typeof item.category === 'string') {
+                extractedCategory = item.category;
+              }
+            }
+
+            if (!extractedCategory && item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
+              const crumbs = item.itemListElement
+                .map(c => c.name || (c.item && c.item.name))
+                .filter(Boolean)
+                .filter(name => name.toLowerCase() !== 'home');
+
+              if (crumbs.length > 0) {
+                extractedCategory = crumbs.join(' > ');
+              }
+            }
+          }
+        } catch (parseErr) {
+          // Skip malformed script blocks
+        }
+      }
+    }
+
+    // 3. Fallback: Parse <meta> tags for category/keywords
     if (!extractedCategory) {
-      const categoryLinkMatch = html.match(/href=["']https:\/\/www\.costco\.com\/([a-z0-9-]+)\.html["'][^>]*>([\s\S]*?)<\/a>/gi);
-      if (categoryLinkMatch) {
-        for (const linkHtml of categoryLinkMatch) {
-          // Ignore general non-category landing pages
-          if (!linkHtml.includes('.product.') && 
-              !linkHtml.includes('Grocery') && 
-              !linkHtml.includes('Customer-Service') &&
-              !linkHtml.includes('Warehouse-Locations')) {
-            const cleanText = linkHtml.replace(/<[^>]+>/g, '').trim();
-            if (cleanText && cleanText.length > 2 && cleanText.length < 50) {
-              extractedCategory = cleanText;
-              break;
-            }
-          }
-        }
+      const metaCategory = html.match(/<meta[^>]*name=["'](category|keywords|search\.category)["'][^>]*content=["']([^"']+)["']/i) ||
+                           html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["'](category|keywords|search\.category)["']/i);
+      if (metaCategory && metaCategory[2]) {
+        // Take the primary tag or first comma-separated keyword
+        extractedCategory = metaCategory[2].split(',')[0].trim();
       }
     }
 
-    // 4. Fallback H1 Title Check
+    // 4. Fallback: Extract category from URL slug structure if available
+    if (!extractedCategory) {
+      const finalUrl = response.url || targetUrl;
+      const urlPathMatches = finalUrl.match(/costco\.com\/([a-z0-9-]+)\.html/i);
+      if (urlPathMatches && urlPathMatches[1] && !urlPathMatches[1].includes('product')) {
+        extractedCategory = urlPathMatches[1]
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, l => l.toUpperCase());
+      }
+    }
+
+    // Fallback Title check from H1
     if (!productTitle) {
       const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
       if (titleMatch) {
@@ -465,10 +390,11 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       }
     }
 
-    // Format and clean category text
+    // Clean and normalize category string formatting
     if (extractedCategory) {
       extractedCategory = extractedCategory
         .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
         .replace(/\s+/g, ' ')
         .trim();
     }
@@ -478,7 +404,7 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
         id: '',
         item_number: itemNumber,
         product_name: productTitle,
-        category: extractedCategory || '',
+        category: extractedCategory || 'Uncategorized',
         product_url: response.url || targetUrl,
         warehouse_id: warehouseId,
         aisle: '',
