@@ -177,7 +177,7 @@ export default {
 // HELPER FUNCTIONS
 // ----------------------------------------------------
 
-async function handleSearch(request, env) {
+async function handleSearch(request, env, corsHeaders) {
   try {
     const url = new URL(request.url);
     const query = url.searchParams.get('q')?.trim();
@@ -186,7 +186,7 @@ async function handleSearch(request, env) {
     const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
 
     if (!query || !warehouseId) {
-      return Response.json([]);
+      return new Response(JSON.stringify([]), { headers: corsHeaders });
     }
 
     let dbQuery = "";
@@ -203,55 +203,161 @@ async function handleSearch(request, env) {
       bindings = [`%${query}%`, warehouseId];
     }
 
-    let results = await env.DB.prepare(dbQuery).bind(...bindings).all();
+    const results = await env.DB.prepare(dbQuery).bind(...bindings).all();
 
-    if (results.results && results.results.length > 0) {
-      return Response.json(results.results);
+    if (results && results.results && results.results.length > 0) {
+      return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
     // Live Fallback
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
       const fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
-      
+
       if (fetchedProduct) {
-        const newId = crypto.randomUUID();
+        // Fallback-safe unique ID generation
+        const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+          ? crypto.randomUUID() 
+          : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+        const now = new Date().toISOString();
 
         try {
           await env.DB.prepare(`
             INSERT INTO products (id, item_number, product_name, category, product_url, warehouse_id, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+            VALUES (?, ?, ?, ?, ?, ?, ?)
           `).bind(
             newId,
             query,
-            fetchedProduct.product_name,
+            fetchedProduct.product_name || '',
             fetchedProduct.category || '',
-            fetchedProduct.product_url,
-            warehouseId
+            fetchedProduct.product_url || '',
+            warehouseId,
+            now
           ).run();
         } catch (dbErr) {
-          console.error("D1 Insert with category failed, falling back without category column:", dbErr);
+          console.error("D1 Insert failed with category column, running schema fallback insert:", dbErr);
           await env.DB.prepare(`
             INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
-            VALUES (?, ?, ?, ?, ?, datetime('now'))
+            VALUES (?, ?, ?, ?, ?, ?)
           `).bind(
             newId,
             query,
-            fetchedProduct.product_name,
-            fetchedProduct.product_url,
-            warehouseId
+            fetchedProduct.product_name || '',
+            fetchedProduct.product_url || '',
+            warehouseId,
+            now
           ).run();
         }
 
         fetchedProduct.id = newId;
-        return Response.json([fetchedProduct]);
+        return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
       }
     }
 
-    return Response.json([]);
+    return new Response(JSON.stringify([]), { headers: corsHeaders });
   } catch (err) {
-    console.error("Search Error:", err);
-    return Response.json({ error: err.message, stack: err.stack }, { status: 500 });
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), { 
+      status: 500, 
+      headers: corsHeaders 
+    });
   }
+}
+
+async function fetchCostcoItemDetails(itemNumber, warehouseId) {
+  const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
+
+  const whsCookieValue = JSON.stringify({
+    nearestWarehouse: { catalog: `${warehouseId}-wh` }
+  });
+
+  const cookieHeader = [
+    `WHSE=${warehouseId}`,
+    `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
+    `buyInWarehouse=true`
+  ].join('; ');
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Cookie': cookieHeader
+      }
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    if (html.includes("We're sorry. We were not able to find a match.")) {
+      return null;
+    }
+
+    let extractedCategory = '';
+    let productTitle = '';
+
+    // Safe JSON-LD script extraction without regex loop
+    const scriptBlocks = html.split('<script type="application/ld+json">');
+    
+    for (let i = 1; i < scriptBlocks.length; i++) {
+      const blockContent = scriptBlocks[i].split('</script>')[0];
+      if (!blockContent) continue;
+
+      try {
+        const metadata = JSON.parse(blockContent.trim());
+        const items = Array.isArray(metadata) ? metadata : [metadata];
+
+        for (const item of items) {
+          if (!item) continue;
+
+          if (item['@type'] === 'Product' && item.name) {
+            productTitle = item.name;
+            if (typeof item.category === 'string') {
+              extractedCategory = item.category;
+            }
+          }
+
+          if (item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
+            const crumbs = item.itemListElement
+              .map(c => c.name || (c.item && c.item.name))
+              .filter(Boolean)
+              .filter(name => name.toLowerCase() !== 'home');
+
+            if (crumbs.length > 0) {
+              extractedCategory = crumbs.join(' > ');
+            }
+          }
+        }
+      } catch (parseErr) {
+        // Skip malformed script blocks
+      }
+    }
+
+    if (!productTitle) {
+      const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      if (titleMatch) {
+        productTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+      }
+    }
+
+    if (productTitle) {
+      return {
+        id: '',
+        item_number: itemNumber,
+        product_name: productTitle,
+        category: extractedCategory,
+        product_url: targetUrl,
+        warehouse_id: warehouseId,
+        aisle: '',
+        bay: ''
+      };
+    }
+
+  } catch (err) {
+    console.error('Error fetching live Costco item:', err);
+  }
+
+  return null;
 }
 
 async function fetchCostcoItemDetails(itemNumber, warehouseId) {
