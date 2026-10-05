@@ -17,7 +17,7 @@ export default {
     try {
       // 1. Live Search API
       if (pathname === '/api/search') {
-        return await handleSearch(request, env);
+        return await handleSearch(request, env, corsHeaders);
       }
 
       // 2. Paginated Browse API
@@ -165,6 +165,49 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
+      // 8. Update Item Number / SKU Identifier API
+      if (pathname === '/api/update-identifier' && request.method === 'POST') {
+        const { id, item_number, sku } = await request.json();
+        if (!id) {
+          return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
+        }
+
+        const existing = await env.DB.prepare('SELECT item_number, sku FROM products WHERE id = ?').bind(id).first();
+        if (!existing) {
+          return new Response(JSON.stringify({ error: 'Product not found' }), { status: 404, headers: corsHeaders });
+        }
+
+        let updateFields = [];
+        let bindParams = [];
+
+        if (item_number !== undefined) {
+          const isCurrentlyEmpty = !existing.item_number || String(existing.item_number).trim() === '';
+          if (isCurrentlyEmpty) {
+            updateFields.push('item_number = ?');
+            bindParams.push(item_number.trim());
+          } else {
+            return new Response(JSON.stringify({ error: 'Item number is already set and cannot be edited.' }), { status: 400, headers: corsHeaders });
+          }
+        }
+
+        if (sku !== undefined) {
+          updateFields.push('sku = ?');
+          bindParams.push(sku.trim());
+        }
+
+        if (updateFields.length === 0) {
+          return new Response(JSON.stringify({ error: 'No valid fields to update' }), { status: 400, headers: corsHeaders });
+        }
+
+        updateFields.push("updated_at = datetime('now')");
+        bindParams.push(id);
+
+        const query = `UPDATE products SET ${updateFields.join(', ')} WHERE id = ?`;
+        await env.DB.prepare(query).bind(...bindParams).run();
+
+        return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+      }
+
       return new Response(JSON.stringify({ error: 'Endpoint not found' }), { status: 404, headers: corsHeaders });
 
     } catch (err) {
@@ -214,7 +257,6 @@ async function handleSearch(request, env, corsHeaders) {
       const fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
       if (fetchedProduct) {
-        // Fallback-safe unique ID generation
         const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
           ? crypto.randomUUID() 
           : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -297,15 +339,12 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
     let extractedCategory = '';
     let productTitle = '';
 
-    // 1. Check window.__PRELOADED_STATE__ or window.__INITIAL_STATE__ (Costco Client State)
     const stateMatches = html.match(/window\.__PRELOADED_STATE__\s*=\s*({[\s\S]*?});<\/script>/i) ||
                          html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});<\/script>/i);
 
     if (stateMatches && stateMatches[1]) {
       try {
         const state = JSON.parse(stateMatches[1]);
-        
-        // Traverse state object for breadcrumbs or product categories
         const productData = state.productDetails || state.product || {};
         productTitle = productData.name || productData.productName || '';
 
@@ -323,7 +362,6 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       }
     }
 
-    // 2. Extract from JSON-LD schema if state object wasn't found
     if (!extractedCategory || !productTitle) {
       const scriptBlocks = html.split('<script type="application/ld+json">');
       for (let i = 1; i < scriptBlocks.length; i++) {
@@ -361,17 +399,14 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       }
     }
 
-    // 3. Fallback: Parse <meta> tags for category/keywords
     if (!extractedCategory) {
       const metaCategory = html.match(/<meta[^>]*name=["'](category|keywords|search\.category)["'][^>]*content=["']([^"']+)["']/i) ||
                            html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["'](category|keywords|search\.category)["']/i);
       if (metaCategory && metaCategory[2]) {
-        // Take the primary tag or first comma-separated keyword
         extractedCategory = metaCategory[2].split(',')[0].trim();
       }
     }
 
-    // 4. Fallback: Extract category from URL slug structure if available
     if (!extractedCategory) {
       const finalUrl = response.url || targetUrl;
       const urlPathMatches = finalUrl.match(/costco\.com\/([a-z0-9-]+)\.html/i);
@@ -382,7 +417,6 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       }
     }
 
-    // Fallback Title check from H1
     if (!productTitle) {
       const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
       if (titleMatch) {
@@ -390,7 +424,6 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
       }
     }
 
-    // Clean and normalize category string formatting
     if (extractedCategory) {
       extractedCategory = extractedCategory
         .replace(/&amp;/g, '&')
@@ -417,50 +450,4 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   }
 
   return null;
-}
-
-// Add inside worker fetch handler:
-if (pathname === '/api/update-identifier' && request.method === 'POST') {
-  const { id, item_number, sku } = await request.json();
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
-  }
-
-  // Verify product exists and check current state
-  const existing = await env.DB.prepare('SELECT item_number, sku FROM products WHERE id = ?').bind(id).first();
-  if (!existing) {
-    return new Response(JSON.stringify({ error: 'Product not found' }), { status: 404, headers: corsHeaders });
-  }
-
-  let updateFields = [];
-  let bindParams = [];
-
-  // Rule 3 Enforcement: Only update item_number if it was previously empty/null
-  if (item_number !== undefined) {
-    const isCurrentlyEmpty = !existing.item_number || String(existing.item_number).trim() === '';
-    if (isCurrentlyEmpty) {
-      updateFields.push('item_number = ?');
-      bindParams.push(item_number.trim());
-    } else {
-      return new Response(JSON.stringify({ error: 'Item number is already set and cannot be edited.' }), { status: 400, headers: corsHeaders });
-    }
-  }
-
-  // Rule 2: Update SKU if provided
-  if (sku !== undefined) {
-    updateFields.push('sku = ?');
-    bindParams.push(sku.trim());
-  }
-
-  if (updateFields.length === 0) {
-    return new Response(JSON.stringify({ error: 'No valid fields to update' }), { status: 400, headers: corsHeaders });
-  }
-
-  updateFields.push("updated_at = datetime('now')");
-  bindParams.push(id);
-
-  const query = `UPDATE products SET ${updateFields.join(', ')} WHERE id = ?`;
-  await env.DB.prepare(query).bind(...bindParams).run();
-
-  return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
 }
