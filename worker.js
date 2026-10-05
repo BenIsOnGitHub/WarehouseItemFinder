@@ -75,7 +75,7 @@ export default {
           }
 
           const selectQuery = `
-            SELECT id, sku, item_number, product_name, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
+            SELECT id, sku, item_number, product_name, category, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
             FROM products
             ${whereClause}
             ${orderByClause}
@@ -178,62 +178,80 @@ export default {
 // ----------------------------------------------------
 
 async function handleSearch(request, env) {
-  const url = new URL(request.url);
-  const query = url.searchParams.get('q')?.trim();
-  const searchMode = url.searchParams.get('mode') || 'item_number';
-  const rawWarehouse = url.searchParams.get('warehouse') || '';
-  const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
+  try {
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q')?.trim();
+    const searchMode = url.searchParams.get('mode') || 'item_number';
+    const rawWarehouse = url.searchParams.get('warehouse') || '';
+    const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
 
-  if (!query || !warehouseId) {
-    return Response.json([]);
-  }
-
-  let dbQuery = "";
-  let bindings = [];
-
-  // 1. Build targeted D1 SQL query based on selected radio mode
-  if (searchMode === 'item_number') {
-    dbQuery = "SELECT * FROM products WHERE item_number = ? AND warehouse_id = ?";
-    bindings = [query, warehouseId];
-  } else if (searchMode === 'sku') {
-    dbQuery = "SELECT * FROM products WHERE sku = ? AND warehouse_id = ?";
-    bindings = [query, warehouseId];
-  } else {
-    // product_name mode
-    dbQuery = "SELECT * FROM products WHERE product_name LIKE ? AND warehouse_id = ?";
-    bindings = [`%${query}%`, warehouseId];
-  }
-
-  let results = await env.DB.prepare(dbQuery).bind(...bindings).all();
-
-  if (results.results && results.results.length > 0) {
-    return Response.json(results.results);
-  }
-
-  // 2. Live Fallback: ONLY attempt web lookup if mode is 'item_number' and query is 5-7 digits
-  if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
-    const fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
-    
-    if (fetchedProduct) {
-      const newId = crypto.randomUUID();
-      await env.DB.prepare(`
-        INSERT INTO products (id, item_number, product_name, category, product_url, warehouse_id, updated_at)
-        VALUES (?, ?, ?, ?, ?, datetime('now'))
-      `).bind(
-        newId,
-        query,
-        fetchedProduct.product_name,
-        fetchedProduct.category || '',
-        fetchedProduct.product_url,
-        warehouseId
-      ).run();
-
-      fetchedProduct.id = newId;
-      return Response.json([fetchedProduct]);
+    if (!query || !warehouseId) {
+      return Response.json([]);
     }
-  }
 
-  return Response.json([]);
+    let dbQuery = "";
+    let bindings = [];
+
+    if (searchMode === 'item_number') {
+      dbQuery = "SELECT * FROM products WHERE item_number = ? AND warehouse_id = ?";
+      bindings = [query, warehouseId];
+    } else if (searchMode === 'sku') {
+      dbQuery = "SELECT * FROM products WHERE sku = ? AND warehouse_id = ?";
+      bindings = [query, warehouseId];
+    } else {
+      dbQuery = "SELECT * FROM products WHERE product_name LIKE ? AND warehouse_id = ?";
+      bindings = [`%${query}%`, warehouseId];
+    }
+
+    let results = await env.DB.prepare(dbQuery).bind(...bindings).all();
+
+    if (results.results && results.results.length > 0) {
+      return Response.json(results.results);
+    }
+
+    // Live Fallback
+    if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
+      const fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
+      
+      if (fetchedProduct) {
+        const newId = crypto.randomUUID();
+
+        try {
+          await env.DB.prepare(`
+            INSERT INTO products (id, item_number, product_name, category, product_url, warehouse_id, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+          `).bind(
+            newId,
+            query,
+            fetchedProduct.product_name,
+            fetchedProduct.category || '',
+            fetchedProduct.product_url,
+            warehouseId
+          ).run();
+        } catch (dbErr) {
+          console.error("D1 Insert with category failed, falling back without category column:", dbErr);
+          await env.DB.prepare(`
+            INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
+            VALUES (?, ?, ?, ?, ?, datetime('now'))
+          `).bind(
+            newId,
+            query,
+            fetchedProduct.product_name,
+            fetchedProduct.product_url,
+            warehouseId
+          ).run();
+        }
+
+        fetchedProduct.id = newId;
+        return Response.json([fetchedProduct]);
+      }
+    }
+
+    return Response.json([]);
+  } catch (err) {
+    console.error("Search Error:", err);
+    return Response.json({ error: err.message, stack: err.stack }, { status: 500 });
+  }
 }
 
 async function fetchCostcoItemDetails(itemNumber, warehouseId) {
@@ -267,72 +285,56 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
     }
 
     let extractedCategory = '';
+    let productTitle = '';
 
-    // 1. Try extracting category from JSON-LD Schema
-    const jsonLdMatches = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)];
-    let productSchema = null;
+    // Extract JSON-LD safely
+    const jsonLdRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
+    let match;
 
-    for (const match of jsonLdMatches) {
+    while ((match = jsonLdRegex.exec(html)) !== null) {
       try {
         const metadata = JSON.parse(match[1]);
         const items = Array.isArray(metadata) ? metadata : [metadata];
 
-        // Check for Product
-        const prod = items.find(m => m && m['@type'] === 'Product');
-        if (prod) productSchema = prod;
+        for (const item of items) {
+          if (!item) continue;
 
-        // Check for BreadcrumbList
-        const breadcrumb = items.find(m => m && m['@type'] === 'BreadcrumbList');
-        if (breadcrumb && Array.isArray(breadcrumb.itemListElement)) {
-          // Exclude "Home" (first item) and grab the last sub-category before the product page
-          const categoryNames = breadcrumb.itemListElement
-            .map(item => item.name || (item.item && item.item.name))
-            .filter(Boolean)
-            .filter(name => name.toLowerCase() !== 'home');
+          if (item['@type'] === 'Product' && item.name) {
+            productTitle = item.name;
+            if (typeof item.category === 'string') {
+              extractedCategory = item.category;
+            }
+          }
 
-          if (categoryNames.length > 0) {
-            extractedCategory = categoryNames.join(' > ');
+          if (item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
+            const crumbs = item.itemListElement
+              .map(c => c.name || (c.item && c.item.name))
+              .filter(Boolean)
+              .filter(name => name.toLowerCase() !== 'home');
+
+            if (crumbs.length > 0) {
+              extractedCategory = crumbs.join(' > ');
+            }
           }
         }
-      } catch (e) {
-        // Continue if JSON parsing fails for a block
+      } catch (parseErr) {
+        // Skip malformed JSON-LD scripts on the page
       }
     }
 
-    // Fallback: Check if category is a simple string property on productSchema
-    if (!extractedCategory && productSchema && typeof productSchema.category === 'string') {
-      extractedCategory = productSchema.category;
-    }
-
-    // 2. Fallback: Extract from HTML DOM Breadcrumb navigation if JSON-LD wasn't present
-    if (!extractedCategory) {
-      const breadcrumbMatch = html.match(/<ol[^>]*id="crumb-list"[^>]*>([\s\S]*?)<\/ol>/i) ||
-                              html.match(/<ul[^>]*class="[^"]*breadcrumb[^"]*"[^>]*>([\s\S]*?)<\/ul>/i);
-      if (breadcrumbMatch) {
-        const crumbs = [...breadcrumbMatch[1].matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)]
-          .map(m => m[1].replace(/<[^>]+>/g, '').trim())
-          .filter(text => text && text.toLowerCase() !== 'home');
-
-        if (crumbs.length > 0) {
-          extractedCategory = crumbs.join(' > ');
-        }
-      }
-    }
-
-    // Determine product title
-    let title = productSchema?.name || '';
-    if (!title) {
+    // Fallback title check from H1 tag
+    if (!productTitle) {
       const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
       if (titleMatch) {
-        title = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+        productTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
       }
     }
 
-    if (title) {
+    if (productTitle) {
       return {
         id: crypto.randomUUID(),
         item_number: itemNumber,
-        product_name: title,
+        product_name: productTitle,
         category: extractedCategory,
         product_url: targetUrl,
         warehouse_id: warehouseId,
