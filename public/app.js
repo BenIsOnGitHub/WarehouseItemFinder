@@ -290,9 +290,9 @@ function renderLocationDisplay(id, aisle, bay, isWrong = 0) {
 // ==========================================
 // SEARCH LOGIC (D1 API CALL)
 // ==========================================
-let searchDebounceTimer = null;
+/* let searchDebounceTimer = null;
 
-function handleSearchInput(e) {
+  function handleSearchInput(e) {
   const query = e.target.value;
   clearTimeout(searchDebounceTimer);
 
@@ -311,7 +311,7 @@ function handleSearchInput(e) {
       console.error('Search query failed:', err);
     }
   }, 200);
-}
+} */
 
 function renderResultsUI(results) {
   const container = document.getElementById('results');
@@ -731,9 +731,9 @@ function onWarehouseChange(newWarehouseId) {
     selectEl.value = newWarehouseId;
   });
 
-  const searchBox = document.getElementById('searchBox');
+  const searchBox = document.getElementById('search-input');
   if (searchBox && searchBox.value.trim()) {
-    handleSearchInput({ target: searchBox });
+    performSearch(); // Re-runs search with mode & loading spinner
   }
 
   const activeView = document.querySelector('.page-view.active');
@@ -758,7 +758,7 @@ function showFavoritesView() {
 }
 
 function resetSearchView() {
-  const searchBox = document.getElementById('searchBox');
+  const searchBox = document.getElementById('search-input');
   if (searchBox) searchBox.value = '';
   document.getElementById('results').innerHTML = '';
   document.getElementById('count').textContent = '';
@@ -772,9 +772,9 @@ function toggleShowDiscontinued(checkbox) {
     populateAisleDropdown();
     startBrowse(1);
   } else {
-    const searchBox = document.getElementById('searchBox');
+    const searchBox = document.getElementById('search-input');
     if (searchBox && searchBox.value.trim()) {
-      handleSearchInput({ target: searchBox });
+      performSearch(); // Re-runs search with mode & loading spinner
     }
   }
 }
@@ -883,18 +883,101 @@ function onAisleFilterChange(value) {
 }
 
 // ==========================================
-// APP INITIALIZATION
+// SEARCH LOGIC & APP INITIALIZATION
 // ==========================================
+function showLoadingSpinner(show) {
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
+  const globalSpinner = document.getElementById('loading-spinner');
+
+  if (globalSpinner) {
+    globalSpinner.style.display = show ? 'block' : 'none';
+  }
+
+  if (searchBtn && searchInput) {
+    if (show) {
+      searchInput.disabled = true;
+      searchBtn.disabled = true;
+      searchBtn.innerHTML = `<span class="spinner"></span> Searching...`;
+    } else {
+      searchInput.disabled = false;
+      searchBtn.disabled = false;
+      searchBtn.textContent = 'Search';
+    }
+  }
+}
+
+async function performSearch() {
+  const searchInput = document.getElementById('search-input');
+  const query = searchInput ? searchInput.value.trim() : '';
+  const searchMode = document.querySelector('input[name="searchMode"]:checked')?.value || 'item_number';
+
+  if (!query) return;
+
+  showLoadingSpinner(true);
+
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      mode: searchMode,
+      warehouse: CURRENT_WAREHOUSE,
+      show_discontinued: showDiscontinuedItems
+    });
+
+    const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
+    if (response.ok) {
+      const data = await response.json();
+      renderResultsUI(data);
+    } else {
+      alert('Search request failed.');
+    }
+  } catch (err) {
+    console.error('Search error:', err);
+    alert('Error connecting to search server.');
+  } finally {
+    showLoadingSpinner(false);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   loadWarehouses();
   populateAisleDropdown();
   startBrowse(1);
 
-  const searchBox = document.getElementById('searchBox');
-  if (searchBox) {
-    searchBox.addEventListener('input', handleSearchInput);
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
+  const radioButtons = document.querySelectorAll('input[name="searchMode"]');
+
+  // Trigger search on button click
+  if (searchBtn) {
+    searchBtn.addEventListener('click', performSearch);
   }
 
+  // Trigger search on Enter key press
+  if (searchInput) {
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performSearch();
+      }
+    });
+  }
+
+  // Dynamic placeholder text depending on selected radio mode
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const mode = e.target.value;
+      if (mode === 'item_number') {
+        searchInput.placeholder = 'Enter 5-7 digit item number...';
+      } else if (mode === 'product_name') {
+        searchInput.placeholder = 'Search by product title...';
+      } else if (mode === 'sku') {
+        searchInput.placeholder = 'Scan or enter SKU barcode...';
+      }
+    });
+  });
+
+  // Navigation menu dropdown setup
   const menuToggle = document.getElementById('menuToggle');
   const navDropdown = document.getElementById('navDropdown');
   if (menuToggle && navDropdown) {

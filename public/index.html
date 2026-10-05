@@ -40,12 +40,44 @@
         <option value="1738">The Villages, FL #1738</option>
       </select>
     </div>
+    
+    <!--
     <div class="search-box" style="display: flex; align-items: center; gap: 8px;">
       <input type="text" id="searchBox" placeholder="Search product name, item number, or SKU..." />
       <button id="micBtn" title="Search by voice" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px;">
         &#127908;
       </button>
-    </div>
+    </div> -->
+    
+  <div class="search-container">
+  <!-- Radio Option Selectors -->
+  <div class="search-mode-group">
+    <label class="radio-label">
+      <input type="radio" name="searchMode" value="item_number" checked> Item #
+    </label>
+    <label class="radio-label">
+      <input type="radio" name="searchMode" value="product_name"> Name
+    </label>
+    <label class="radio-label">
+      <input type="radio" name="searchMode" value="sku"> SKU
+    </label>
+  </div>
+
+  <!-- Search Input & Button -->
+  <div class="search-input-group">
+    <input 
+      type="text" 
+      id="search-input" 
+      placeholder="Enter here ... " 
+      autocomplete="off"
+    />
+    <button id="micBtn" title="Search by voice" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px;">
+        &#127908;
+    </button>
+    <button id="search-btn" class="btn btn-primary" type="button">Search</button>
+  </div>
+</div>
+    
     
     <!-- Install UI -->
     <div id="installContainer" style="display:none;">

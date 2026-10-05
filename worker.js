@@ -17,27 +17,7 @@ export default {
     try {
       // 1. Live Search API
       if (pathname === '/api/search') {
-        const query = url.searchParams.get('q') || '';
-        const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id') || '1738';
-        const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
-
-        const discontinuedClause = showDiscontinued ? '' : 'AND (is_discontinued = 0 OR is_discontinued IS NULL)';
-
-        const { results } = await env.DB.prepare(`
-          SELECT id, warehouse_id, sku, item_number, product_name, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
-          FROM products
-          WHERE warehouse_id = ?
-            ${discontinuedClause}
-            AND (
-              LOWER(product_name) LIKE LOWER(?)
-              OR sku LIKE ?
-              OR item_number LIKE ?
-            )
-          ORDER BY product_name ASC
-          LIMIT 50
-        `).bind(warehouseId, `%${query}%`, `%${query}%`, `%${query}%`).all();
-
-        return new Response(JSON.stringify(results || []), { headers: corsHeaders });
+        return await handleSearch(request, env);
       }
 
       // 2. Paginated Browse API
@@ -192,3 +172,279 @@ export default {
     }
   }
 };
+
+async function handleSearch(request, env) {
+  const url = new URL(request.url);
+  const query = url.searchParams.get('q')?.trim();
+  const rawWarehouse = url.searchParams.get('warehouse') || '';
+  const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
+
+  if (!query) {
+    return Response.json([]);
+  }
+
+  if (!warehouseId) {
+    return Response.json({ error: 'Warehouse ID is required' }, { status: 400 });
+  }
+
+  // 1. Query local D1 database first
+  // Note: Using LIKE for text search, or exact match for item_number
+  let results = await env.DB.prepare(`
+    SELECT * FROM products 
+    WHERE (item_number = ? OR product_name LIKE ? OR product_id = ?) 
+      AND warehouse_id = ?
+  `).bind(query, `%${query}%`, query, warehouseId).all();
+
+  if (results.results && results.results.length > 0) {
+    return Response.json(results.results);
+  }
+
+  // 2. Fallback: If no local DB results and query is a 5-7 digit item number
+  if (/^\d{5,7}$/.test(query)) {
+    const fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
+    
+    if (fetchedProduct) {
+      // 3. Save newly discovered product into D1 for future lookups
+      await env.DB.prepare(`
+        INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
+        VALUES (?, ?, ?, ?, ?, datetime('now'))
+      `).bind(
+        crypto.randomUUID(),
+        query,
+        fetchedProduct.product_name,
+        fetchedProduct.product_url,
+        warehouseId
+      ).run();
+
+      return Response.json([fetchedProduct]);
+    }
+  }
+
+  return Response.json([]);
+}
+
+async function fetchCostcoItemDetails(itemNumber, warehouseId) {
+  const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
+
+  const whsCookieValue = JSON.stringify({
+    nearestWarehouse: { catalog: `${warehouseId}-wh` }
+  });
+
+  const cookieHeader = [
+    `WHSE=${warehouseId}`,
+    `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
+    `buyInWarehouse=true`
+  ].join('; ');
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Cookie': cookieHeader
+      }
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    if (html.includes("We're sorry. We were not able to find a match.")) {
+      return null;
+    }
+
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
+    
+    if (jsonLdMatch && jsonLdMatch[1]) {
+      const metadata = JSON.parse(jsonLdMatch[1]);
+      const productSchema = Array.isArray(metadata) 
+        ? metadata.find(m => m['@type'] === 'Product') 
+        : metadata;
+
+      if (productSchema && productSchema.name) {
+        return {
+          id: crypto.randomUUID(),
+          item_number: itemNumber,
+          product_name: productSchema.name,
+          category: productSchema.category || '',
+          product_url: targetUrl,
+          warehouse_id: warehouseId,
+          aisle: '',
+          bay: ''
+        };
+      }
+    }
+
+    const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+    if (titleMatch) {
+      return {
+        id: crypto.randomUUID(),
+        item_number: itemNumber,
+        product_name: titleMatch[1].replace(/<[^>]+>/g, '').trim(),
+        product_url: targetUrl,
+        warehouse_id: warehouseId,
+        aisle: '',
+        bay: ''
+      };
+    }
+
+  } catch (err) {
+    console.error('Error fetching live Costco item:', err);
+  }
+
+  return null;
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    const path = url.pathname;
+
+    // ... existing CORS headers setup ...
+
+    // ----------------------------------------------------
+    // SEARCH ROUTE
+    // ----------------------------------------------------
+    if (path === '/api/search') {
+      return await handleSearch(request, env);
+    }
+
+    // ... your other routes (/api/update-location, etc.) ...
+
+    return new Response('Not Found', { status: 404 });
+  }
+};
+
+// ----------------------------------------------------
+// HELPER FUNCTIONS (Place below export default)
+// ----------------------------------------------------
+
+async function handleSearch(request, env) {
+  const url = new URL(request.url);
+  const query = url.searchParams.get('q')?.trim();
+  const searchMode = url.searchParams.get('mode') || 'item_number';
+  const rawWarehouse = url.searchParams.get('warehouse') || '';
+  const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
+
+  if (!query || !warehouseId) {
+    return Response.json([]);
+  }
+
+  let dbQuery = "";
+  let bindings = [];
+
+  // 1. Build targeted D1 SQL query based on selected radio mode
+  if (searchMode === 'item_number') {
+    dbQuery = "SELECT * FROM products WHERE item_number = ? AND warehouse_id = ?";
+    bindings = [query, warehouseId];
+  } else if (searchMode === 'sku') {
+    dbQuery = "SELECT * FROM products WHERE sku = ? AND warehouse_id = ?";
+    bindings = [query, warehouseId];
+  } else {
+    // product_name mode
+    dbQuery = "SELECT * FROM products WHERE product_name LIKE ? AND warehouse_id = ?";
+    bindings = [`%${query}%`, warehouseId];
+  }
+
+  let results = await env.DB.prepare(dbQuery).bind(...bindings).all();
+
+  if (results.results && results.results.length > 0) {
+    return Response.json(results.results);
+  }
+
+  // 2. Live Fallback: ONLY attempt web lookup if mode is 'item_number' and query is 5-7 digits
+  if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
+    const fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
+    
+    if (fetchedProduct) {
+      const newId = crypto.randomUUID();
+      await env.DB.prepare(`
+        INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
+        VALUES (?, ?, ?, ?, ?, datetime('now'))
+      `).bind(
+        newId,
+        query,
+        fetchedProduct.product_name,
+        fetchedProduct.product_url,
+        warehouseId
+      ).run();
+
+      fetchedProduct.id = newId;
+      return Response.json([fetchedProduct]);
+    }
+  }
+
+  return Response.json([]);
+}
+
+async function fetchCostcoItemDetails(itemNumber, warehouseId) {
+  const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
+
+  const whsCookieValue = JSON.stringify({
+    nearestWarehouse: { catalog: `${warehouseId}-wh` }
+  });
+
+  const cookieHeader = [
+    `WHSE=${warehouseId}`,
+    `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
+    `buyInWarehouse=true`
+  ].join('; ');
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Cookie': cookieHeader
+      }
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    if (html.includes("We're sorry. We were not able to find a match.")) {
+      return null;
+    }
+
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
+    
+    if (jsonLdMatch && jsonLdMatch[1]) {
+      const metadata = JSON.parse(jsonLdMatch[1]);
+      const productSchema = Array.isArray(metadata) 
+        ? metadata.find(m => m['@type'] === 'Product') 
+        : metadata;
+
+      if (productSchema && productSchema.name) {
+        return {
+          id: crypto.randomUUID(),
+          item_number: itemNumber,
+          product_name: productSchema.name,
+          category: productSchema.category || '',
+          product_url: targetUrl,
+          warehouse_id: warehouseId,
+          aisle: '',
+          bay: ''
+        };
+      }
+    }
+
+    const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+    if (titleMatch) {
+      return {
+        id: crypto.randomUUID(),
+        item_number: itemNumber,
+        product_name: titleMatch[1].replace(/<[^>]+>/g, '').trim(),
+        product_url: targetUrl,
+        warehouse_id: warehouseId,
+        aisle: '',
+        bay: ''
+      };
+    }
+
+  } catch (err) {
+    console.error('Error fetching live Costco item:', err);
+  }
+
+  return null;
+}
