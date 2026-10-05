@@ -696,3 +696,29 @@ header {
     min-width: 130px;
   }
 }
+
+/* Update right padding to accommodate two action icons when SKU mode is active */
+#search-input.has-double-icon {
+  padding-right: 4.8rem !important;
+}
+
+/* Barcode Button Styling */
+#barcodeBtn {
+  position: absolute;
+  right: 36px; /* Positioned just to the left of the mic button */
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #4b5563;
+  transition: background-color 0.15s ease;
+}
+
+#barcodeBtn:hover {
+  background-color: #f3f4f6;
+}

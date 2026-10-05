@@ -972,6 +972,9 @@ document.addEventListener('DOMContentLoaded', () => {
   populateAisleDropdown();
   startBrowse(1);
 
+// Initialize search input mode and event listeners
+  initSearchModeToggle();
+
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
   const radioButtons = document.querySelectorAll('input[name="searchMode"]');
@@ -996,7 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', (e) => {
       const mode = e.target.value;
       if (mode === 'item_number') {
-        searchInput.placeholder = 'Enter 5-7 digit item number...';
+        searchInput.placeholder = 'Enter 3-7 digit item number...';
       } else if (mode === 'product_name') {
         searchInput.placeholder = 'Search by product title...';
       } else if (mode === 'sku') {
@@ -1148,3 +1151,61 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+// app.js
+function initSearchModeToggle() {
+  const searchInput = document.getElementById('search-input');
+  const radioButtons = document.querySelectorAll('input[name="searchMode"]');
+  const barcodeBtn = document.getElementById('barcodeBtn');
+
+  if (!searchInput || !radioButtons.length) return;
+
+  function updateInputMode(mode) {
+    if (mode === 'item_number') {
+      searchInput.placeholder = 'Scan price tag or enter item #...';
+      searchInput.setAttribute('inputmode', 'numeric');
+      searchInput.setAttribute('pattern', '[0-9]*');
+      // Show barcode button for scanning 1D shelf tag barcodes
+      if (barcodeBtn) barcodeBtn.style.display = 'inline-flex';
+      searchInput.classList.add('has-double-icon');
+    } else if (mode === 'product_name') {
+      searchInput.placeholder = 'Search by product title...';
+      searchInput.setAttribute('inputmode', 'text');
+      searchInput.removeAttribute('pattern');
+      // Hide barcode button for text searches
+      if (barcodeBtn) barcodeBtn.style.display = 'none';
+      searchInput.classList.remove('has-double-icon');
+    } else if (mode === 'sku') {
+      searchInput.placeholder = 'Scan or enter SKU barcode...';
+      searchInput.setAttribute('inputmode', 'numeric');
+      searchInput.setAttribute('pattern', '[0-9]*');
+      // Show barcode button for product packaging barcodes
+      if (barcodeBtn) barcodeBtn.style.display = 'inline-flex';
+      searchInput.classList.add('has-double-icon');
+    }
+  }
+
+  // Set initial state on load
+  const checkedRadio = document.querySelector('input[name="searchMode"]:checked');
+  if (checkedRadio) updateInputMode(checkedRadio.value);
+
+  // Listen for radio mode changes
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', (e) => updateInputMode(e.target.value));
+  });
+
+  // Attach camera scanner to barcode button click
+  if (barcodeBtn) {
+    barcodeBtn.addEventListener('click', () => {
+      if (typeof startCameraBarcodeScanner === 'function') {
+        startCameraBarcodeScanner((scannedBarcode) => {
+          if (scannedBarcode) {
+            searchInput.value = scannedBarcode;
+            if (typeof performSearch === 'function') performSearch();
+          }
+        });
+      }
+    });
+  }
+}
+
