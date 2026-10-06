@@ -1,4 +1,4 @@
-// --- CONFIGURATION & API ---
+// --- CONFIGURATION ---
 const API_BASE_URL = 'https://warehouse-item-finder.pant.workers.dev';
 
 const geoOptions = {
@@ -7,72 +7,37 @@ const geoOptions = {
   maximumAge: 60000
 };
 
+// Store cached warehouses in memory once fetched
+let cachedWarehouses = [];
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Initialize warehouse selection from localStorage or geolocation
+  // 1. Initialize warehouse state on load
   initWarehouseSelection();
 
-  // 2. Attach click listener to "Set Warehouse" button in HTML
+  // 2. Setup button click to toggle popover
   const setWarehouseBtn = document.getElementById('warehouse-selector-btn');
   if (setWarehouseBtn) {
     setWarehouseBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      
-      // If search popover exists, toggle it; otherwise attempt geolocation search
-      const popover = document.getElementById('warehouse-search-popover');
-      if (popover) {
-        popover.hidden = !popover.hidden;
-        if (!popover.hidden) {
-          const searchInput = document.getElementById('warehouse-search-input');
-          if (searchInput) searchInput.focus();
-        }
-      } else {
-        handleLocateUser();
-      }
+      toggleSearchPopover();
+    });
+  }
+
+  // 3. Attach real-time search listener to search input
+  const searchInput = document.getElementById('warehouse-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      handleSearchInput(e.target.value);
     });
   }
 });
-
-// --- CORE GEOLOCATION HANDLER ---
-async function handleLocateUser() {
-  if (!navigator.geolocation) {
-    showSearchPopover();
-    return;
-  }
-
-  // Check permission status via Permissions API if available
-  if (navigator.permissions && navigator.permissions.query) {
-    try {
-      const status = await navigator.permissions.query({ name: 'geolocation' });
-      if (status.state === 'denied') {
-        showSearchPopover();
-        return;
-      }
-    } catch (e) {
-      // Permissions API not supported, fall through to getCurrentPosition
-    }
-  }
-
-  // Trigger Geolocation
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      findAndSetNearestWarehouse(latitude, longitude);
-    },
-    (error) => {
-      console.warn(`Geolocation error (${error.code}): ${error.message}`);
-      showSearchPopover();
-    },
-    geoOptions
-  );
-}
 
 // --- INITIAL LOAD CHECK ---
 async function initWarehouseSelection() {
   const savedWarehouse = localStorage.getItem('selected_warehouse');
   
   if (savedWarehouse) {
-    // If saved as JSON object or plain ID string
     try {
       const parsed = JSON.parse(savedWarehouse);
       if (parsed && typeof parsed === 'object') {
@@ -80,18 +45,139 @@ async function initWarehouseSelection() {
         return;
       }
     } catch (e) {
-      // Not JSON, likely plain warehouse ID string
+      // Ignore parse error
     }
-    
-    // Fetch warehouse details by ID if needed, or run location detection
-    handleLocateUser();
-  } else {
-    // No saved warehouse found -> auto-detect via GPS
-    handleLocateUser();
+  }
+
+  // No saved store found -> perform geolocation check (no hardcoded default)
+  handleLocateUser();
+}
+
+// --- GEOLOCATION HANDLER ---
+async function handleLocateUser() {
+  if (!navigator.geolocation) {
+    console.warn("Geolocation is not supported by this browser.");
+    showSearchPopover();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      findAndSetNearestWarehouse(latitude, longitude);
+    },
+    (error) => {
+      console.warn(`Geolocation failed (${error.code}): ${error.message}`);
+      // Prompt user to search manually if GPS permission was denied or timed out
+      showSearchPopover();
+    },
+    geoOptions
+  );
+}
+
+// --- FETCH & CACHE WAREHOUSES ---
+async function fetchWarehouses() {
+  if (cachedWarehouses.length > 0) return cachedWarehouses;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/warehouses`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    cachedWarehouses = Array.isArray(data) ? data : (data.warehouses || []);
+    return cachedWarehouses;
+  } catch (err) {
+    console.error("Failed to fetch warehouse list:", err);
+    return [];
   }
 }
 
-// --- UI HELPERS ---
+// --- SEARCH FILTERING ---
+async function handleSearchInput(query) {
+  const term = query.trim().toLowerCase();
+  const resultsContainer = getOrCreateResultsContainer();
+
+  if (!term) {
+    resultsContainer.innerHTML = '';
+    resultsContainer.style.display = 'none';
+    return;
+  }
+
+  const warehouses = await fetchWarehouses();
+  const matches = warehouses.filter(w => {
+    const name = (w.warehouse_name || w.name || '').toLowerCase();
+    const city = (w.city || '').toLowerCase();
+    const state = (w.state || '').toLowerCase();
+    const id = String(w.warehouse_id || w.id || '').toLowerCase();
+
+    return name.includes(term) || city.includes(term) || state.includes(term) || id.includes(term);
+  });
+
+  renderSearchResults(matches, resultsContainer);
+}
+
+function renderSearchResults(matches, container) {
+  container.innerHTML = '';
+
+  if (matches.length === 0) {
+    container.innerHTML = '<div style="padding: 10px; color: #888;">No matching locations found</div>';
+    container.style.display = 'block';
+    return;
+  }
+
+  const list = document.createElement('ul');
+  list.style.cssText = 'list-style: none; margin: 0; padding: 0; max-height: 200px; overflow-y: auto;';
+
+  matches.slice(0, 10).forEach(store => {
+    const item = document.createElement('li');
+    const storeName = store.warehouse_name || store.name || `${store.city}, ${store.state}`;
+    const storeId = store.warehouse_id || store.id;
+
+    item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
+    item.textContent = `${storeName} (#${storeId})`;
+
+    item.addEventListener('click', () => {
+      selectWarehouse(store);
+      hideSearchPopover();
+    });
+
+    list.appendChild(item);
+  });
+
+  container.appendChild(list);
+  container.style.display = 'block';
+}
+
+// --- SELECTION & DISPLAY ---
+function selectWarehouse(warehouse) {
+  localStorage.setItem('selected_warehouse', JSON.stringify(warehouse));
+  displayWarehouse(warehouse);
+
+  // Update global variable in app.js if present
+  if (typeof CURRENT_WAREHOUSE !== 'undefined') {
+    CURRENT_WAREHOUSE = warehouse.warehouse_id || warehouse.id;
+  }
+}
+
+function displayWarehouse(warehouse) {
+  const warehouseTextEl = document.getElementById('active-warehouse-text');
+  if (warehouseTextEl) {
+    const label = warehouse.warehouse_name || warehouse.name || `${warehouse.city || 'Warehouse'}, ${warehouse.state || ''}`;
+    warehouseTextEl.textContent = label;
+  }
+}
+
+// --- POPOVER & SEARCH CONTAINER HELPERS ---
+function toggleSearchPopover() {
+  const popover = document.getElementById('warehouse-search-popover');
+  if (popover) {
+    popover.hidden = !popover.hidden;
+    if (!popover.hidden) {
+      const input = document.getElementById('warehouse-search-input');
+      if (input) input.focus();
+    }
+  }
+}
+
 function showSearchPopover() {
   const popover = document.getElementById('warehouse-search-popover');
   if (popover) {
@@ -101,68 +187,64 @@ function showSearchPopover() {
   }
 }
 
-function displayWarehouse(warehouse) {
-  const warehouseTextEl = document.getElementById('active-warehouse-text');
-  if (warehouseTextEl) {
-    const label = warehouse.warehouse_name || warehouse.name || `${warehouse.city || 'Warehouse'}, ${warehouse.state || warehouse.warehouse_id || ''}`;
-    warehouseTextEl.textContent = label;
+function hideSearchPopover() {
+  const popover = document.getElementById('warehouse-search-popover');
+  if (popover) {
+    popover.hidden = true;
   }
 }
 
-// --- HAVERSINE DISTANCE CALCULATOR ---
+function getOrCreateResultsContainer() {
+  let container = document.getElementById('warehouse-search-results');
+  if (!container) {
+    const popover = document.getElementById('warehouse-search-popover');
+    container = document.createElement('div');
+    container.id = 'warehouse-search-results';
+    container.style.cssText = 'background: #fff; border: 1px solid #ccc; border-top: none; max-height: 220px; overflow-y: auto;';
+    if (popover) popover.appendChild(container);
+  }
+  return container;
+}
+
+// --- HAVERSINE DISTANCE & GEOLOCATION MATCH ---
 function haversineDistance(lat1, lon1, lat2, lon2) {
-  const R = 3958.8; // Earth's radius in miles
+  const R = 3958.8; // Radius in miles
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = 
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// --- NEAREST WAREHOUSE SEARCH ---
 async function findAndSetNearestWarehouse(userLat, userLng) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/warehouses`);
-    const warehouses = await response.json();
+  const warehouses = await fetchWarehouses();
 
-    if (!Array.isArray(warehouses) || warehouses.length === 0) {
-      showSearchPopover();
-      return;
-    }
+  if (warehouses.length === 0) {
+    showSearchPopover();
+    return;
+  }
 
-    let nearest = null;
-    let minDistance = Infinity;
+  let nearest = null;
+  let minDistance = Infinity;
 
-    warehouses.forEach(store => {
-      // Check latitude and longitude properties from API
-      const lat = store.lat || store.latitude;
-      const lng = store.lng || store.longitude;
+  warehouses.forEach(store => {
+    const lat = parseFloat(store.lat || store.latitude);
+    const lng = parseFloat(store.lng || store.longitude);
 
-      if (lat && lng) {
-        const dist = haversineDistance(userLat, userLng, parseFloat(lat), parseFloat(lng));
-        if (dist < minDistance) {
-          minDistance = dist;
-          nearest = store;
-        }
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const dist = haversineDistance(userLat, userLng, lat, lng);
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearest = store;
       }
-    });
-
-    if (nearest) {
-      localStorage.setItem('selected_warehouse', JSON.stringify(nearest));
-      displayWarehouse(nearest);
-      
-      // Update global variable in app.js if present
-      if (typeof CURRENT_WAREHOUSE !== 'undefined') {
-        CURRENT_WAREHOUSE = nearest.warehouse_id || nearest.id;
-      }
-    } else {
-      showSearchPopover();
     }
-  } catch (err) {
-    console.error("Failed to fetch warehouses for location match:", err);
+  });
+
+  if (nearest) {
+    selectWarehouse(nearest);
+  } else {
     showSearchPopover();
   }
 }
