@@ -64,8 +64,6 @@ async function initWarehouseSelection() {
   // Fetch warehouses into cache right away on load
   await fetchWarehouses();
 
-  // No saved store found -> perform geolocation check
-  handleLocateUser();
 }
 
 // --- GEOLOCATION HANDLER ---
@@ -231,42 +229,53 @@ async function handleWarehouseSearch(searchInput) {
 
 // --- GEOCODING LOOKUP WITH ZIP FALLBACK ---
 async function geocodeSearchQuery(query) {
-  // If query is a 5-digit ZIP code, use Zippopotam API (faster and reliable on mobile networks)
+  console.log('🔍 [DEBUG] Starting geocodeSearchQuery for query:', query);
+
+  // 1. Check 5-digit ZIP via Zippopotam
   if (/^\d{5}$/.test(query)) {
     try {
+      console.log('📍 [DEBUG] Query recognized as 5-digit ZIP code. Querying Zippopotam API...');
       const zipRes = await fetch(`https://api.zippopotam.us/us/${query}`);
       if (zipRes.ok) {
         const zipData = await zipRes.json();
         if (zipData.places && zipData.places.length > 0) {
-          return {
-            lat: parseFloat(zipData.places[0].latitude),
-            lng: parseFloat(zipData.places[0].longitude)
-          };
+          const lat = parseFloat(zipData.places[0].latitude);
+          const lng = parseFloat(zipData.places[0].longitude);
+          console.log(`✅ [DEBUG] Zippopotam succeeded! Resolved ${query} to lat: ${lat}, lng: ${lng}`);
+          return { lat, lng };
         }
       }
+      console.warn('⚠️ [DEBUG] Zippopotam response was not ok or contained no places.');
     } catch (e) {
-      // Fall through to Nominatim if Zippopotam fails
+      console.error('❌ [DEBUG] Zippopotam fetch failed:', e);
     }
   }
 
-  // Standard Nominatim lookup for cities/places
+  // 2. OpenStreetMap Nominatim Fallback
   try {
+    console.log('🌐 [DEBUG] Querying Nominatim OpenStreetMap API for query:', query);
     const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
     const response = await fetch(url, {
       headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
     });
 
-    if (!response.ok) return null;
-    const results = await response.json();
+    if (!response.ok) {
+      console.error('❌ [DEBUG] Nominatim HTTP error:', response.status);
+      return null;
+    }
 
+    const results = await response.json();
     if (results && results.length > 0) {
-      return {
-        lat: parseFloat(results[0].lat),
-        lng: parseFloat(results[0].lon)
-      };
+      const lat = parseFloat(results[0].lat);
+      const lng = parseFloat(results[0].lon);
+      console.log(`✅ [DEBUG] Nominatim succeeded! Resolved "${query}" to lat: ${lat}, lng: ${lng}`);
+      return { lat, lng };
+    } else {
+      console.warn('⚠️ [DEBUG] Nominatim returned 0 matching results for query:', query);
     }
     return null;
   } catch (err) {
+    console.error('❌ [DEBUG] Nominatim geocode exception:', err);
     return null;
   }
 }
@@ -283,21 +292,26 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 }
 
 async function findAndSetNearestWarehouse(userLat, userLng) {
+  console.log(`📐 [DEBUG] Entering findAndSetNearestWarehouse with target lat: ${userLat}, lng: ${userLng}`);
+
   const warehouses = await fetchWarehouses();
+  console.log(`📦 [DEBUG] Loaded ${warehouses.length} total warehouses from cache/API.`);
 
   if (!Array.isArray(warehouses) || warehouses.length === 0) {
-    showSearchPopover();
+    console.error("❌ [DEBUG] No warehouses available in memory to calculate distance against.");
     return;
   }
 
   let nearest = null;
   let minDistance = Infinity;
+  let validCount = 0;
 
   warehouses.forEach(store => {
     const lat = parseFloat(store.lat);
     const lng = parseFloat(store.lng);
 
     if (!isNaN(lat) && !isNaN(lng)) {
+      validCount++;
       const dist = haversineDistance(userLat, userLng, lat, lng);
       if (dist < minDistance) {
         minDistance = dist;
@@ -306,11 +320,14 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
     }
   });
 
+  console.log(`📊 [DEBUG] Evaluated distance across ${validCount} valid store coordinate pairs.`);
+
   if (nearest) {
+    console.log(`🎯 [DEBUG] Winner found! Nearest store: ${nearest.warehouse_name || nearest.city} (#${nearest.warehouse_id}) at ${minDistance.toFixed(2)} miles.`);
     selectWarehouse(nearest);
     hideSearchPopover();
   } else {
-    showSearchPopover();
+    console.error("❌ [DEBUG] Could not identify nearest store — no warehouses had valid numeric lat/lng values.");
   }
 }
 
