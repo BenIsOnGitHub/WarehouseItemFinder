@@ -39,10 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (query) {
         await handleWarehouseSearch(query);
         hideSearchPopover();
-      }
-    }
-  });
-}
+      	}
+    	}
+  	});
+	}
+});
 
 // --- INITIAL LOAD CHECK ---
 async function initWarehouseSelection() {
