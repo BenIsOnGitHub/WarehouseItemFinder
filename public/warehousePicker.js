@@ -55,8 +55,15 @@ async function initWarehouseSelection() {
 
 // --- GEOLOCATION HANDLER ---
 async function handleLocateUser() {
+  // Check if HTTPS is being used (Geolocation requires HTTPS or localhost)
+  if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+    console.warn("Geolocation requires HTTPS.");
+    showSearchPopover();
+    return;
+  }
+
   if (!navigator.geolocation) {
-    console.warn("Geolocation is not supported by this browser.");
+    console.warn("Geolocation not supported by browser.");
     showSearchPopover();
     return;
   }
@@ -64,11 +71,11 @@ async function handleLocateUser() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
+      console.log(`GPS Acquired: ${latitude}, ${longitude}`);
       findAndSetNearestWarehouse(latitude, longitude);
     },
     (error) => {
-      console.warn(`Geolocation failed (${error.code}): ${error.message}`);
-      // Prompt user to search manually if GPS permission was denied or timed out
+      console.warn(`Geolocation error code ${error.code}: ${error.message}`);
       showSearchPopover();
     },
     geoOptions
@@ -208,7 +215,7 @@ function getOrCreateResultsContainer() {
 
 // --- HAVERSINE DISTANCE & GEOLOCATION MATCH ---
 function haversineDistance(lat1, lon1, lat2, lon2) {
-  const R = 3958.8; // Radius in miles
+  const R = 3958.8; // Radius of Earth in miles
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = 
@@ -221,7 +228,8 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 async function findAndSetNearestWarehouse(userLat, userLng) {
   const warehouses = await fetchWarehouses();
 
-  if (warehouses.length === 0) {
+  if (!Array.isArray(warehouses) || warehouses.length === 0) {
+    console.warn("No warehouses returned from API endpoint.");
     showSearchPopover();
     return;
   }
@@ -230,9 +238,14 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
   let minDistance = Infinity;
 
   warehouses.forEach(store => {
-    const lat = parseFloat(store.lat || store.latitude);
-    const lng = parseFloat(store.lng || store.longitude);
+    // 1. Check every common key variation for latitude and longitude
+    const rawLat = store.lat ?? store.latitude ?? store.location?.lat ?? store.gps_lat;
+    const rawLng = store.lng ?? store.longitude ?? store.location?.lng ?? store.lon ?? store.gps_lng;
 
+    const lat = parseFloat(rawLat);
+    const lng = parseFloat(rawLng);
+
+    // 2. Compute Haversine distance only if valid numeric coordinates exist
     if (!isNaN(lat) && !isNaN(lng)) {
       const dist = haversineDistance(userLat, userLng, lat, lng);
       if (dist < minDistance) {
@@ -241,10 +254,3 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
       }
     }
   });
-
-  if (nearest) {
-    selectWarehouse(nearest);
-  } else {
-    showSearchPopover();
-  }
-}

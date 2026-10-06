@@ -1,7 +1,6 @@
 // ==========================================
 // CONFIGURATION
 // ==========================================
-const API_BASE_URL = 'https://warehouse-item-finder.pant.workers.dev';
 let CURRENT_WAREHOUSE = localStorage.getItem('selected_warehouse') || '1738';
 
 const FAVORITES_KEY = 'product_favorites';
