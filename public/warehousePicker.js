@@ -160,8 +160,8 @@ function renderSearchResults(matches, container) {
 
   matches.slice(0, 10).forEach(store => {
     const item = document.createElement('li');
-    const storeName = store.warehouse_name || store.name || `${store.city}, ${store.state}`;
-    const storeId = store.warehouse_id || store.id;
+    const storeName = store.warehouse_name || `${store.city}, ${store.state}`;
+    const storeId = store.warehouse_id;
 
     item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
     item.textContent = `${storeName} (#${storeId})`;
@@ -358,11 +358,11 @@ async function handleWarehouseSearch(searchInput) {
   const query = searchInput.trim();
   if (!query) return;
 
-  const warehouses = await fetchWarehouses();
-
-  // 1. First check if input directly matches a warehouse ID or ZIP prefix
+  // 1. Direct match check (Store ID, Name, City, ZIP)
+  const warehouses = getCachedWarehouses();
   const directMatch = warehouses.find(w => 
     String(w.warehouse_id || '').toLowerCase() === query.toLowerCase() ||
+    String(w.warehouse_name || '').toLowerCase().includes(query.toLowerCase()) ||
     String(w.zip_code || '').startsWith(query)
   );
 
@@ -372,12 +372,11 @@ async function handleWarehouseSearch(searchInput) {
     return;
   }
 
-  // 2. Fallback: Geocode ZIP/Address (e.g. 34472) and find closest warehouse by lat/lng
+  // 2. Fallback to Geocoding search (for cities like "Ocala, FL" or ZIP codes)
   const coords = await geocodeSearchQuery(query);
-
   if (coords) {
-    await findAndSetNearestWarehouse(coords.lat, coords.lng);
+    findAndSetNearestWarehouse(coords.lat, coords.lng, query);
   } else {
-    alert('No warehouses found matching that ZIP code, city, or address.');
+    alert(`Could not find coordinates for "${query}".`);
   }
 }
