@@ -135,7 +135,7 @@ export default {
       // 5. Warehouses API
 			if (pathname === '/api/warehouses') {
 			  const { results } = await env.DB.prepare(`
-			    SELECT warehouse_id, warehouse_name, street_address, city, state, zip_code 
+			    SELECT warehouse_id, warehouse_name, street_address, city, state, zip_code, lat, lng
 			    FROM warehouses 
 			    ORDER BY warehouse_id ASC
 			  `).all();
