@@ -111,6 +111,7 @@ async function fetchWarehouses() {
 }
 
 // --- SEARCH FILTERING ---
+// --- SEARCH FILTERING ---
 async function handleSearchInput(query) {
   const term = query.trim().toLowerCase();
   const resultsContainer = getOrCreateResultsContainer();
@@ -121,14 +122,37 @@ async function handleSearchInput(query) {
     return;
   }
 
+  // 1. Fetch cached warehouses for quick checks
   const warehouses = await fetchWarehouses();
+
+  // 2. If it's a 5-digit ZIP, check if any warehouse matches that exact ZIP first
+  if (/^\d{5}$/.test(term)) {
+    const exactZipMatch = warehouses.find(w => {
+      const zip = String(w.zip || w.zip_code || w.postal_code || '').trim();
+      return zip === term;
+    });
+
+    if (exactZipMatch) {
+      selectWarehouse(exactZipMatch);
+      hideSearchPopover();
+      return;
+    }
+
+    // 3. Fallback: If no store has that exact ZIP, geocode it to find the nearest store
+    await handleWarehouseSearch(term);
+    hideSearchPopover();
+    return;
+  }
+
+  // 4. Standard partial text filtering for cities, names, IDs, etc.
   const matches = warehouses.filter(w => {
     const name = (w.warehouse_name || w.name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
     const state = (w.state || '').toLowerCase();
     const id = String(w.warehouse_id || w.id || '').toLowerCase();
+    const zip = String(w.zip || w.zip_code || w.postal_code || '').toLowerCase();
 
-    return name.includes(term) || city.includes(term) || state.includes(term) || id.includes(term);
+    return name.includes(term) || city.includes(term) || state.includes(term) || id.includes(term) || zip.includes(term);
   });
 
   renderSearchResults(matches, resultsContainer);
