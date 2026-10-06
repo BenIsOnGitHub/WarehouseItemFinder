@@ -30,8 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', (e) => {
       handleSearchInput(e.target.value);
     });
-  }
-});
+    
+  // Geocode and find nearest warehouse when pressing Enter
+  searchInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const query = e.target.value.trim();
+      if (query) {
+        await handleWarehouseSearch(query);
+        hideSearchPopover();
+      }
+    }
+  });
+}
 
 // --- INITIAL LOAD CHECK ---
 async function initWarehouseSelection() {
@@ -156,12 +167,16 @@ function renderSearchResults(matches, container) {
 
 // --- SELECTION & DISPLAY ---
 function selectWarehouse(warehouse) {
-  localStorage.setItem('selected_warehouse', JSON.stringify(warehouse));
+  const warehouseId = String(warehouse.warehouse_id || warehouse.id);
+  
+  localStorage.setItem('selected_warehouse', warehouseId);
   displayWarehouse(warehouse);
 
-  // Update global variable in app.js if present
-  if (typeof CURRENT_WAREHOUSE !== 'undefined') {
-    CURRENT_WAREHOUSE = warehouse.warehouse_id || warehouse.id;
+  // Sync with app.js state and refresh UI views
+  if (typeof onWarehouseChange === 'function') {
+    onWarehouseChange(warehouseId);
+  } else if (typeof CURRENT_WAREHOUSE !== 'undefined') {
+    CURRENT_WAREHOUSE = warehouseId;
   }
 }
 
@@ -262,5 +277,98 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
   } else {
     console.warn("Could not calculate nearest store — missing coordinate fields in API data.");
     showSearchPopover();
+  }
+}
+
+async function getCoordsFromZip(zipCode) {
+  try {
+    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+    if (!response.ok) {
+      throw new Error('Invalid ZIP code');
+    }
+    const data = await response.json();
+    const place = data.places[0];
+    
+    return {
+      lat: parseFloat(place.latitude),
+      lng: parseFloat(place.longitude)
+    };
+  } catch (err) {
+    console.error('Failed to geocode ZIP code:', err);
+    return null;
+  }
+}
+
+async function handleZipSearch(zipInput) {
+  const cleanZip = zipInput.trim();
+  
+  if (!/^\d{5}$/.test(cleanZip)) {
+    alert('Please enter a valid 5-digit US ZIP code.');
+    return;
+  }
+
+  const coords = await getCoordsFromZip(cleanZip);
+  
+  if (coords) {
+    // Reuses your exact Haversine distance logic!
+    await findAndSetNearestWarehouse(coords.lat, coords.lng);
+  } else {
+    alert('ZIP code not found. Please try another standard 5-digit ZIP code.');
+  }
+}
+
+async function geocodeSearchQuery(query) {
+  try {
+    // OpenStreetMap Nominatim geocoding API (free, no API key required)
+    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'WarehousePickerApp/1.0' // Nominatim requires a user-agent header
+      }
+    });
+
+    if (!response.ok) throw new Error('Geocoding request failed');
+
+    const results = await response.json();
+
+    if (results && results.length > 0) {
+      return {
+        lat: parseFloat(results[0].lat),
+        lng: parseFloat(results[0].lon)
+      };
+    }
+    
+    return null; // Query couldn't be resolved
+  } catch (err) {
+    console.error('Error geocoding search query:', err);
+    return null;
+  }
+}
+
+async function handleWarehouseSearch(searchInput) {
+  const query = searchInput.trim();
+  if (!query) return;
+
+  // 1. Geocode the query (ZIP, City State, or Full Address)
+  const coords = await geocodeSearchQuery(query);
+
+  if (coords) {
+    // 2. Reuse your existing distance calculation to set the closest warehouse
+    await findAndSetNearestWarehouse(coords.lat, coords.lng);
+  } else {
+    // 3. Fallback: Exact text matching on local warehouse list if geocoding yields no hits
+    const warehouses = await fetchWarehouses();
+    const matches = warehouses.filter(w => 
+      (w.city && w.city.toLowerCase().includes(query.toLowerCase())) ||
+      (w.state && w.state.toLowerCase().includes(query.toLowerCase())) ||
+      (w.zip && w.zip.toString().includes(query))
+    );
+
+    if (matches.length > 0) {
+      selectWarehouse(matches[0]);
+    } else {
+      alert('No warehouses found matching that ZIP code, city, or address.');
+    }
   }
 }
