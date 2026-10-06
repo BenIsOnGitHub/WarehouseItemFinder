@@ -110,7 +110,7 @@ async function fetchWarehouses() {
   }
 }
 
-// --- SEARCH FILTERING ---
+
 // --- SEARCH FILTERING ---
 async function handleSearchInput(query) {
   const term = query.trim().toLowerCase();
@@ -122,15 +122,11 @@ async function handleSearchInput(query) {
     return;
   }
 
-  // 1. Fetch cached warehouses for quick checks
   const warehouses = await fetchWarehouses();
 
-  // 2. If it's a 5-digit ZIP, check if any warehouse matches that exact ZIP first
+  // 1. Check for exact 5-digit ZIP match first
   if (/^\d{5}$/.test(term)) {
-    const exactZipMatch = warehouses.find(w => {
-      const zip = String(w.zip || w.zip_code || w.postal_code || '').trim();
-      return zip === term;
-    });
+    const exactZipMatch = warehouses.find(w => String(w.zip_code || '').trim() === term);
 
     if (exactZipMatch) {
       selectWarehouse(exactZipMatch);
@@ -138,21 +134,29 @@ async function handleSearchInput(query) {
       return;
     }
 
-    // 3. Fallback: If no store has that exact ZIP, geocode it to find the nearest store
+    // Geocode nearby store if ZIP isn't an exact store match
     await handleWarehouseSearch(term);
     hideSearchPopover();
     return;
   }
 
-  // 4. Standard partial text filtering for cities, names, IDs, etc.
+  // 2. Local text filter using exact database fields
   const matches = warehouses.filter(w => {
-    const name = (w.warehouse_name || w.name || '').toLowerCase();
+    const name = (w.warehouse_name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
     const state = (w.state || '').toLowerCase();
-    const id = String(w.warehouse_id || w.id || '').toLowerCase();
-    const zip = String(w.zip || w.zip_code || w.postal_code || '').toLowerCase();
+    const id = String(w.warehouse_id || '').toLowerCase();
+    const zip = String(w.zip_code || '').toLowerCase();
+    const street = (w.street_address || '').toLowerCase();
 
-    return name.includes(term) || city.includes(term) || state.includes(term) || id.includes(term) || zip.includes(term);
+    return (
+      name.includes(term) ||
+      city.includes(term) ||
+      state.includes(term) ||
+      id.includes(term) ||
+      zip.includes(term) ||
+      street.includes(term)
+    );
   });
 
   renderSearchResults(matches, resultsContainer);
