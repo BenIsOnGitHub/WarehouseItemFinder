@@ -123,7 +123,7 @@ async function handleSearchInput(query) {
 
   const warehouses = await fetchWarehouses();
 
-  // 1. Direct text match across database fields
+  // 1. Direct text match across local database fields
   const matches = warehouses.filter(w => {
     const name = (w.warehouse_name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
@@ -147,17 +147,27 @@ async function handleSearchInput(query) {
     return;
   }
 
-  // Hide dropdown container while waiting for geocode
+  // Hide local dropdown list
   resultsContainer.style.display = 'none';
 
-  // 2. Debounced background fallback (if typing a zip/city not directly matched in local text)
+  // 2. Immediate Zip Code Check (5 Digits)
+  // If the user typed exactly 5 numbers (e.g. 34472), skip the delay and geocode immediately
+  if (/^\d{5}$/.test(term)) {
+    const coords = await geocodeSearchQuery(term);
+    if (coords) {
+      await findAndSetNearestWarehouse(coords.lat, coords.lng);
+    }
+    return;
+  }
+
+  // 3. Text query fallback for cities/states (e.g., "Ocala")
   if (term.length >= 3) {
     debounceTimer = setTimeout(async () => {
       const coords = await geocodeSearchQuery(term);
       if (coords) {
         await findAndSetNearestWarehouse(coords.lat, coords.lng);
       }
-    }, 600);
+    }, 500);
   }
 }
 
@@ -178,7 +188,7 @@ function renderSearchResults(matches, container) {
     const storeId = store.warehouse_id;
 
     item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
-    item.textContent = `${storeName} (#${storeId})`;
+    item.textContent = `${storeName}`;
 
     item.addEventListener('click', () => {
       selectWarehouse(store);
@@ -219,8 +229,27 @@ async function handleWarehouseSearch(searchInput) {
   }
 }
 
-// --- GEOCODING & HAVERSINE LOOKUP ---
+// --- GEOCODING LOOKUP WITH ZIP FALLBACK ---
 async function geocodeSearchQuery(query) {
+  // If query is a 5-digit ZIP code, use Zippopotam API (faster and reliable on mobile networks)
+  if (/^\d{5}$/.test(query)) {
+    try {
+      const zipRes = await fetch(`https://api.zippopotam.us/us/${query}`);
+      if (zipRes.ok) {
+        const zipData = await zipRes.json();
+        if (zipData.places && zipData.places.length > 0) {
+          return {
+            lat: parseFloat(zipData.places[0].latitude),
+            lng: parseFloat(zipData.places[0].longitude)
+          };
+        }
+      }
+    } catch (e) {
+      // Fall through to Nominatim if Zippopotam fails
+    }
+  }
+
+  // Standard Nominatim lookup for cities/places
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
     const response = await fetch(url, {
