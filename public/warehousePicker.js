@@ -124,24 +124,8 @@ async function handleSearchInput(query) {
 
   const warehouses = await fetchWarehouses();
 
-  // 1. Check for exact 5-digit ZIP match first
-  if (/^\d{5}$/.test(term)) {
-    const exactZipMatch = warehouses.find(w => String(w.zip_code || '').trim() === term);
-
-    if (exactZipMatch) {
-      selectWarehouse(exactZipMatch);
-      hideSearchPopover();
-      return;
-    }
-
-    // Geocode nearby store if ZIP isn't an exact store match
-    await handleWarehouseSearch(term);
-    hideSearchPopover();
-    return;
-  }
-
   // 2. Local text filter using exact database fields
-  const matches = warehouses.filter(w => {
+  	const matches = warehouses.filter(w => {
     const name = (w.warehouse_name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
     const state = (w.state || '').toLowerCase();
