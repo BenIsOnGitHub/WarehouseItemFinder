@@ -54,16 +54,20 @@ async function initWarehouseSelection() {
       const parsed = JSON.parse(savedWarehouse);
       if (parsed && typeof parsed === 'object') {
         displayWarehouse(parsed);
+        enableProductSearch(); // Enable search when warehouse is active
         return;
       }
     } catch (e) {
-      // Ignore parse error
+      // Parse error fallback
     }
   }
 
-  // Fetch warehouses into cache right away on load
+  // --- NO WAREHOUSE SET ---
+  disableProductSearch("Select a warehouse above to search products");
+  showSearchPopover(); // Open or show warehouse selection bar immediately
+  
+  // Pre-fetch warehouse catalog into memory
   await fetchWarehouses();
-
 }
 
 // --- GEOLOCATION HANDLER ---
@@ -341,17 +345,27 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
 }
 
 // --- SELECTION & UI HELPERS ---
-function selectWarehouse(warehouse) {
-  const warehouseId = String(warehouse.warehouse_id || warehouse.id);
-  localStorage.setItem('selected_warehouse', warehouseId);
-  displayWarehouse(warehouse);
+function selectWarehouse(store) {
+  const warehouseId = store.warehouse_id;
 
+  // 1. Save to localStorage & update DOM header text
+  localStorage.setItem('selected_warehouse', JSON.stringify(store));
+  displayWarehouse(store);
+
+  // 2. Unlock product search inputs & buttons
+  enableProductSearch();
+
+  // 3. Notify the rest of your app's logic of the active warehouse ID
   if (typeof onWarehouseChange === 'function') {
     onWarehouseChange(warehouseId);
   } else if (typeof CURRENT_WAREHOUSE !== 'undefined') {
     CURRENT_WAREHOUSE = warehouseId;
   }
+
+  // 4. Close the warehouse search popover
+  hideSearchPopover();
 }
+
 
 function displayWarehouse(warehouse) {
   const warehouseTextEl = document.getElementById('active-warehouse-text');
