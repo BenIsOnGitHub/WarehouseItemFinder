@@ -145,28 +145,94 @@ async function handleSearchInput(query) {
     return;
   }
 
-  // Hide local dropdown list
+  // Hide local dropdown list while waiting for geocode result
   resultsContainer.style.display = 'none';
 
-  // 2. Immediate Zip Code Check (5 Digits)
-  // If the user typed exactly 5 numbers (e.g. 34472), skip the delay and geocode immediately
+  // 2. Immediate 5-Digit ZIP Geocoding
   if (/^\d{5}$/.test(term)) {
     const coords = await geocodeSearchQuery(term);
     if (coords) {
-      await findAndSetNearestWarehouse(coords.lat, coords.lng);
+      await showWarehousesByDistance(coords.lat, coords.lng);
     }
     return;
   }
 
-  // 3. Text query fallback for cities/states (e.g., "Ocala")
+  // 3. Text query geocoding fallback (e.g. "Ocala, FL")
   if (term.length >= 3) {
     debounceTimer = setTimeout(async () => {
       const coords = await geocodeSearchQuery(term);
       if (coords) {
-        await findAndSetNearestWarehouse(coords.lat, coords.lng);
+        await showWarehousesByDistance(coords.lat, coords.lng);
       }
     }, 500);
   }
+}
+
+async function showWarehousesByDistance(userLat, userLng) {
+  console.log(`📐 [DEBUG] Sorting warehouses by distance to lat: ${userLat}, lng: ${userLng}`);
+
+  const warehouses = await fetchWarehouses();
+  const resultsContainer = getOrCreateResultsContainer();
+
+  if (!Array.isArray(warehouses) || warehouses.length === 0) {
+    return;
+  }
+
+  // Calculate distance for all valid warehouses
+  const warehousesWithDistance = warehouses
+    .map(store => {
+      const lat = parseFloat(store.lat);
+      const lng = parseFloat(store.lng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const dist = haversineDistance(userLat, userLng, lat, lng);
+        return { ...store, distance: dist };
+      }
+      return null;
+    })
+    .filter(store => store !== null);
+
+  // Sort ascending by distance (closest first)
+  warehousesWithDistance.sort((a, b) => a.distance - b.distance);
+
+  // Display top 10 closest stores in search results dropdown
+  renderSearchResults(warehousesWithDistance.slice(0, 10), resultsContainer, true);
+}
+
+// --- RENDER SEARCH RESULTS LIST ---
+function renderSearchResults(matches, container, showDistance = false) {
+  container.innerHTML = '';
+
+  if (matches.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  const list = document.createElement('ul');
+  list.style.cssText = 'list-style: none; margin: 0; padding: 0; max-height: 250px; overflow-y: auto;';
+
+  matches.forEach(store => {
+    const item = document.createElement('li');
+    const storeName = store.warehouse_name || `${store.city}, ${store.state}`;
+    const storeId = store.warehouse_id;
+
+    // Show distance tag if sorted by coordinates
+    const distanceTag = (showDistance && typeof store.distance === 'number') 
+      ? `<span style="float: right; color: #666; font-size: 0.85em;">${store.distance.toFixed(1)} mi</span>`
+      : '';
+
+    item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
+    item.innerHTML = `${storeName} (#${storeId}) ${distanceTag}`;
+
+    item.addEventListener('click', () => {
+      selectWarehouse(store);
+      hideSearchPopover();
+    });
+
+    list.appendChild(item);
+  });
+
+  container.appendChild(list);
+  container.style.display = 'block';
 }
 
 function renderSearchResults(matches, container) {
@@ -292,43 +358,7 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 }
 
 async function findAndSetNearestWarehouse(userLat, userLng) {
-  console.log(`📐 [DEBUG] Entering findAndSetNearestWarehouse with target lat: ${userLat}, lng: ${userLng}`);
-
-  const warehouses = await fetchWarehouses();
-  console.log(`📦 [DEBUG] Loaded ${warehouses.length} total warehouses from cache/API.`);
-
-  if (!Array.isArray(warehouses) || warehouses.length === 0) {
-    console.error("❌ [DEBUG] No warehouses available in memory to calculate distance against.");
-    return;
-  }
-
-  let nearest = null;
-  let minDistance = Infinity;
-  let validCount = 0;
-
-  warehouses.forEach(store => {
-    const lat = parseFloat(store.lat);
-    const lng = parseFloat(store.lng);
-
-    if (!isNaN(lat) && !isNaN(lng)) {
-      validCount++;
-      const dist = haversineDistance(userLat, userLng, lat, lng);
-      if (dist < minDistance) {
-        minDistance = dist;
-        nearest = store;
-      }
-    }
-  });
-
-  console.log(`📊 [DEBUG] Evaluated distance across ${validCount} valid store coordinate pairs.`);
-
-  if (nearest) {
-    console.log(`🎯 [DEBUG] Winner found! Nearest store: ${nearest.warehouse_name || nearest.city} (#${nearest.warehouse_id}) at ${minDistance.toFixed(2)} miles.`);
-    selectWarehouse(nearest);
-    hideSearchPopover();
-  } else {
-    console.error("❌ [DEBUG] Could not identify nearest store — no warehouses had valid numeric lat/lng values.");
-  }
+  await showWarehousesByDistance(userLat, userLng);
 }
 
 // --- SELECTION & UI HELPERS ---
