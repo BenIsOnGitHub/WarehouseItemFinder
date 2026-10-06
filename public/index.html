@@ -40,6 +40,13 @@
       </div>
     </div>
   </div>
+  <button class="hamburger-btn" id="menuToggle" aria-label="Open Navigation Menu">&#9776;</button>
+
+  <div class="nav-dropdown" id="navDropdown">
+    <button onclick="switchView('search-view'); resetSearchView();">Search Products</button>
+    <button onclick="switchView('browse-view'); startBrowse(1);">Browse Products</button>
+    <button onclick="showFavoritesView()">My Favorite Products</button> 
+  </div>
 </header>
 
 <div class="container">
