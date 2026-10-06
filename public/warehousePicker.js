@@ -124,8 +124,8 @@ async function handleSearchInput(query) {
 
   const warehouses = await fetchWarehouses();
 
-  // 2. Local text filter using exact database fields
-  	const matches = warehouses.filter(w => {
+  // Local text match across database fields
+  const matches = warehouses.filter(w => {
     const name = (w.warehouse_name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
     const state = (w.state || '').toLowerCase();
@@ -266,14 +266,10 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
   let minDistance = Infinity;
 
   warehouses.forEach(store => {
-    // 1. Check every common key variation for latitude and longitude
-    const rawLat = store.lat ?? store.latitude ?? store.location?.lat ?? store.gps_lat;
-    const rawLng = store.lng ?? store.longitude ?? store.location?.lng ?? store.lon ?? store.gps_lng;
+    // Explicitly parse lat and lng numeric values
+    const lat = parseFloat(store.lat);
+    const lng = parseFloat(store.lng);
 
-    const lat = parseFloat(rawLat);
-    const lng = parseFloat(rawLng);
-
-    // 2. Compute Haversine distance only if valid numeric coordinates exist
     if (!isNaN(lat) && !isNaN(lng)) {
       const dist = haversineDistance(userLat, userLng, lat, lng);
       if (dist < minDistance) {
@@ -283,12 +279,11 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
     }
   });
 
-  // 3. Save nearest store or fall back to search popover
   if (nearest) {
     selectWarehouse(nearest);
     hideSearchPopover();
   } else {
-    console.warn("Could not calculate nearest store — missing coordinate fields in API data.");
+    console.warn("Could not calculate nearest store — invalid or missing lat/lng in database records.");
     showSearchPopover();
   }
 }
@@ -363,25 +358,26 @@ async function handleWarehouseSearch(searchInput) {
   const query = searchInput.trim();
   if (!query) return;
 
-  // 1. Geocode the query (ZIP, City State, or Full Address)
+  const warehouses = await fetchWarehouses();
+
+  // 1. First check if input directly matches a warehouse ID or ZIP prefix
+  const directMatch = warehouses.find(w => 
+    String(w.warehouse_id || '').toLowerCase() === query.toLowerCase() ||
+    String(w.zip_code || '').startsWith(query)
+  );
+
+  if (directMatch) {
+    selectWarehouse(directMatch);
+    hideSearchPopover();
+    return;
+  }
+
+  // 2. Fallback: Geocode ZIP/Address (e.g. 34472) and find closest warehouse by lat/lng
   const coords = await geocodeSearchQuery(query);
 
   if (coords) {
-    // 2. Reuse your existing distance calculation to set the closest warehouse
     await findAndSetNearestWarehouse(coords.lat, coords.lng);
   } else {
-    // 3. Fallback: Exact text matching on local warehouse list if geocoding yields no hits
-    const warehouses = await fetchWarehouses();
-    const matches = warehouses.filter(w => 
-      (w.city && w.city.toLowerCase().includes(query.toLowerCase())) ||
-      (w.state && w.state.toLowerCase().includes(query.toLowerCase())) ||
-      (w.zip && w.zip.toString().includes(query))
-    );
-
-    if (matches.length > 0) {
-      selectWarehouse(matches[0]);
-    } else {
-      alert('No warehouses found matching that ZIP code, city, or address.');
-    }
+    alert('No warehouses found matching that ZIP code, city, or address.');
   }
 }
