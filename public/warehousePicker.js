@@ -119,9 +119,38 @@ async function handleSearchInput(query) {
     return;
   }
 
-  const warehouses = await fetchWarehouses();
+  // 1. Immediate 5-Digit ZIP Geocoding (e.g., 34472)
+  if (/^\d{5}$/.test(term)) {
+    const coords = await geocodeSearchQuery(term);
+    if (coords) {
+      await showWarehousesByDistance(coords.lat, coords.lng);
+    } else {
+      // If ZIP lookup fails, fall back to local text matches
+      await showLocalMatches(term);
+    }
+    return;
+  }
 
-  // 1. Direct text match across local database fields
+  // 2. Local Text Search (shows all matching stores in dropdown without auto-selecting)
+  await showLocalMatches(term);
+
+  // 3. Text query geocoding fallback for non-ZIP queries (e.g., "Ocala, FL") after pause
+  if (!/^\d+$/.test(term) && term.length >= 3) {
+    debounceTimer = setTimeout(async () => {
+      const coords = await geocodeSearchQuery(term);
+      if (coords) {
+        await showWarehousesByDistance(coords.lat, coords.lng);
+      }
+    }, 600);
+  }
+}
+
+// --- SHOW LOCAL TEXT MATCHES IN DROPDOWN ---
+async function showLocalMatches(term) {
+  const warehouses = await fetchWarehouses();
+  const resultsContainer = getOrCreateResultsContainer();
+  const isNumeric = /^\d+$/.test(term);
+
   const matches = warehouses.filter(w => {
     const name = (w.warehouse_name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
@@ -130,44 +159,23 @@ async function handleSearchInput(query) {
     const zip = String(w.zip_code || '').toLowerCase();
     const street = (w.street_address || '').toLowerCase();
 
+    if (isNumeric) {
+      return id === term || zip.startsWith(term) || street.includes(term);
+    }
+
     return (
       name.includes(term) ||
       city.includes(term) ||
       state.includes(term) ||
-      id.includes(term) ||
-      zip.includes(term) ||
       street.includes(term)
     );
   });
 
-  if (matches.length > 0) {
-    renderSearchResults(matches, resultsContainer);
-    return;
-  }
-
-  // Hide local dropdown list while waiting for geocode result
-  resultsContainer.style.display = 'none';
-
-  // 2. Immediate 5-Digit ZIP Geocoding
-  if (/^\d{5}$/.test(term)) {
-    const coords = await geocodeSearchQuery(term);
-    if (coords) {
-      await showWarehousesByDistance(coords.lat, coords.lng);
-    }
-    return;
-  }
-
-  // 3. Text query geocoding fallback (e.g. "Ocala, FL")
-  if (term.length >= 3) {
-    debounceTimer = setTimeout(async () => {
-      const coords = await geocodeSearchQuery(term);
-      if (coords) {
-        await showWarehousesByDistance(coords.lat, coords.lng);
-      }
-    }, 500);
-  }
+  // Renders the list in the dropdown — NOTHING is selected automatically
+  renderSearchResults(matches, resultsContainer, false);
 }
 
+// --- SORT ALL WAREHOUSES BY DISTANCE & SHOW TOP RESULTS IN DROPDOWN ---
 async function showWarehousesByDistance(userLat, userLng) {
   console.log(`📐 [DEBUG] Sorting warehouses by distance to lat: ${userLat}, lng: ${userLng}`);
 
@@ -194,7 +202,7 @@ async function showWarehousesByDistance(userLat, userLng) {
   // Sort ascending by distance (closest first)
   warehousesWithDistance.sort((a, b) => a.distance - b.distance);
 
-  // Display top 10 closest stores in search results dropdown
+  // Render top 10 closest stores in the dropdown — user MUST click one to select it
   renderSearchResults(warehousesWithDistance.slice(0, 10), resultsContainer, true);
 }
 
