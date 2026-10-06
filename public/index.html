@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Warehouse Product Finder</title>
+<title>Warehouse Item Finder</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="manifest" href="/manifest.json">
@@ -15,34 +15,30 @@
 <body>
 
 <!-- App Navigation Bar -->
-<header>
-  <div class="header-title">
-    <img src="images/icon-192-square.png" alt="App Logo" class="header-logo"> Warehouse Item Finder
-  </div>
-  
-  <!-- Single Shared Warehouse Picker -->
-  <div id="warehouse-picker-container" class="header-warehouse-picker">
-    <div class="warehouse-search-wrapper">
-      <input 
-        type="text" 
-        id="warehouse-search-input" 
-        placeholder="Set warehouse" 
-        autocomplete="off"
-      />
-      <ul id="warehouse-search-results" class="warehouse-dropdown-list" hidden></ul>
-    </div>
+<header class="app-header">
+  <div class="header-left">
+    <!-- Icon on the far left -->
+    <img src="logo.png" alt="Logo" class="header-logo" />
     
-    <div id="active-warehouse-badge" class="active-warehouse-badge">
-      <span id="active-warehouse-text">Select a Warehouse</span>
-      <button type="button" id="set-favorite-btn" title="Save as default store">⭐ Favorite</button>
+    <div class="header-title-container">
+      <h1 class="app-title">Warehouse Item Finder</h1>
+      
+      <!-- Clickable Warehouse Selector Text -->
+      <button type="button" id="warehouse-selector-btn" class="warehouse-selector-btn">
+        <span id="active-warehouse-text">Set Warehouse</span>
+      </button>
+
+      <!-- Hidden Search Bar Popover Container -->
+      <div id="warehouse-search-popover" class="warehouse-search-popover" hidden>
+        <input 
+          type="text" 
+          id="warehouse-search-input" 
+          placeholder="Set Warehouse" 
+          autocomplete="off"
+        />
+        <ul id="warehouse-search-results" class="warehouse-dropdown-list" hidden></ul>
+      </div>
     </div>
-  </div>
-  <button class="hamburger-btn" id="menuToggle" aria-label="Open Navigation Menu">&#9776;</button>
-  
-  <div class="nav-dropdown" id="navDropdown">
-    <button onclick="switchView('search-view'); resetSearchView();">Search Products</button>
-    <button onclick="switchView('browse-view'); startBrowse(1);">Browse Products</button>
-    <button onclick="showFavoritesView()">My Favorite Products</button> 
   </div>
 </header>
 
