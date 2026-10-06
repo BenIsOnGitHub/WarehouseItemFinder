@@ -7,8 +7,8 @@ const geoOptions = {
   maximumAge: 60000
 };
 
-// Store cached warehouses in memory once fetched
 let cachedWarehouses = [];
+let debounceTimer = null;
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,25 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Attach real-time search listener to search input
+  // 3. Attach search listeners to search input
   const searchInput = document.getElementById('warehouse-search-input');
   if (searchInput) {
+    // Live filter as user types
     searchInput.addEventListener('input', (e) => {
       handleSearchInput(e.target.value);
     });
-    
-  // Geocode and find nearest warehouse when pressing Enter
-  searchInput.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const query = e.target.value.trim();
-      if (query) {
-        await handleWarehouseSearch(query);
-        hideSearchPopover();
-      	}
-    	}
-  	});
-	}
+
+    // Execute geocode/nearest lookup on Enter key press
+    searchInput.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const query = e.target.value.trim();
+        if (query) {
+          await handleWarehouseSearch(query);
+        }
+      }
+    });
+  }
 });
 
 // --- INITIAL LOAD CHECK ---
@@ -61,21 +61,21 @@ async function initWarehouseSelection() {
     }
   }
 
-  // No saved store found -> perform geolocation check (no hardcoded default)
+  // Fetch warehouses into cache right away on load
+  await fetchWarehouses();
+
+  // No saved store found -> perform geolocation check
   handleLocateUser();
 }
 
 // --- GEOLOCATION HANDLER ---
 async function handleLocateUser() {
-  // Check if HTTPS is being used (Geolocation requires HTTPS or localhost)
   if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-    console.warn("Geolocation requires HTTPS.");
     showSearchPopover();
     return;
   }
 
   if (!navigator.geolocation) {
-    console.warn("Geolocation not supported by browser.");
     showSearchPopover();
     return;
   }
@@ -83,11 +83,9 @@ async function handleLocateUser() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
-      console.log(`GPS Acquired: ${latitude}, ${longitude}`);
       findAndSetNearestWarehouse(latitude, longitude);
     },
-    (error) => {
-      console.warn(`Geolocation error code ${error.code}: ${error.message}`);
+    () => {
       showSearchPopover();
     },
     geoOptions
@@ -110,11 +108,12 @@ async function fetchWarehouses() {
   }
 }
 
-
-// --- SEARCH FILTERING ---
+// --- LIVE TYPING SEARCH FILTERING ---
 async function handleSearchInput(query) {
   const term = query.trim().toLowerCase();
   const resultsContainer = getOrCreateResultsContainer();
+
+  clearTimeout(debounceTimer);
 
   if (!term) {
     resultsContainer.innerHTML = '';
@@ -124,7 +123,7 @@ async function handleSearchInput(query) {
 
   const warehouses = await fetchWarehouses();
 
-  // Local text match across database fields
+  // 1. Direct text match across database fields
   const matches = warehouses.filter(w => {
     const name = (w.warehouse_name || '').toLowerCase();
     const city = (w.city || '').toLowerCase();
@@ -143,15 +142,30 @@ async function handleSearchInput(query) {
     );
   });
 
-  renderSearchResults(matches, resultsContainer);
+  if (matches.length > 0) {
+    renderSearchResults(matches, resultsContainer);
+    return;
+  }
+
+  // Hide dropdown container while waiting for geocode
+  resultsContainer.style.display = 'none';
+
+  // 2. Debounced background fallback (if typing a zip/city not directly matched in local text)
+  if (term.length >= 3) {
+    debounceTimer = setTimeout(async () => {
+      const coords = await geocodeSearchQuery(term);
+      if (coords) {
+        await findAndSetNearestWarehouse(coords.lat, coords.lng);
+      }
+    }, 600);
+  }
 }
 
 function renderSearchResults(matches, container) {
   container.innerHTML = '';
 
   if (matches.length === 0) {
-    container.innerHTML = '<div style="padding: 10px; color: #888;">No matching locations found</div>';
-    container.style.display = 'block';
+    container.style.display = 'none';
     return;
   }
 
@@ -178,14 +192,105 @@ function renderSearchResults(matches, container) {
   container.style.display = 'block';
 }
 
-// --- SELECTION & DISPLAY ---
+// --- SEARCH SUBMIT HANDLER (ENTER KEY) ---
+async function handleWarehouseSearch(searchInput) {
+  const query = searchInput.trim();
+  if (!query) return;
+
+  const warehouses = await fetchWarehouses();
+
+  // Direct match check
+  const directMatch = warehouses.find(w => 
+    String(w.warehouse_id || '').toLowerCase() === query.toLowerCase() ||
+    String(w.warehouse_name || '').toLowerCase().includes(query.toLowerCase()) ||
+    String(w.zip_code || '').startsWith(query)
+  );
+
+  if (directMatch) {
+    selectWarehouse(directMatch);
+    hideSearchPopover();
+    return;
+  }
+
+  // Geocode fallback for cities/ZIPs (e.g. "34472" or "Ocala, FL")
+  const coords = await geocodeSearchQuery(query);
+  if (coords) {
+    await findAndSetNearestWarehouse(coords.lat, coords.lng);
+  }
+}
+
+// --- GEOCODING & HAVERSINE LOOKUP ---
+async function geocodeSearchQuery(query) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
+    });
+
+    if (!response.ok) return null;
+    const results = await response.json();
+
+    if (results && results.length > 0) {
+      return {
+        lat: parseFloat(results[0].lat),
+        lng: parseFloat(results[0].lon)
+      };
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 3958.8; // Miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function findAndSetNearestWarehouse(userLat, userLng) {
+  const warehouses = await fetchWarehouses();
+
+  if (!Array.isArray(warehouses) || warehouses.length === 0) {
+    showSearchPopover();
+    return;
+  }
+
+  let nearest = null;
+  let minDistance = Infinity;
+
+  warehouses.forEach(store => {
+    const lat = parseFloat(store.lat);
+    const lng = parseFloat(store.lng);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const dist = haversineDistance(userLat, userLng, lat, lng);
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearest = store;
+      }
+    }
+  });
+
+  if (nearest) {
+    selectWarehouse(nearest);
+    hideSearchPopover();
+  } else {
+    showSearchPopover();
+  }
+}
+
+// --- SELECTION & UI HELPERS ---
 function selectWarehouse(warehouse) {
   const warehouseId = String(warehouse.warehouse_id || warehouse.id);
-  
   localStorage.setItem('selected_warehouse', warehouseId);
   displayWarehouse(warehouse);
 
-  // Sync with app.js state and refresh UI views
   if (typeof onWarehouseChange === 'function') {
     onWarehouseChange(warehouseId);
   } else if (typeof CURRENT_WAREHOUSE !== 'undefined') {
@@ -201,7 +306,6 @@ function displayWarehouse(warehouse) {
   }
 }
 
-// --- POPOVER & SEARCH CONTAINER HELPERS ---
 function toggleSearchPopover() {
   const popover = document.getElementById('warehouse-search-popover');
   if (popover) {
@@ -239,144 +343,4 @@ function getOrCreateResultsContainer() {
     if (popover) popover.appendChild(container);
   }
   return container;
-}
-
-// --- HAVERSINE DISTANCE & GEOLOCATION MATCH ---
-function haversineDistance(lat1, lon1, lat2, lon2) {
-  const R = 3958.8; // Radius of Earth in miles
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-async function findAndSetNearestWarehouse(userLat, userLng) {
-  const warehouses = await fetchWarehouses();
-
-  if (!Array.isArray(warehouses) || warehouses.length === 0) {
-    console.warn("No warehouses returned from API endpoint.");
-    showSearchPopover();
-    return;
-  }
-
-  let nearest = null;
-  let minDistance = Infinity;
-
-  warehouses.forEach(store => {
-    // Explicitly parse lat and lng numeric values
-    const lat = parseFloat(store.lat);
-    const lng = parseFloat(store.lng);
-
-    if (!isNaN(lat) && !isNaN(lng)) {
-      const dist = haversineDistance(userLat, userLng, lat, lng);
-      if (dist < minDistance) {
-        minDistance = dist;
-        nearest = store;
-      }
-    }
-  });
-
-  if (nearest) {
-    selectWarehouse(nearest);
-    hideSearchPopover();
-  } else {
-    console.warn("Could not calculate nearest store — invalid or missing lat/lng in database records.");
-    showSearchPopover();
-  }
-}
-
-async function getCoordsFromZip(zipCode) {
-  try {
-    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-    if (!response.ok) {
-      throw new Error('Invalid ZIP code');
-    }
-    const data = await response.json();
-    const place = data.places[0];
-    
-    return {
-      lat: parseFloat(place.latitude),
-      lng: parseFloat(place.longitude)
-    };
-  } catch (err) {
-    console.error('Failed to geocode ZIP code:', err);
-    return null;
-  }
-}
-
-async function handleZipSearch(zipInput) {
-  const cleanZip = zipInput.trim();
-  
-  if (!/^\d{5}$/.test(cleanZip)) {
-    alert('Please enter a valid 5-digit US ZIP code.');
-    return;
-  }
-
-  const coords = await getCoordsFromZip(cleanZip);
-  
-  if (coords) {
-    // Reuses your exact Haversine distance logic!
-    await findAndSetNearestWarehouse(coords.lat, coords.lng);
-  } else {
-    alert('ZIP code not found. Please try another standard 5-digit ZIP code.');
-  }
-}
-
-async function geocodeSearchQuery(query) {
-  try {
-    // OpenStreetMap Nominatim geocoding API (free, no API key required)
-    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
-    
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'WarehousePickerApp/1.0' // Nominatim requires a user-agent header
-      }
-    });
-
-    if (!response.ok) throw new Error('Geocoding request failed');
-
-    const results = await response.json();
-
-    if (results && results.length > 0) {
-      return {
-        lat: parseFloat(results[0].lat),
-        lng: parseFloat(results[0].lon)
-      };
-    }
-    
-    return null; // Query couldn't be resolved
-  } catch (err) {
-    console.error('Error geocoding search query:', err);
-    return null;
-  }
-}
-
-async function handleWarehouseSearch(searchInput) {
-  const query = searchInput.trim();
-  if (!query) return;
-
-  // 1. Direct match check (Store ID, Name, City, ZIP)
-  const warehouses = getCachedWarehouses();
-  const directMatch = warehouses.find(w => 
-    String(w.warehouse_id || '').toLowerCase() === query.toLowerCase() ||
-    String(w.warehouse_name || '').toLowerCase().includes(query.toLowerCase()) ||
-    String(w.zip_code || '').startsWith(query)
-  );
-
-  if (directMatch) {
-    selectWarehouse(directMatch);
-    hideSearchPopover();
-    return;
-  }
-
-  // 2. Fallback to Geocoding search (for cities like "Ocala, FL" or ZIP codes)
-  const coords = await geocodeSearchQuery(query);
-  if (coords) {
-    findAndSetNearestWarehouse(coords.lat, coords.lng, query);
-  } else {
-    alert(`Could not find coordinates for "${query}".`);
-  }
 }
