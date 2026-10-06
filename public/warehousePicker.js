@@ -215,10 +215,12 @@ function renderSearchResults(matches, container, showDistance = false) {
     return;
   }
 
+  // Create list without overflow/max-height to prevent nested double scrollbars
   const list = document.createElement('ul');
-  list.style.cssText = 'list-style: none; margin: 0; padding: 0; max-height: 250px; overflow-y: auto;';
+  list.style.cssText = 'list-style: none; margin: 0; padding: 0;';
 
-  matches.forEach(store => {
+  // Limit to top 10 matches
+  matches.slice(0, 10).forEach(store => {
     const item = document.createElement('li');
     const storeName = store.warehouse_name || `${store.city}, ${store.state}`;
     const storeId = store.warehouse_id;
@@ -230,37 +232,6 @@ function renderSearchResults(matches, container, showDistance = false) {
 
     item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
     item.innerHTML = `${storeName} (#${storeId}) ${distanceTag}`;
-
-    item.addEventListener('click', () => {
-      selectWarehouse(store);
-      hideSearchPopover();
-    });
-
-    list.appendChild(item);
-  });
-
-  container.appendChild(list);
-  container.style.display = 'block';
-}
-
-function renderSearchResults(matches, container) {
-  container.innerHTML = '';
-
-  if (matches.length === 0) {
-    container.style.display = 'none';
-    return;
-  }
-
-  const list = document.createElement('ul');
-  list.style.cssText = 'list-style: none; margin: 0; padding: 0; max-height: 200px; overflow-y: auto;';
-
-  matches.slice(0, 10).forEach(store => {
-    const item = document.createElement('li');
-    const storeName = store.warehouse_name || `${store.city}, ${store.state}`;
-    const storeId = store.warehouse_id;
-
-    item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
-    item.textContent = `${storeName}`;
 
     item.addEventListener('click', () => {
       selectWarehouse(store);
@@ -423,7 +394,8 @@ function getOrCreateResultsContainer() {
     const popover = document.getElementById('warehouse-search-popover');
     container = document.createElement('div');
     container.id = 'warehouse-search-results';
-    container.style.cssText = 'background: #fff; border: 1px solid #ccc; border-top: none; max-height: 220px; overflow-y: auto;';
+    // Single container handles scrolling and height limit
+    container.style.cssText = 'background: #fff; border: 1px solid #ccc; border-top: none; max-height: 250px; overflow-y: auto;';
     if (popover) popover.appendChild(container);
   }
   return container;
