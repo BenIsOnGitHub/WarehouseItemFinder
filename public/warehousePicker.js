@@ -254,3 +254,13 @@ async function findAndSetNearestWarehouse(userLat, userLng) {
       }
     }
   });
+
+  // 3. Save nearest store or fall back to search popover
+  if (nearest) {
+    selectWarehouse(nearest);
+    hideSearchPopover();
+  } else {
+    console.warn("Could not calculate nearest store — missing coordinate fields in API data.");
+    showSearchPopover();
+  }
+}
