@@ -499,7 +499,8 @@ import puppeteer from '@cloudflare/puppeteer';
 
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
-  const targetUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
+  const landingUrl = 'https://sameday.costco.com/';
+  const searchUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
 
   console.log(`🌐 [Puppeteer] Launching Cloudflare Headless Browser for Item #${itemNumber}...`);
 
@@ -513,37 +514,43 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // Inject guest cookies upfront
+    // Set ZIP cookies upfront
     await page.setCookie(
       { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
       { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
       { name: 'viewed_guest_landing', value: 'true', domain: '.costco.com', path: '/' }
     );
 
-    console.log(`🌐 [Puppeteer] Navigating directly to search URL...`);
-    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
+    // --- STEP 1: Pass Guest Gate on Base URL ---
+    console.log(`🌐 [Puppeteer Step 1] Opening Landing Page: ${landingUrl}`);
+    await page.goto(landingUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
 
-    // Handle "Browse as a guest" modal button click
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
       if (guestButton) {
-        console.log(`👆 [Puppeteer] "Browse as a guest" button visible. Clicking...`);
+        console.log(`👆 [Puppeteer Step 1] Clicking "Browse as a guest"...`);
         await guestButton.click();
+        await new Promise(resolve => setTimeout(resolve, 2500)); // Buffer for session state to register
       }
     } catch (btnErr) {
-      // Modal wasn't present
+      console.log(`ℹ️ [Puppeteer Step 1] Guest gate button not present or already bypassed.`);
     }
 
-    // Wait up to 8 seconds for product card links or titles to render in DOM
+    // --- STEP 2: Navigate to Item Search URL with Active Guest Session ---
+    console.log(`🌐 [Puppeteer Step 2] Navigating to Search URL: ${searchUrl}`);
+    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
+
+    // Wait up to 8 seconds for search result links or product cards to render
     try {
-      console.log(`⏳ [Puppeteer] Waiting for product card elements to render...`);
+      console.log(`⏳ [Puppeteer Step 2] Waiting for product results to render...`);
       await page.waitForSelector('a[href*="/products/"], [data-testid*="item"]', { timeout: 8000 });
     } catch (e) {
-      console.log(`⚠️ [Puppeteer] Selector timeout. Attempting evaluation on current DOM...`);
+      console.log(`⚠️ [Puppeteer Step 2] Selector wait timed out. Attempting DOM evaluation...`);
     }
 
-    // --- STRATEGY 1: JSON Script Scrape (__NEXT_DATA__) ---
+    // --- STEP 3: Extract Product Details ---
     const extractedData = await page.evaluate(() => {
+      // 1. Try __NEXT_DATA__ JSON script tag
       const script = document.getElementById('__NEXT_DATA__');
       if (script && script.textContent) {
         try {
@@ -567,20 +574,16 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         } catch (e) {}
       }
 
-      // --- STRATEGY 2: Targeted DOM Card Scrape ---
+      // 2. DOM Scrape Fallback
       const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
       
       for (const link of productLinks) {
-        // Collect text inside product card link
         const textContent = link.textContent ? link.textContent.trim() : '';
         const href = link.getAttribute('href') || '';
-        
-        // Split by lines to isolate title from price/weight metadata
         const lines = textContent.split('\n').map(l => l.trim()).filter(Boolean);
         
         for (const line of lines) {
           const lower = line.toLowerCase();
-          // Filter out price tags, weight strings, and navigation labels
           if (
             line.length > 3 &&
             !lower.startsWith('$') &&
@@ -603,7 +606,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
     if (extractedData && extractedData.title) {
       const title = extractedData.title;
-      let productUrl = targetUrl;
+      let productUrl = searchUrl;
 
       if (extractedData.id) {
         const fullPath = extractedData.slug ? `${extractedData.id}-${extractedData.slug}` : String(extractedData.id);
