@@ -12,6 +12,7 @@ let debounceTimer = null;
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+  hideSearchPopover();
   // 1. Initialize warehouse state on load
   initWarehouseSelection();
 
@@ -391,7 +392,7 @@ function selectWarehouse(store) {
 
   // 3. Notify the rest of your app's logic of the active warehouse ID
   if (typeof onWarehouseChange === 'function') {
-    onWarehouseChange(warehouseId);
+    onWarehouseChange(store);
   } else if (typeof CURRENT_WAREHOUSE !== 'undefined') {
     CURRENT_WAREHOUSE = warehouseId;
   }
@@ -424,6 +425,7 @@ function showSearchPopover() {
   const popover = document.getElementById('warehouse-search-popover');
   if (popover) {
     popover.hidden = false;
+    popover.style.display = 'block';
     const input = document.getElementById('warehouse-search-input');
     if (input) input.focus();
   }
@@ -436,6 +438,7 @@ function hideSearchPopover() {
 
   if (popover) {
     popover.hidden = true;
+    popover.style.display = 'none';
   }
   if (resultsContainer) {
     resultsContainer.innerHTML = '';
