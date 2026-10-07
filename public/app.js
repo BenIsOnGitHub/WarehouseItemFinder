@@ -1210,8 +1210,8 @@ function initSearchModeToggle() {
 
 // --- PRODUCT SEARCH INTERACTION CONTROLS ---
 function disableProductSearch(placeholderText = "Select a warehouse first...") {
-  const productInput = document.getElementById('product-search-input'); // Adjust ID to match your HTML
-  const productButton = document.getElementById('product-search-button'); // Adjust ID to match your HTML
+  const productInput = document.getElementById('search-input'); // Adjust ID to match your HTML
+  const productButton = document.getElementById('search-btn'); // Adjust ID to match your HTML
 
   if (productInput) {
     productInput.disabled = true;
