@@ -230,7 +230,11 @@ async function handleSearch(request, env, corsHeaders) {
     const rawWarehouse = url.searchParams.get('warehouse') || '';
     const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
 
+    console.log(`\n🔍 --- SEARCH INITIATED ---`);
+    console.log(`Query: "${query}" | Mode: "${searchMode}" | Warehouse ID: "${warehouseId}"`);
+
     if (!query || !warehouseId) {
+      console.log(`⚠️ Search aborted: missing query or warehouseId.`);
       return new Response(JSON.stringify([]), { headers: corsHeaders });
     }
 
@@ -251,35 +255,45 @@ async function handleSearch(request, env, corsHeaders) {
     const results = await env.DB.prepare(dbQuery).bind(...bindings).all();
 
     if (results && results.results && results.results.length > 0) {
+      console.log(`✅ Local D1 Hit: Found ${results.results.length} product(s).`);
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
+
+    console.log(`❌ Local D1 Miss for item "${query}". Attempting Live Fallback...`);
 
     // Live Fallback on D1 Miss
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
       // Step A: Attempt Costco.com scrape first
+      console.log(`🌐 Step A: Querying main Costco.com...`);
       let fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
-      // Step B: Fallback to Sameday/Instacart GraphQL lookup if Costco.com fails
-     if (!fetchedProduct) {
-  let zipCode = '01331'; // Default fallback if zip code is missing in DB
-  
-  try {
-    // Dynamically query the selected warehouse's zip code from D1
-    const wh = await env.DB.prepare(
-      "SELECT zip_code FROM warehouses WHERE warehouse_id = ?"
-    ).bind(warehouseId).first();
-    
-    if (wh && wh.zip_code) {
-      zipCode = String(wh.zip_code).trim();
-    }
-  } catch (e) {
-    console.error("Failed to query warehouse ZIP code from D1:", e);
-  }
+      if (fetchedProduct) {
+        console.log(`✅ Costco.com Hit: "${fetchedProduct.product_name}"`);
+      } else {
+        console.log(`❌ Costco.com Miss or 404.`);
+      }
 
-  fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode);
-}
+      // Step B: Fallback to Sameday/Instacart GraphQL lookup if Costco.com fails
+      if (!fetchedProduct) {
+        let zipCode = '32162'; // Default fallback
+        try {
+          const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
+          if (wh && wh.zip_code) {
+            zipCode = String(wh.zip_code).trim();
+            console.log(`📍 D1 Warehouse ZIP Found: ${zipCode} for Warehouse #${warehouseId}`);
+          } else {
+            console.log(`⚠️ No ZIP in D1 for Warehouse #${warehouseId}, using fallback: ${zipCode}`);
+          }
+        } catch (e) {
+          console.error("⚠️ Failed to query warehouse ZIP code from D1:", e);
+        }
+
+        console.log(`🛒 Step B: Querying Sameday GraphQL (ZIP: ${zipCode})...`);
+        fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode);
+      }
 
       if (fetchedProduct) {
+        console.log(`🎉 Live Fetch Success: Found "${fetchedProduct.product_name}". Inserting into D1...`);
         const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
           ? crypto.randomUUID() 
           : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -300,8 +314,9 @@ async function handleSearch(request, env, corsHeaders) {
             warehouseId,
             now
           ).run();
+          console.log(`💾 Saved to D1 with ID: ${newId}`);
         } catch (dbErr) {
-          console.error("D1 Insert failed with category/sku columns, running fallback insert:", dbErr);
+          console.error("⚠️ D1 Insert failed with category/sku columns, running fallback insert:", dbErr);
           await env.DB.prepare(`
             INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -313,167 +328,26 @@ async function handleSearch(request, env, corsHeaders) {
             warehouseId,
             now
           ).run();
+          console.log(`💾 Saved to D1 via fallback insert.`);
         }
 
         fetchedProduct.id = newId;
         return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
+      } else {
+        console.log(`❌ All Fallbacks Exhausted: Item "${query}" not found on Costco.com or Sameday.`);
       }
+    } else {
+      console.log(`⚠️ Skipping Live Fallback: searchMode="${searchMode}" or regex match failed.`);
     }
 
     return new Response(JSON.stringify([]), { headers: corsHeaders });
   } catch (err) {
+    console.error(`💥 Search Handler Exception:`, err);
     return new Response(JSON.stringify({ error: err.message, stack: err.stack }), { 
       status: 500, 
       headers: corsHeaders 
     });
   }
-}
-
-// --- FALLBACK 1: Main Costco.com HTML/Metadata Scraper ---
-async function fetchCostcoItemDetails(itemNumber, warehouseId) {
-  const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
-
-  const cleanWhsId = String(warehouseId).replace(/-wh$/i, '').trim();
-
-  const whsCookieValue = JSON.stringify({
-    nearestWarehouse: { catalog: `${cleanWhsId}-wh` }
-  });
-
-  const myWhsCookieValue = JSON.stringify({
-    warehouseId: cleanWhsId,
-    warehouseName: `Warehouse ${cleanWhsId}`
-  });
-
-  const cookieHeader = [
-    `WHSE=${cleanWhsId}`,
-    `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
-    `MY_WAREHOUSE=${encodeURIComponent(myWhsCookieValue)}`,
-    `buyInWarehouse=true`
-  ].join('; ');
-
-  try {
-    const response = await fetch(targetUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Cookie': cookieHeader
-      },
-      redirect: 'follow'
-    });
-
-    if (!response.ok) return null;
-
-    const html = await response.text();
-
-    if (html.includes("We're sorry. We were not able to find a match.")) {
-      return null;
-    }
-
-    let extractedCategory = '';
-    let productTitle = '';
-
-    const stateMatches = html.match(/window\.__PRELOADED_STATE__\s*=\s*({[\s\S]*?});<\/script>/i) ||
-                         html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});<\/script>/i);
-
-    if (stateMatches && stateMatches[1]) {
-      try {
-        const state = JSON.parse(stateMatches[1]);
-        const productData = state.productDetails || state.product || {};
-        productTitle = productData.name || productData.productName || '';
-
-        if (Array.isArray(productData.breadcrumbs)) {
-          extractedCategory = productData.breadcrumbs
-            .map(b => b.name || b.label)
-            .filter(Boolean)
-            .filter(name => name.toLowerCase() !== 'home')
-            .join(' > ');
-        } else if (productData.category) {
-          extractedCategory = typeof productData.category === 'string' ? productData.category : productData.category.name;
-        }
-      } catch (e) {
-        // Continue if JSON parsing fails
-      }
-    }
-
-    if (!extractedCategory || !productTitle) {
-      const scriptBlocks = html.split('<script type="application/ld+json">');
-      for (let i = 1; i < scriptBlocks.length; i++) {
-        const blockContent = scriptBlocks[i].split('</script>')[0];
-        if (!blockContent) continue;
-
-        try {
-          const metadata = JSON.parse(blockContent.trim());
-          const items = Array.isArray(metadata) ? metadata : [metadata];
-
-          for (const item of items) {
-            if (!item) continue;
-
-            if (item['@type'] === 'Product' && item.name) {
-              if (!productTitle) productTitle = item.name;
-              if (!extractedCategory && typeof item.category === 'string') {
-                extractedCategory = item.category;
-              }
-            }
-
-            if (!extractedCategory && item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
-              const crumbs = item.itemListElement
-                .map(c => c.name || (c.item && c.item.name))
-                .filter(Boolean)
-                .filter(name => name.toLowerCase() !== 'home');
-
-              if (crumbs.length > 0) {
-                extractedCategory = crumbs.join(' > ');
-              }
-            }
-          }
-        } catch (parseErr) {
-          // Skip malformed script blocks
-        }
-      }
-    }
-
-    if (!extractedCategory) {
-      const metaCategory = html.match(/<meta[^>]*name=["'](category|keywords|search\.category)["'][^>]*content=["']([^"']+)["']/i) ||
-                           html.match(/<meta[^>]*content=["']([^"']+)["']/i) && html.match(/name=["'](category|keywords|search\.category)["']/i);
-      if (metaCategory && metaCategory[2]) {
-        extractedCategory = metaCategory[2].split(',')[0].trim();
-      }
-    }
-
-    if (!productTitle) {
-      const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-      if (titleMatch) {
-        productTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
-      }
-    }
-
-    if (extractedCategory) {
-      extractedCategory = extractedCategory
-        .replace(/&amp;/g, '&')
-        .replace(/&quot;/g, '"')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-
-    if (productTitle) {
-      return {
-        id: '',
-        item_number: itemNumber,
-        sku: itemNumber,
-        product_name: productTitle,
-        category: extractedCategory || 'Uncategorized',
-        product_url: response.url || targetUrl,
-        warehouse_id: cleanWhsId,
-        aisle: '',
-        bay: ''
-      };
-    }
-
-  } catch (err) {
-    console.error('Error fetching live Costco item:', err);
-  }
-
-  return null;
 }
 
 // --- FALLBACK 2: Sameday / Instacart GraphQL Engine ---
@@ -500,6 +374,9 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
       `
     };
 
+    console.log(`📡 Sending GraphQL Request to Sameday...`);
+    console.log(`Payload:`, JSON.stringify(payload));
+
     const response = await fetch("https://sameday.costco.com/graphql", {
       method: "POST",
       headers: {
@@ -512,10 +389,19 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) return null;
+    console.log(`HTTP Status: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.log(`❌ Sameday GraphQL HTTP Error Response:`, errText.substring(0, 300));
+      return null;
+    }
 
     const resJson = await response.json();
+    console.log(`📦 Sameday GraphQL Raw Response:`, JSON.stringify(resJson));
+
     const products = resJson?.data?.search?.products || [];
+    console.log(`Found ${products.length} product(s) in GraphQL response.`);
 
     if (products.length > 0) {
       const first = products[0];
@@ -537,7 +423,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
       };
     }
   } catch (err) {
-    console.error("GraphQL Sameday lookup failed:", err);
+    console.error("💥 GraphQL Sameday Exception:", err);
   }
   return null;
 }
