@@ -300,34 +300,34 @@ const searchMode = (url.searchParams.get('mode') || 'item_number').trim();
 
         const now = new Date().toISOString();
 
-        try {
-          await env.DB.prepare(`
-            INSERT INTO products (id, item_number, sku, product_name, category, product_url, warehouse_id, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            newId,
-            query,
-            fetchedProduct.sku || query,
-            fetchedProduct.product_name || '',
-            fetchedProduct.category || '',
-            fetchedProduct.product_url || '',
-            warehouseId,
-            now
-          ).run();
-          console.log(`💾 Saved to D1 with ID: ${newId}`);
-        } catch (dbErr) {
-          console.error("⚠️ D1 Insert failed with category/sku columns, running fallback insert:", dbErr);
-          await env.DB.prepare(`
-            INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-          `).bind(
-            newId,
-            query,
-            fetchedProduct.product_name || '',
-            fetchedProduct.product_url || '',
-            warehouseId,
-            now
-          ).run();
+     try {
+  await env.DB.prepare(`
+    INSERT INTO products (id, item_number, product_name, category, product_url, warehouse_id, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    newId,
+    query,
+    fetchedProduct.product_name || '',
+    fetchedProduct.category || '',
+    fetchedProduct.product_url || '',
+    warehouseId,
+    now
+  ).run();
+  console.log(`💾 Saved scraped item to D1 with ID: ${newId} (Item Number: ${query})`);
+} catch (dbErr) {
+  console.error("⚠️ D1 Primary Insert error, running fallback insert:", dbErr);
+  await env.DB.prepare(`
+    INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).bind(
+    newId,
+    query,
+    fetchedProduct.product_name || '',
+    fetchedProduct.product_url || '',
+    warehouseId,
+    now
+  ).run();
+}
           console.log(`💾 Saved to D1 via fallback insert.`);
         }
 
