@@ -618,31 +618,51 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           } catch (e) {}
         }
 
-        // 2. DOM Scrape Fallback
-        const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
-        for (const link of productLinks) {
-          const textContent = link.textContent ? link.textContent.trim() : '';
-          const href = link.getAttribute('href') || '';
-          const lines = textContent.split('\n').map(l => l.trim()).filter(Boolean);
+        // 2. DOM Scrape Fallback with Clean String Extraction
+      const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
+      
+      for (const link of productLinks) {
+        const textContent = link.textContent ? link.textContent.trim() : '';
+        const href = link.getAttribute('href') || '';
+        
+        // Split text by lines
+        let lines = textContent.split('\n').map(l => l.trim()).filter(Boolean);
+        
+        // Filter out price badges, price labels, and numeric currency lines
+        const titleLines = lines.filter(line => {
+          const lower = line.toLowerCase();
+          return (
+            line.length > 2 &&
+            !lower.startsWith('$') &&
+            !lower.includes('current price') &&
+            !lower.includes('original price') &&
+            !lower.includes('departments') &&
+            !lower.includes('categories') &&
+            !lower.includes('cart') &&
+            !lower.includes('delivery') &&
+            !lower.includes('pickup')
+          );
+        });
+
+        if (titleLines.length > 0) {
+          // Take the longest string segment, which represents the full product title
+          let bestTitle = titleLines.reduce((a, b) => a.length >= b.length ? a : b, '');
           
-          for (const line of lines) {
-            const lower = line.toLowerCase();
-            if (
-              line.length > 3 &&
-              !lower.startsWith('$') &&
-              !lower.includes('departments') &&
-              !lower.includes('categories') &&
-              !lower.includes('cart') &&
-              !lower.includes('delivery') &&
-              !lower.includes('pickup')
-            ) {
-              return {
-                title: line,
-                href: href
-              };
-            }
+          // Strip inline price patterns like "Current price: $11.00$1100" or leading "Organic" badges if merged
+          bestTitle = bestTitle
+            .replace(/Current price:?\s*\$?\d+(\.\d{2})?/gi, '')
+            .replace(/\$\d+(\.\d{2})?/g, '')
+            .replace(/\$\d+/g, '')
+            .trim();
+
+          if (bestTitle.length > 3) {
+            return {
+              title: bestTitle,
+              href: href
+            };
           }
         }
+      }
 
         return null;
       });
