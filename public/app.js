@@ -1004,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize search input mode and event listeners
   initSearchModeToggle();
+  initVoiceSearch();
 
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
@@ -1274,4 +1275,52 @@ function enableProductSearch() {
     productButton.style.cursor = 'pointer';
     productButton.style.opacity = '1';
   }
+}
+
+function initVoiceSearch() {
+  const micBtn = document.getElementById('micBtn');
+  const searchInput = document.getElementById('search-input');
+
+  if (!micBtn || !searchInput) return;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    micBtn.style.display = 'none'; // Hide if browser doesn't support Web Speech API
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+
+  micBtn.addEventListener('click', () => {
+    try {
+      recognition.start();
+      micBtn.classList.add('listening'); // Add CSS styling class while listening
+    } catch (err) {
+      console.error('Speech recognition already started or failed:', err);
+    }
+  });
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    searchInput.value = transcript;
+    micBtn.classList.remove('listening');
+    
+    // Automatically trigger product search
+    if (typeof performSearch === 'function') {
+      performSearch();
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    micBtn.classList.remove('listening');
+  };
+
+  recognition.onend = () => {
+    micBtn.classList.remove('listening');
+  };
 }
