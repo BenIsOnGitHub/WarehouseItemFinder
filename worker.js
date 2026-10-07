@@ -521,18 +521,25 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
     );
 
     console.log(`🌐 [Puppeteer] Navigating directly to search URL...`);
-    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 20000 });
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
-    // Backup check: Handle guest modal if present
+    // Handle "Browse as a guest" modal button click
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
       if (guestButton) {
         console.log(`👆 [Puppeteer] "Browse as a guest" button visible. Clicking...`);
         await guestButton.click();
-        await new Promise(resolve => setTimeout(resolve, 3000));
       }
     } catch (btnErr) {
       // Modal wasn't present
+    }
+
+    // Wait up to 8 seconds for product card links or titles to render in DOM
+    try {
+      console.log(`⏳ [Puppeteer] Waiting for product card elements to render...`);
+      await page.waitForSelector('a[href*="/products/"], [data-testid*="item"]', { timeout: 8000 });
+    } catch (e) {
+      console.log(`⚠️ [Puppeteer] Selector timeout. Attempting evaluation on current DOM...`);
     }
 
     // --- STRATEGY 1: JSON Script Scrape (__NEXT_DATA__) ---
@@ -560,31 +567,35 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         } catch (e) {}
       }
 
-      // --- STRATEGY 2: Targeted Product Card DOM Scrape ---
-      // Target elements specifically inside product links / cards
-      const productLink = document.querySelector('a[href*="/products/"]');
-      if (productLink) {
-        // Find title text within or adjacent to product link
-        const titleSpan = productLink.querySelector('span[class*="Name"], span[class*="title"], h3') || productLink;
-        const rawText = titleSpan.textContent ? titleSpan.textContent.trim() : '';
+      // --- STRATEGY 2: Targeted DOM Card Scrape ---
+      const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
+      
+      for (const link of productLinks) {
+        // Collect text inside product card link
+        const textContent = link.textContent ? link.textContent.trim() : '';
+        const href = link.getAttribute('href') || '';
         
-        // Clean up price/size lines if merged
-        const cleanTitle = rawText.split('\n')[0].trim();
-
-        if (cleanTitle && cleanTitle.length > 2 && !['departments', 'categories'].includes(cleanTitle.toLowerCase())) {
-          return {
-            title: cleanTitle,
-            href: productLink.getAttribute('href')
-          };
+        // Split by lines to isolate title from price/weight metadata
+        const lines = textContent.split('\n').map(l => l.trim()).filter(Boolean);
+        
+        for (const line of lines) {
+          const lower = line.toLowerCase();
+          // Filter out price tags, weight strings, and navigation labels
+          if (
+            line.length > 3 &&
+            !lower.startsWith('$') &&
+            !lower.includes('departments') &&
+            !lower.includes('categories') &&
+            !lower.includes('cart') &&
+            !lower.includes('delivery') &&
+            !lower.includes('pickup')
+          ) {
+            return {
+              title: line,
+              href: href
+            };
+          }
         }
-      }
-
-      // Fallback: Check for data-testid product card names
-      const testIdEl = document.querySelector('[data-testid="item_card_name"], [data-testid="product_title"]');
-      if (testIdEl && testIdEl.textContent.trim()) {
-        return {
-          title: testIdEl.textContent.trim()
-        };
       }
 
       return null;
