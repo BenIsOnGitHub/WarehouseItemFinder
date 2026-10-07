@@ -496,8 +496,13 @@ async function startBrowse(page = 1) {
   const container = document.getElementById('browseListContainer');
   if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
 
+  // Safely extract plain string ID if CURRENT_WAREHOUSE is an object
+  const activeWarehouseId = (typeof CURRENT_WAREHOUSE === 'object' && CURRENT_WAREHOUSE !== null)
+    ? (CURRENT_WAREHOUSE.warehouse_id || CURRENT_WAREHOUSE.id)
+    : CURRENT_WAREHOUSE;
+
   try {
-    const url = `${API_BASE_URL}/api/browse?warehouse=${CURRENT_WAREHOUSE}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}&aisle=${encodeURIComponent(selectedAisle)}`;
+    const url = `${API_BASE_URL}/api/browse?warehouse=${encodeURIComponent(activeWarehouseId)}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}&aisle=${encodeURIComponent(selectedAisle)}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -763,19 +768,24 @@ async function loadWarehouses() {
 }
 
 function onWarehouseChange(newWarehouseId) {
-  CURRENT_WAREHOUSE = newWarehouseId;
-  
-  // If newWarehouseId is an object (e.g. from picker), store as JSON string.
-  // Otherwise, only set string if selected_warehouse isn't already set.
+  // Extract plain string ID if an object is passed
+  const warehouseId = (typeof newWarehouseId === 'object' && newWarehouseId !== null)
+    ? (newWarehouseId.warehouse_id || newWarehouseId.id)
+    : newWarehouseId;
+
+  CURRENT_WAREHOUSE = String(warehouseId);
+
+  // Store in localStorage
   if (typeof newWarehouseId === 'object' && newWarehouseId !== null) {
     localStorage.setItem('selected_warehouse', JSON.stringify(newWarehouseId));
   } else if (!localStorage.getItem('selected_warehouse')) {
-    localStorage.setItem('selected_warehouse', JSON.stringify({ warehouse_id: newWarehouseId }));
+    localStorage.setItem('selected_warehouse', JSON.stringify({ warehouse_id: CURRENT_WAREHOUSE }));
   }
 
   populateAisleDropdown();
+  
   document.querySelectorAll('.warehouse-select-dropdown, #warehouseSelect').forEach(selectEl => {
-    selectEl.value = typeof newWarehouseId === 'object' ? newWarehouseId.warehouse_id : newWarehouseId;
+    selectEl.value = CURRENT_WAREHOUSE;
   });
 
   const searchBox = document.getElementById('search-input');

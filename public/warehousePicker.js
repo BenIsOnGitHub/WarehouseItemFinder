@@ -60,14 +60,15 @@ async function initWarehouseSelection() {
       }
 
       if (parsed && (parsed.warehouse_id || parsed.id)) {
+        // Extract plain string ID
         const warehouseId = String(parsed.warehouse_id || parsed.id);
 
-        // 1. Hydrate global state variable
+        // 1. Force CURRENT_WAREHOUSE to be a plain string ID, NOT a JSON object!
         if (typeof CURRENT_WAREHOUSE !== 'undefined') {
           CURRENT_WAREHOUSE = warehouseId;
         }
 
-        // 2. Fetch warehouse list to get full details if name/city is missing
+        // 2. Fetch warehouse list to hydrate full details if name/city is missing
         if (!parsed.warehouse_name && !parsed.name && !parsed.city) {
           const warehouses = await fetchWarehouses();
           const match = warehouses.find(w => String(w.warehouse_id) === warehouseId);
@@ -81,10 +82,10 @@ async function initWarehouseSelection() {
         displayWarehouse(parsed);
         enableProductSearch();
 
-        // 4. Force hide popover cleanly BEFORE any callbacks
+        // 4. Force hide popover
         hideSearchPopover();
 
-        return; // EXIT EARLY — NEVER CALL showSearchPopover() OR onWarehouseChange() ON BOOT!
+        return; // EXIT EARLY — DO NOT SHOW POPOVER!
       }
     } catch (e) {
       console.error("❌ Invalid stored warehouse JSON, clearing...", e);
@@ -92,7 +93,7 @@ async function initWarehouseSelection() {
     }
   }
 
-  // --- NO WAREHOUSE SET (Only runs when localStorage is empty) ---
+  // --- NO WAREHOUSE SET ---
   if (typeof CURRENT_WAREHOUSE !== 'undefined') {
     CURRENT_WAREHOUSE = null;
   }
