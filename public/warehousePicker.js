@@ -12,7 +12,7 @@ let debounceTimer = null;
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-  hideSearchPopover();
+  
   // 1. Initialize warehouse state on load
   initWarehouseSelection();
 
@@ -46,36 +46,45 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
 // --- INITIAL LOAD CHECK ---
 async function initWarehouseSelection() {
   const savedWarehouse = localStorage.getItem('selected_warehouse');
   
   if (savedWarehouse) {
     try {
-      const parsed = JSON.parse(savedWarehouse);
-      if (parsed && typeof parsed === 'object') {
-        const warehouseId = parsed.warehouse_id || parsed.id;
+      let parsed = JSON.parse(savedWarehouse);
+
+      // Handle primitive numbers/strings stored in localStorage
+      if (typeof parsed === 'string' || typeof parsed === 'number') {
+        parsed = { warehouse_id: String(parsed) };
+      }
+
+      if (parsed && (parsed.warehouse_id || parsed.id)) {
+        const warehouseId = String(parsed.warehouse_id || parsed.id);
 
         // 1. Hydrate global state variable
         if (typeof CURRENT_WAREHOUSE !== 'undefined') {
           CURRENT_WAREHOUSE = warehouseId;
         }
 
-        // 2. Render header UI & unlock product search
+        // 2. Fetch warehouse list to get full details if name/city is missing
+        if (!parsed.warehouse_name && !parsed.name && !parsed.city) {
+          const warehouses = await fetchWarehouses();
+          const match = warehouses.find(w => String(w.warehouse_id) === warehouseId);
+          if (match) {
+            parsed = match;
+            localStorage.setItem('selected_warehouse', JSON.stringify(match));
+          }
+        }
+
+        // 3. Render header UI & unlock product search
         displayWarehouse(parsed);
         enableProductSearch();
 
-        // 3. FORCE HIDE THE POPOVER
+        // 4. Force hide popover cleanly BEFORE any callbacks
         hideSearchPopover();
 
-        // 4. Notify app listeners (like Browse page) of active warehouse
-        if (typeof onWarehouseChange === 'function') {
-          // Pass the parsed object instead of string ID to prevent clobbering localStorage
-          onWarehouseChange(parsed);
-        }
-
-        return;
+        return; // EXIT EARLY — NEVER CALL showSearchPopover() OR onWarehouseChange() ON BOOT!
       }
     } catch (e) {
       console.error("❌ Invalid stored warehouse JSON, clearing...", e);
@@ -83,13 +92,13 @@ async function initWarehouseSelection() {
     }
   }
 
-  // --- NO WAREHOUSE SET ---
+  // --- NO WAREHOUSE SET (Only runs when localStorage is empty) ---
   if (typeof CURRENT_WAREHOUSE !== 'undefined') {
     CURRENT_WAREHOUSE = null;
   }
   
   disableProductSearch("Select a warehouse above to search products");
-  showSearchPopover(); // Only open if no warehouse is set
+  showSearchPopover(); 
   await fetchWarehouses();
 }
 
@@ -268,7 +277,7 @@ function renderSearchResults(matches, container, showDistance = false) {
       : '';
 
     item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
-    item.innerHTML = `${storeName} (#${storeId}) ${distanceTag}`;
+    item.innerHTML = `${storeName} ${distanceTag}`;
 
     item.addEventListener('click', () => {
       selectWarehouse(store);
