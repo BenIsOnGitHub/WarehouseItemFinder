@@ -764,15 +764,23 @@ async function loadWarehouses() {
 
 function onWarehouseChange(newWarehouseId) {
   CURRENT_WAREHOUSE = newWarehouseId;
-  localStorage.setItem('selected_warehouse', newWarehouseId);
+  
+  // If newWarehouseId is an object (e.g. from picker), store as JSON string.
+  // Otherwise, only set string if selected_warehouse isn't already set.
+  if (typeof newWarehouseId === 'object' && newWarehouseId !== null) {
+    localStorage.setItem('selected_warehouse', JSON.stringify(newWarehouseId));
+  } else if (!localStorage.getItem('selected_warehouse')) {
+    localStorage.setItem('selected_warehouse', JSON.stringify({ warehouse_id: newWarehouseId }));
+  }
+
   populateAisleDropdown();
   document.querySelectorAll('.warehouse-select-dropdown, #warehouseSelect').forEach(selectEl => {
-    selectEl.value = newWarehouseId;
+    selectEl.value = typeof newWarehouseId === 'object' ? newWarehouseId.warehouse_id : newWarehouseId;
   });
 
   const searchBox = document.getElementById('search-input');
   if (searchBox && searchBox.value.trim()) {
-    performSearch(); // Re-runs search with mode & loading spinner
+    performSearch();
   }
 
   const activeView = document.querySelector('.page-view.active');
