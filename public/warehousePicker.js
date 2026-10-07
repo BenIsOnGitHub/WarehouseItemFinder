@@ -427,12 +427,15 @@ function displayWarehouse(warehouse) {
 
 function toggleSearchPopover() {
   const popover = document.getElementById('warehouse-search-popover');
-  if (popover) {
-    popover.hidden = !popover.hidden;
-    if (!popover.hidden) {
-      const input = document.getElementById('warehouse-search-input');
-      if (input) input.focus();
-    }
+  if (!popover) return;
+
+  // Check if currently hidden (either via [hidden] or inline display: none)
+  const isHidden = popover.hidden || getComputedStyle(popover).display === 'none';
+
+  if (isHidden) {
+    showSearchPopover();
+  } else {
+    hideSearchPopover();
   }
 }
 
@@ -440,13 +443,20 @@ function showSearchPopover() {
   const popover = document.getElementById('warehouse-search-popover');
   if (popover) {
     popover.hidden = false;
+    popover.style.removeProperty('display'); // Clear any inline display: none !important
     popover.style.display = 'block';
+    
     const input = document.getElementById('warehouse-search-input');
-    if (input) input.focus();
+    if (input) {
+      input.focus();
+      input.select();
+    }
   }
 }
 
 function hideSearchPopover() {
+  clearTimeout(debounceTimer);
+
   const popover = document.getElementById('warehouse-search-popover');
   const resultsContainer = document.getElementById('warehouse-search-results');
   const searchInput = document.getElementById('warehouse-search-input');
@@ -457,6 +467,7 @@ function hideSearchPopover() {
   }
   if (resultsContainer) {
     resultsContainer.innerHTML = '';
+    resultsContainer.hidden = true;
     resultsContainer.style.display = 'none';
   }
   if (searchInput) {
