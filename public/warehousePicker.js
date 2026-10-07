@@ -250,16 +250,13 @@ async function showWarehousesByDistance(userLat, userLng) {
 function renderSearchResults(matches, container, showDistance = false) {
   container.innerHTML = '';
 
-  if (matches.length === 0) {
+  if (!matches || matches.length === 0) {
+    container.hidden = true;
     container.style.display = 'none';
     return;
   }
 
-  // Create list without overflow/max-height to prevent nested double scrollbars
-  const list = document.createElement('ul');
-  list.style.cssText = 'list-style: none; margin: 0; padding: 0;';
-
-  // Limit to top 10 matches
+  // Limit to top 10 matches and append <li> elements directly to container (no nested <ul>)
   matches.slice(0, 10).forEach(store => {
     const item = document.createElement('li');
     const storeName = store.warehouse_name || `${store.city}, ${store.state}`;
@@ -278,13 +275,14 @@ function renderSearchResults(matches, container, showDistance = false) {
       hideSearchPopover();
     });
 
-    list.appendChild(item);
+    container.appendChild(item);
   });
 
-  container.appendChild(list);
+  // 1. Unhide results list element (clears both [hidden] attribute and display rule)
+  container.hidden = false;
   container.style.display = 'block';
 
-  // --- UNHIDE PARENT POPOVER WRAPPER IF HIDDEN ---
+  // 2. Unhide parent popover wrapper
   const popover = document.getElementById('warehouse-search-popover');
   if (popover) {
     popover.hidden = false;
