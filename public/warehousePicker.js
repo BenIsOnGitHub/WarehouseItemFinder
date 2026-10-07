@@ -282,6 +282,13 @@ function renderSearchResults(matches, container, showDistance = false) {
 
   container.appendChild(list);
   container.style.display = 'block';
+
+  // --- UNHIDE PARENT POPOVER WRAPPER IF HIDDEN ---
+  const popover = document.getElementById('warehouse-search-popover');
+  if (popover) {
+    popover.hidden = false;
+    popover.style.display = 'block';
+  }
 }
 
 // --- SEARCH SUBMIT HANDLER (ENTER KEY) ---
