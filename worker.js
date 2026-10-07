@@ -498,8 +498,6 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 }
 
 // --- FALLBACK 2: Sameday / Instacart Engine ---
-import puppeteer from '@cloudflare/puppeteer';
-
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
   const targetUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
