@@ -499,9 +499,59 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
 
+  // --- ATTEMPT 1: Instacart Direct Search API ---
   try {
-    // 1. Establish session and capture session cookie
-    console.log(`📡 [Sameday] Establishing session for ZIP: ${cleanZip}...`);
+    console.log(`📡 [Attempt 1] Querying Instacart Search API for Item #${itemNumber} (ZIP: ${cleanZip})...`);
+
+    const apiUrl = `https://www.instacart.com/api/v3/containers/costco/search_v3?query=${encodeURIComponent(itemNumber)}&postal_code=${cleanZip}`;
+
+    const apiRes = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    console.log(`[Instacart API] HTTP Status: ${apiRes.status} ${apiRes.statusText}`);
+
+    if (apiRes.ok) {
+      const data = await apiRes.json();
+      const container = data?.container || data;
+      const items = container?.modules?.[0]?.data?.products || container?.products || [];
+
+      if (items.length > 0) {
+        const first = items[0];
+        const title = first.name || first.title || 'In-Store Item';
+        const productId = first.id || first.itemId;
+        const slug = first.slug || '';
+        const fullPath = slug ? `${productId}-${slug}` : String(productId);
+
+        console.log(`✅ [Instacart API] Found Item: "${title}"`);
+
+        return {
+          id: '',
+          item_number: itemNumber,
+          product_name: title,
+          category: 'Frozen Foods',
+          product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
+          warehouse_id: warehouseId,
+          aisle: '',
+          bay: '',
+          is_wrong: 0,
+          is_discontinued: 0
+        };
+      }
+    }
+  } catch (err) {
+    console.error('💥 [Instacart API] Exception:', err);
+  }
+
+  // --- ATTEMPT 2: Sameday HTML Page Session Fetch (Fallback) ---
+  try {
+    console.log(`📡 [Attempt 2] Establishing session for ZIP: ${cleanZip}...`);
+
     const initRes = await fetch("https://sameday.costco.com/", {
       method: "GET",
       headers: {
@@ -519,9 +569,8 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
       setCookies
     ].filter(Boolean).join("; ");
 
-    // 2. Search catalog endpoint
     const searchUrl = `https://sameday.costco.com/store/costco/search/${encodeURIComponent(itemNumber)}`;
-    console.log(`📡 [Sameday] Querying Search URL: ${searchUrl}`);
+    console.log(`📡 [Attempt 2] Querying Search URL: ${searchUrl}`);
 
     const response = await fetch(searchUrl, {
       method: "GET",
@@ -534,23 +583,18 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
       redirect: "follow"
     });
 
-    console.log(`[Sameday] Response Status: ${response.status} ${response.statusText}`);
+    console.log(`[Attempt 2] Response Status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) return null;
 
     const html = await response.text();
-
-    // 3. Extract Next.js page state
     const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
 
     if (nextDataMatch && nextDataMatch[1]) {
       const parsed = JSON.parse(nextDataMatch[1]);
-      
-      // Traverse pageProps tree to extract search results
       const pageProps = parsed?.props?.pageProps;
       const initialData = pageProps?.initialData;
       const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
-      
       const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
 
       if (items.length > 0) {
@@ -560,7 +604,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
         const slug = first.slug || "";
         const fullPath = slug ? `${productId}-${slug}` : String(productId);
 
-        console.log(`✅ [Sameday] Found Item: "${title}"`);
+        console.log(`✅ [Attempt 2] Found Item: "${title}"`);
 
         return {
           id: '',
@@ -577,8 +621,9 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
       }
     }
   } catch (err) {
-    console.error("💥 [Sameday] Exception:", err);
+    console.error("💥 [Attempt 2] Exception:", err);
   }
+
   return null;
 }
 
