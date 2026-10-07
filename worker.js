@@ -496,6 +496,7 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 }
 
 import puppeteer from '@cloudflare/puppeteer';
+
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
   const landingUrl = 'https://sameday.costco.com/';
@@ -515,16 +516,15 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // Network Interceptor: Capture JSON API payloads carrying search results
+    // 📡 Network Interceptor: Capture JSON API payloads carrying search results
     page.on('response', async (response) => {
       const url = response.url();
-      if (url.includes('graphql') || url.includes('search') || url.includes('items')) {
+      if (url.includes('graphql') || url.includes('search') || url.includes('items') || url.includes('v3')) {
         try {
           const contentType = response.headers()['content-type'] || '';
           if (contentType.includes('application/json')) {
             const json = await response.json();
             
-            // Traverse response for item data
             const items = json?.data?.search?.products || 
                           json?.data?.items || 
                           json?.items || 
@@ -532,30 +532,37 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
             if (items.length > 0 && !interceptedProduct) {
               const first = items[0];
-              interceptedProduct = {
-                title: first.name || first.title,
-                id: first.id || first.itemId,
-                slug: first.slug || ''
-              };
-              console.log(`🎯 [Puppeteer Interceptor] Captured product via API response: "${interceptedProduct.title}"`);
+              const title = first.name || first.title;
+              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                interceptedProduct = {
+                  title: title,
+                  id: first.id || first.itemId,
+                  slug: first.slug || ''
+                };
+                console.log(`🎯 [Puppeteer Interceptor] Captured product via API response: "${interceptedProduct.title}"`);
+              }
             }
           }
         } catch (e) {
-          // Ignore non-JSON or stream parsing errors
+          // Ignore non-JSON response parsing errors
         }
       }
     });
 
-    // Inject cookies upfront
+    // Inject guest cookies upfront
     await page.setCookie(
       { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
       { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
       { name: 'viewed_guest_landing', value: 'true', domain: '.costco.com', path: '/' }
     );
 
-    // Step 1: Pass Guest Gate on Landing Page
+    // --- STEP 1: Pass Guest Gate on Landing Page ---
     console.log(`🌐 [Puppeteer Step 1] Opening Landing Page: ${landingUrl}`);
-    await page.goto(landingUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    try {
+      await page.goto(landingUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
+    } catch (e) {
+      console.log(`⚠️ Step 1 page.goto timed out, continuing execution...`);
+    }
 
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
@@ -565,36 +572,78 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     } catch (btnErr) {
-      // Modal was not present
+      console.log(`ℹ️ [Puppeteer Step 1] Guest gate button not present or already bypassed.`);
     }
 
-    // Step 2: Search URL
+    // --- STEP 2: Navigate to Item Search URL ---
     console.log(`🌐 [Puppeteer Step 2] Navigating to Search URL: ${searchUrl}`);
-    await page.goto(searchUrl, { waitUntil: 'networkidle0', timeout: 20000 });
+    try {
+      // Changed waitUntil to 'domcontentloaded' to avoid streaming network stalls
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    } catch (e) {
+      console.log(`⚠️ Step 2 page.goto hit timeout, proceeding to parse loaded state...`);
+    }
 
-    // Wait 2 seconds for any trailing API requests or DOM re-hydration
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Allow 3 seconds for React re-hydration and API responses
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Evaluate Network Interceptor Result or fallback to DOM/Script parsing
+    // --- STEP 3: Extract Product Details ---
     let productTitle = interceptedProduct?.title;
     let productId = interceptedProduct?.id;
     let productSlug = interceptedProduct?.slug;
 
     if (!productTitle) {
-      // DOM / Script Fallback
       const fallbackData = await page.evaluate(() => {
+        // 1. Try __NEXT_DATA__ JSON script tag
         const script = document.getElementById('__NEXT_DATA__');
         if (script && script.textContent) {
           try {
             const parsed = JSON.parse(script.textContent);
             const pageProps = parsed?.props?.pageProps;
-            const container = pageProps?.initialData?.search || pageProps?.fallbackData;
-            const items = container?.products || container?.items || [];
+            const initialData = pageProps?.initialData;
+            const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+            const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
+
             if (items.length > 0) {
-              return { title: items[0].name || items[0].title, id: items[0].id, slug: items[0].slug };
+              const first = items[0];
+              const title = first.name || first.title;
+              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                return {
+                  title: title,
+                  id: first.id || first.itemId,
+                  slug: first.slug || ''
+                };
+              }
             }
           } catch (e) {}
         }
+
+        // 2. DOM Scrape Fallback
+        const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
+        for (const link of productLinks) {
+          const textContent = link.textContent ? link.textContent.trim() : '';
+          const href = link.getAttribute('href') || '';
+          const lines = textContent.split('\n').map(l => l.trim()).filter(Boolean);
+          
+          for (const line of lines) {
+            const lower = line.toLowerCase();
+            if (
+              line.length > 3 &&
+              !lower.startsWith('$') &&
+              !lower.includes('departments') &&
+              !lower.includes('categories') &&
+              !lower.includes('cart') &&
+              !lower.includes('delivery') &&
+              !lower.includes('pickup')
+            ) {
+              return {
+                title: line,
+                href: href
+              };
+            }
+          }
+        }
+
         return null;
       });
 
@@ -609,7 +658,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      console.log(`🎉 [Puppeteer Hit] Extracted product: "${productTitle}"`);
+      console.log(`🎉 [Puppeteer Hit] Successfully scraped product: "${productTitle}"`);
 
       return {
         id: '',
@@ -624,7 +673,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         is_discontinued: 0
       };
     } else {
-      console.log(`⚠️ [Puppeteer] Product title could not be extracted.`);
+      console.log(`⚠️ [Puppeteer] Could not locate product title via API intercept, __NEXT_DATA__, or DOM.`);
     }
 
   } catch (err) {
