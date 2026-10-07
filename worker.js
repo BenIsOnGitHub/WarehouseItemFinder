@@ -225,8 +225,8 @@ export default {
 async function handleSearch(request, env, corsHeaders) {
   try {
     const url = new URL(request.url);
-    const query = url.searchParams.get('q')?.trim();
-    const searchMode = url.searchParams.get('mode') || 'item_number';
+    const query = (url.searchParams.get('q') || '').trim();
+const searchMode = (url.searchParams.get('mode') || 'item_number').trim();
     const rawWarehouse = url.searchParams.get('warehouse') || '';
     const warehouseId = String(rawWarehouse).replace(/-wh$/i, '').trim();
 
@@ -499,82 +499,91 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   return null;
 }
 
-// --- FALLBACK 2: Sameday / Instacart GraphQL Engine ---
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
   try {
-    const payload = {
-      operationName: "SearchItems",
-      variables: {
-        query: String(itemNumber).trim(),
-        postalCode: String(zipCode).trim(),
-        perPage: 5
-      },
-      query: `
-        query SearchItems($query: String!, $postalCode: String, $perPage: Int) {
-          search(query: $query, postalCode: $postalCode, perPage: $perPage) {
-            products {
-              id
-              name
-              slug
-              sku
-            }
-          }
-        }
-      `
-    };
+    console.log(`📡 Step 1: Initializing Guest Session for ZIP ${zipCode}...`);
 
-    console.log(`📡 Sending GraphQL Request to Sameday...`);
-    console.log(`Payload:`, JSON.stringify(payload));
-
-    const response = await fetch("https://sameday.costco.com/graphql", {
-      method: "POST",
+    // 1. Initial request to establish session & get set-cookie headers
+    const initRes = await fetch("https://sameday.costco.com/", {
+      method: "GET",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Cookie": `warehouse_zip=${zipCode}; instacart_async_service_address=%7B%22postal_code%22%3A%22${zipCode}%22%7D`,
-        "x-client-identifier": "web"
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
       },
-      body: JSON.stringify(payload)
+      redirect: "manual" // Prevent automatic redirect so we can extract cookies
+    });
+
+    // Extract any set-cookie headers from the response
+    const setCookieHeader = initRes.headers.get("set-cookie") || "";
+
+    // 2. Build full cookie header incorporating the session + zip requirements
+    const cookieHeader = [
+      `warehouse_zip=${zipCode}`,
+      `instacart_async_service_address=%7B%22postal_code%22%3A%22${zipCode}%22%7D`,
+      setCookieHeader
+    ].filter(Boolean).join("; ");
+
+    // 3. Step 2: Query search URL directly with session established
+    const targetUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
+    console.log(`📡 Step 2: Fetching Search Page with Session: ${targetUrl}`);
+
+    const response = await fetch(targetUrl, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Cookie": cookieHeader,
+        "x-requested-with": "XMLHttpRequest"
+      },
+      redirect: "follow"
     });
 
     console.log(`HTTP Status: ${response.status} ${response.statusText}`);
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.log(`❌ Sameday GraphQL HTTP Error Response:`, errText.substring(0, 300));
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    // If still redirected to landing page, log it
+    if (html.includes("Browse as a guest") || html.includes("landing_screen")) {
+      console.log("⚠️ Still hit guest wall. Redirect bypass failed.");
       return null;
     }
 
-    const resJson = await response.json();
-    console.log(`📦 Sameday GraphQL Raw Response:`, JSON.stringify(resJson));
+    // 4. Extract embedded Next.js JSON state
+    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
 
-    const products = resJson?.data?.search?.products || [];
-    console.log(`Found ${products.length} product(s) in GraphQL response.`);
+    if (nextDataMatch && nextDataMatch[1]) {
+      const parsed = JSON.parse(nextDataMatch[1]);
+      const container = parsed?.props?.pageProps?.initialData?.search || parsed?.props?.pageProps?.fallbackData;
+      const items = container?.products || container?.items || [];
 
-    if (products.length > 0) {
-      const first = products[0];
-      const productId = first.id;
-      const slug = first.slug || "";
-      const title = first.name;
-      const fullPath = slug ? `${productId}-${slug}` : String(productId);
+      if (items.length > 0) {
+        const first = items[0];
+        const productId = first.id || first.itemId;
+        const title = first.name || first.title;
+        const slug = first.slug || "";
+        const fullPath = slug ? `${productId}-${slug}` : String(productId);
 
-      return {
-        id: '',
-        item_number: itemNumber,
-        sku: first.sku || itemNumber,
-        product_name: title,
-        category: 'In-Store Item',
-        product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
-        warehouse_id: warehouseId,
-        aisle: '',
-        bay: '',
-        is_wrong: 0,
-        is_discontinued: 0
-      };
+        console.log(`✅ Extracted Item: "${title}"`);
+
+        return {
+          id: '',
+          item_number: itemNumber,
+          sku: first.sku || itemNumber,
+          product_name: title,
+          category: 'In-Store Item',
+          product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
+          warehouse_id: warehouseId,
+          aisle: '',
+          bay: '',
+          is_wrong: 0,
+          is_discontinued: 0
+        };
+      }
     }
   } catch (err) {
-    console.error("💥 GraphQL Sameday Exception:", err);
+    console.error("💥 Sameday Session Fetch Error:", err);
   }
   return null;
 }
