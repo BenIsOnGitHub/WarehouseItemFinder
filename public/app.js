@@ -967,6 +967,7 @@ async function performSearch() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initWarehouseSelection();
   loadWarehouses();
   populateAisleDropdown();
   startBrowse(1);
@@ -1228,8 +1229,8 @@ function disableProductSearch(placeholderText = "Select a warehouse first...") {
 }
 
 function enableProductSearch() {
-  const productInput = document.getElementById('product-search-input'); // Adjust ID to match your HTML
-  const productButton = document.getElementById('product-search-button'); // Adjust ID to match your HTML
+  const productInput = document.getElementById('search-input'); // Adjust ID to match your HTML
+  const productButton = document.getElementById('search-btn'); // Adjust ID to match your HTML
 
   if (productInput) {
     productInput.disabled = false;
