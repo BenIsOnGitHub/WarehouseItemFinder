@@ -214,6 +214,7 @@ async function showLocalMatches(term) {
   renderSearchResults(matches, resultsContainer, false);
 }
 
+
 // --- SORT ALL WAREHOUSES BY DISTANCE & SHOW TOP RESULTS IN DROPDOWN ---
 async function showWarehousesByDistance(userLat, userLng) {
   console.log(`📐 [DEBUG] Sorting warehouses by distance to lat: ${userLat}, lng: ${userLng}`);
@@ -241,7 +242,7 @@ async function showWarehousesByDistance(userLat, userLng) {
   // Sort ascending by distance (closest first)
   warehousesWithDistance.sort((a, b) => a.distance - b.distance);
 
-  // Render top 10 closest stores in the dropdown — user MUST click one to select it
+  // ✅ FIX: Pass `resultsContainer` as the 2nd parameter!
   renderSearchResults(warehousesWithDistance.slice(0, 10), resultsContainer, true);
 }
 
