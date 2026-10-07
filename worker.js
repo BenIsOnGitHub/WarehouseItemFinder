@@ -514,88 +514,96 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // Set ZIP cookie
-    await page.setCookie({
-      name: 'warehouse_zip',
-      value: cleanZip,
-      domain: '.costco.com',
-      path: '/'
-    });
+    // 🔒 Bypass Guest Modal: Inject guest session & address cookies upfront
+    await page.setCookie(
+      { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
+      { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
+      { name: 'viewed_guest_landing', value: 'true', domain: '.costco.com', path: '/' }
+    );
 
-    console.log(`🌐 [Puppeteer] Navigating to: ${targetUrl}`);
-    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
+    console.log(`🌐 [Puppeteer] Navigating directly to search URL...`);
+    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 20000 });
 
-    // Handle "Browse as a guest" modal button click
+    // Backup check: If guest modal still appears, click it without blocking on waitForNavigation
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
       if (guestButton) {
-        console.log(`👆 [Puppeteer] "Browse as a guest" button detected. Clicking...`);
-        
-        // Wait for page transition / network idle after clicking guest button
-        await Promise.all([
-          page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {}),
-          guestButton.click()
-        ]);
-        
-        // Small buffer to allow Next.js state hydration
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log(`👆 [Puppeteer] "Browse as a guest" button visible. Clicking...`);
+        await guestButton.click();
+        // Wait 3 seconds for React DOM re-render
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
     } catch (btnErr) {
-      console.log(`ℹ️ [Puppeteer] Guest button not present or already passed.`);
+      // Modal wasn't present
     }
 
-    // Wait for __NEXT_DATA__ script to be available in DOM
-    try {
-      await page.waitForSelector('#__NEXT_DATA__', { timeout: 5000 });
-    } catch (e) {
-      console.log(`⚠️ [Puppeteer] Timeout waiting for #__NEXT_DATA__ selector.`);
-    }
+    // --- STRATEGY 1: Extract from __NEXT_DATA__ if present ---
+    const extractedData = await page.evaluate(() => {
+      // 1. Try script tag
+      const script = document.getElementById('__NEXT_DATA__');
+      if (script && script.textContent) {
+        try {
+          const parsed = JSON.parse(script.textContent);
+          const pageProps = parsed?.props?.pageProps;
+          const initialData = pageProps?.initialData;
+          const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+          const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
 
-    // Extract embedded Next.js state
-    const nextDataJson = await page.evaluate(() => {
-      const el = document.getElementById('__NEXT_DATA__');
-      return el ? el.textContent : null;
+          if (items.length > 0) {
+            const first = items[0];
+            return {
+              title: first.name || first.title,
+              id: first.id || first.itemId,
+              slug: first.slug || ''
+            };
+          }
+        } catch (e) {}
+      }
+
+      // --- STRATEGY 2: DOM Scrape Fallback ---
+      // Look for product card title elements directly rendered in DOM
+      const titleEl = document.querySelector('[data-testid="item_card_name"], [class*="ItemCardName"], h3, h2');
+      const linkEl = document.querySelector('a[href*="/products/"]');
+
+      if (titleEl && titleEl.textContent.trim()) {
+        const titleText = titleEl.textContent.trim();
+        const href = linkEl ? linkEl.getAttribute('href') : '';
+        return {
+          title: titleText,
+          href: href
+        };
+      }
+
+      return null;
     });
 
-    if (nextDataJson) {
-      const parsed = JSON.parse(nextDataJson);
-      
-      // Look through search results or modules in Next.js pageProps
-      const pageProps = parsed?.props?.pageProps;
-      const initialData = pageProps?.initialData;
-      const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
-      
-      // Extract products from container or module items
-      const items = searchContainer?.products || 
-                    searchContainer?.items || 
-                    searchContainer?.modules?.[0]?.data?.products || [];
+    if (extractedData && extractedData.title) {
+      const title = extractedData.title;
+      let productUrl = targetUrl;
 
-      if (items.length > 0) {
-        const first = items[0];
-        const productId = first.id || first.itemId;
-        const title = first.name || first.title || "In-Store Item";
-        const slug = first.slug || "";
-        const fullPath = slug ? `${productId}-${slug}` : String(productId);
-
-        console.log(`✅ [Puppeteer Hit] Extracted Product: "${title}"`);
-
-        return {
-          id: '',
-          item_number: itemNumber,
-          product_name: title,
-          category: 'In-Store Item',
-          product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
-          warehouse_id: warehouseId,
-          aisle: '',
-          bay: '',
-          is_wrong: 0,
-          is_discontinued: 0
-        };
-      } else {
-        console.log(`⚠️ [Puppeteer] __NEXT_DATA__ loaded, but 0 products found.`);
+      if (extractedData.id) {
+        const fullPath = extractedData.slug ? `${extractedData.id}-${extractedData.slug}` : String(extractedData.id);
+        productUrl = `https://sameday.costco.com/store/costco/products/${fullPath}`;
+      } else if (extractedData.href) {
+        productUrl = extractedData.href.startsWith('http') ? extractedData.href : `https://sameday.costco.com${extractedData.href}`;
       }
+
+      console.log(`🎉 [Puppeteer Hit] Successfully scraped product: "${title}"`);
+
+      return {
+        id: '',
+        item_number: itemNumber,
+        product_name: title,
+        category: 'In-Store Item',
+        product_url: productUrl,
+        warehouse_id: warehouseId,
+        aisle: '',
+        bay: '',
+        is_wrong: 0,
+        is_discontinued: 0
+      };
     } else {
-      console.log(`⚠️ [Puppeteer] Could not find __NEXT_DATA__ script block in HTML.`);
+      console.log(`⚠️ [Puppeteer] Could not locate product title via __NEXT_DATA__ or DOM elements.`);
     }
 
   } catch (err) {
