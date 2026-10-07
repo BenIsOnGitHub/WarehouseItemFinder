@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
 // --- INITIAL LOAD CHECK ---
 async function initWarehouseSelection() {
   const savedWarehouse = localStorage.getItem('selected_warehouse');
@@ -63,11 +64,14 @@ async function initWarehouseSelection() {
         // 2. Render header UI & unlock product search
         displayWarehouse(parsed);
         enableProductSearch();
+
+        // 3. FORCE HIDE THE POPOVER
         hideSearchPopover();
 
-        // 3. Notify app listeners (like Browse page) of active warehouse
+        // 4. Notify app listeners (like Browse page) of active warehouse
         if (typeof onWarehouseChange === 'function') {
-          onWarehouseChange(warehouseId);
+          // Pass the parsed object instead of string ID to prevent clobbering localStorage
+          onWarehouseChange(parsed);
         }
 
         return;
@@ -84,9 +88,7 @@ async function initWarehouseSelection() {
   }
   
   disableProductSearch("Select a warehouse above to search products");
-  showSearchPopover(); // Open or show warehouse selection bar immediately
-  
-  // Pre-fetch warehouse catalog into memory
+  showSearchPopover(); // Only open if no warehouse is set
   await fetchWarehouses();
 }
 
@@ -429,8 +431,18 @@ function showSearchPopover() {
 
 function hideSearchPopover() {
   const popover = document.getElementById('warehouse-search-popover');
+  const resultsContainer = document.getElementById('warehouse-search-results');
+  const searchInput = document.getElementById('warehouse-search-input');
+
   if (popover) {
     popover.hidden = true;
+  }
+  if (resultsContainer) {
+    resultsContainer.innerHTML = '';
+    resultsContainer.style.display = 'none';
+  }
+  if (searchInput) {
+    searchInput.value = '';
   }
 }
 
