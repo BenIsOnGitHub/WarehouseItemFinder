@@ -228,7 +228,7 @@ async function handleSearch(request, env, corsHeaders) {
     const query = url.searchParams.get('q')?.trim();
     const searchMode = url.searchParams.get('mode') || 'item_number';
     const rawWarehouse = url.searchParams.get('warehouse') || '';
-    const warehouseId = rawWarehouse.replace(/-wh$/i, '').trim();
+    const warehouseId = String(rawWarehouse).replace(/-wh$/i, '').trim();
 
     console.log(`\n🔍 --- SEARCH INITIATED ---`);
     console.log(`Query: "${query}" | Mode: "${searchMode}" | Warehouse ID: "${warehouseId}"`);
@@ -350,6 +350,155 @@ async function handleSearch(request, env, corsHeaders) {
   }
 }
 
+// --- FALLBACK 1: Main Costco.com HTML/Metadata Scraper ---
+async function fetchCostcoItemDetails(itemNumber, warehouseId) {
+  const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
+
+  const cleanWhsId = String(warehouseId).replace(/-wh$/i, '').trim();
+
+  const whsCookieValue = JSON.stringify({
+    nearestWarehouse: { catalog: `${cleanWhsId}-wh` }
+  });
+
+  const myWhsCookieValue = JSON.stringify({
+    warehouseId: cleanWhsId,
+    warehouseName: `Warehouse ${cleanWhsId}`
+  });
+
+  const cookieHeader = [
+    `WHSE=${cleanWhsId}`,
+    `WAREHOUSEDELIVERY_WHS=${encodeURIComponent(whsCookieValue)}`,
+    `MY_WAREHOUSE=${encodeURIComponent(myWhsCookieValue)}`,
+    `buyInWarehouse=true`
+  ].join('; ');
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Cookie': cookieHeader
+      },
+      redirect: 'follow'
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    if (html.includes("We're sorry. We were not able to find a match.")) {
+      return null;
+    }
+
+    let extractedCategory = '';
+    let productTitle = '';
+
+    const stateMatches = html.match(/window\.__PRELOADED_STATE__\s*=\s*({[\s\S]*?});<\/script>/i) ||
+                         html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});<\/script>/i);
+
+    if (stateMatches && stateMatches[1]) {
+      try {
+        const state = JSON.parse(stateMatches[1]);
+        const productData = state.productDetails || state.product || {};
+        productTitle = productData.name || productData.productName || '';
+
+        if (Array.isArray(productData.breadcrumbs)) {
+          extractedCategory = productData.breadcrumbs
+            .map(b => b.name || b.label)
+            .filter(Boolean)
+            .filter(name => name.toLowerCase() !== 'home')
+            .join(' > ');
+        } else if (productData.category) {
+          extractedCategory = typeof productData.category === 'string' ? productData.category : productData.category.name;
+        }
+      } catch (e) {
+        // Continue if JSON parsing fails
+      }
+    }
+
+    if (!extractedCategory || !productTitle) {
+      const scriptBlocks = html.split('<script type="application/ld+json">');
+      for (let i = 1; i < scriptBlocks.length; i++) {
+        const blockContent = scriptBlocks[i].split('</script>')[0];
+        if (!blockContent) continue;
+
+        try {
+          const metadata = JSON.parse(blockContent.trim());
+          const items = Array.isArray(metadata) ? metadata : [metadata];
+
+          for (const item of items) {
+            if (!item) continue;
+
+            if (item['@type'] === 'Product' && item.name) {
+              if (!productTitle) productTitle = item.name;
+              if (!extractedCategory && typeof item.category === 'string') {
+                extractedCategory = item.category;
+              }
+            }
+
+            if (!extractedCategory && item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
+              const crumbs = item.itemListElement
+                .map(c => c.name || (c.item && c.item.name))
+                .filter(Boolean)
+                .filter(name => name.toLowerCase() !== 'home');
+
+              if (crumbs.length > 0) {
+                extractedCategory = crumbs.join(' > ');
+              }
+            }
+          }
+        } catch (parseErr) {
+          // Skip malformed script blocks
+        }
+      }
+    }
+
+    if (!extractedCategory) {
+      const metaCategory = html.match(/<meta[^>]*name=["'](category|keywords|search\.category)["'][^>]*content=["']([^"']+)["']/i) ||
+                           html.match(/<meta[^>]*content=["']([^"']+)["']/i) && html.match(/name=["'](category|keywords|search\.category)["']/i);
+      if (metaCategory && metaCategory[2]) {
+        extractedCategory = metaCategory[2].split(',')[0].trim();
+      }
+    }
+
+    if (!productTitle) {
+      const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      if (titleMatch) {
+        productTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+      }
+    }
+
+    if (extractedCategory) {
+      extractedCategory = extractedCategory
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    if (productTitle) {
+      return {
+        id: '',
+        item_number: itemNumber,
+        sku: itemNumber,
+        product_name: productTitle,
+        category: extractedCategory || 'Uncategorized',
+        product_url: response.url || targetUrl,
+        warehouse_id: cleanWhsId,
+        aisle: '',
+        bay: '',
+        is_wrong: 0,
+        is_discontinued: 0
+      };
+    }
+
+  } catch (err) {
+    console.error('Error fetching live Costco item:', err);
+  }
+
+  return null;
+}
+
 // --- FALLBACK 2: Sameday / Instacart GraphQL Engine ---
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
   try {
@@ -415,11 +564,13 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
         item_number: itemNumber,
         sku: first.sku || itemNumber,
         product_name: title,
-        category: 'Frozen Foods',
+        category: 'In-Store Item',
         product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
         warehouse_id: warehouseId,
         aisle: '',
-        bay: ''
+        bay: '',
+        is_wrong: 0,
+        is_discontinued: 0
       };
     }
   } catch (err) {
