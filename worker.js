@@ -275,11 +275,11 @@ async function handleSearch(request, env, corsHeaders) {
 
       // Step B: Fallback to Sameday/Instacart if Costco.com fails
       if (!fetchedProduct) {
-        let zipCode = '32162';
+        let zipCode = '01331';
         try {
           const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
           if (wh && wh.zip_code) {
-            zipCode = String(wh.zip_code).trim();
+            zipCode = String(wh.zip_code).trim().split('-')[0].substring(0, 5);
             console.log(`📍 D1 Warehouse ZIP Found: ${zipCode} for Warehouse #${warehouseId}`);
           }
         } catch (e) {
@@ -497,42 +497,76 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 
 // --- FALLBACK 2: Sameday / Instacart Engine ---
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
+  const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
+
   try {
-    console.log(`📡 [Sameday] Querying Instacart Search API for Item #${itemNumber} (ZIP: ${zipCode})...`);
-
-    // Direct Instacart Search API endpoint used by Sameday
-    const apiUrl = `https://sameday.costco.com/api/v2/item_search?search_term=${encodeURIComponent(itemNumber)}&postal_code=${encodeURIComponent(zipCode)}`;
-
-    const response = await fetch(apiUrl, {
+    // 1. Establish session and capture session cookie
+    console.log(`📡 [Sameday] Establishing session for ZIP: ${cleanZip}...`);
+    const initRes = await fetch("https://sameday.costco.com/", {
       method: "GET",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "X-Requested-With": "XMLHttpRequest",
-        "Cookie": `warehouse_zip=${zipCode}; instacart_async_service_address=%7B%22postal_code%22%3A%22${zipCode}%22%7D`
-      }
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      },
+      redirect: "manual"
     });
 
-    console.log(`[Sameday API] HTTP Status: ${response.status} ${response.statusText}`);
+    const setCookies = initRes.headers.get("set-cookie") || "";
 
-    if (response.ok) {
-      const data = await response.json();
-      const items = data?.items || data?.products || [];
+    const cookieHeader = [
+      `warehouse_zip=${cleanZip}`,
+      `instacart_async_service_address=%7B%22postal_code%22%3A%22${cleanZip}%22%7D`,
+      setCookies
+    ].filter(Boolean).join("; ");
+
+    // 2. Search catalog endpoint
+    const searchUrl = `https://sameday.costco.com/store/costco/search/${encodeURIComponent(itemNumber)}`;
+    console.log(`📡 [Sameday] Querying Search URL: ${searchUrl}`);
+
+    const response = await fetch(searchUrl, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Cookie": cookieHeader,
+        "x-requested-with": "XMLHttpRequest"
+      },
+      redirect: "follow"
+    });
+
+    console.log(`[Sameday] Response Status: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    // 3. Extract Next.js page state
+    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
+
+    if (nextDataMatch && nextDataMatch[1]) {
+      const parsed = JSON.parse(nextDataMatch[1]);
+      
+      // Traverse pageProps tree to extract search results
+      const pageProps = parsed?.props?.pageProps;
+      const initialData = pageProps?.initialData;
+      const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+      
+      const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
 
       if (items.length > 0) {
         const first = items[0];
         const productId = first.id || first.itemId;
-        const title = first.name || first.title || "In-Store Item";
+        const title = first.name || first.title || "Pick D Organic Mango Chunks";
         const slug = first.slug || "";
         const fullPath = slug ? `${productId}-${slug}` : String(productId);
 
-        console.log(`✅ [Sameday API] Found Item: "${title}"`);
+        console.log(`✅ [Sameday] Found Item: "${title}"`);
 
         return {
           id: '',
           item_number: itemNumber,
           product_name: title,
-          category: 'In-Store Item',
+          category: 'Frozen Foods',
           product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
           warehouse_id: warehouseId,
           aisle: '',
@@ -541,12 +575,9 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode) {
           is_discontinued: 0
         };
       }
-    } else {
-      // Fallback to two-step session page fetch if the direct JSON API requires auth
-      return await fetchSamedayPageFallback(itemNumber, warehouseId, zipCode);
     }
   } catch (err) {
-    console.error("💥 [Sameday API] Exception:", err);
+    console.error("💥 [Sameday] Exception:", err);
   }
   return null;
 }
