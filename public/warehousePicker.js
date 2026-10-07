@@ -149,6 +149,7 @@ async function handleSearchInput(query) {
   }
 }
 
+
 // --- SHOW LOCAL TEXT MATCHES IN DROPDOWN ---
 async function showLocalMatches(term) {
   const warehouses = await fetchWarehouses();
@@ -164,7 +165,18 @@ async function showLocalMatches(term) {
     const street = (w.street_address || '').toLowerCase();
 
     if (isNumeric) {
-      return id === term || zip.startsWith(term) || street.includes(term);
+      // 1. Always match exact Warehouse ID or starting ZIP code digits (e.g. "344", "3447")
+      if (id === term || zip.startsWith(term)) {
+        return true;
+      }
+
+      // 2. ONLY check street address if the number is 5 digits long (e.g. a full street number)
+      // This stops partial ZIP entries like "344" from pulling up "344 N Main St" in Celina, TX
+      if (term.length >= 5) {
+        return street.includes(term);
+      }
+
+      return false;
     }
 
     return (
@@ -175,7 +187,7 @@ async function showLocalMatches(term) {
     );
   });
 
-  // Renders the list in the dropdown — NOTHING is selected automatically
+  // Renders matches in dropdown — nothing is auto-selected
   renderSearchResults(matches, resultsContainer, false);
 }
 
