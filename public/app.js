@@ -1,7 +1,19 @@
 // ==========================================
 // CONFIGURATION
 // ==========================================
-let CURRENT_WAREHOUSE = localStorage.getItem('selected_warehouse');
+function getStoredWarehouseId() {
+  try {
+    const raw = localStorage.getItem('selected_warehouse');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed.warehouse_id || parsed.id || raw;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Global variable definition:
+let CURRENT_WAREHOUSE = getStoredWarehouseId();
 
 const FAVORITES_KEY = 'product_favorites';
 const NOTES_KEY = 'product_notes';

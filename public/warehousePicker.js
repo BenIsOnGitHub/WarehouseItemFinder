@@ -53,16 +53,36 @@ async function initWarehouseSelection() {
     try {
       const parsed = JSON.parse(savedWarehouse);
       if (parsed && typeof parsed === 'object') {
+        const warehouseId = parsed.warehouse_id || parsed.id;
+
+        // 1. Hydrate global state variable
+        if (typeof CURRENT_WAREHOUSE !== 'undefined') {
+          CURRENT_WAREHOUSE = warehouseId;
+        }
+
+        // 2. Render header UI & unlock product search
         displayWarehouse(parsed);
-        enableProductSearch(); // Enable search when warehouse is active
+        enableProductSearch();
+        hideSearchPopover();
+
+        // 3. Notify app listeners (like Browse page) of active warehouse
+        if (typeof onWarehouseChange === 'function') {
+          onWarehouseChange(warehouseId);
+        }
+
         return;
       }
     } catch (e) {
-      // Parse error fallback
+      console.error("❌ Invalid stored warehouse JSON, clearing...", e);
+      localStorage.removeItem('selected_warehouse');
     }
   }
 
   // --- NO WAREHOUSE SET ---
+  if (typeof CURRENT_WAREHOUSE !== 'undefined') {
+    CURRENT_WAREHOUSE = null;
+  }
+  
   disableProductSearch("Select a warehouse above to search products");
   showSearchPopover(); // Open or show warehouse selection bar immediately
   
