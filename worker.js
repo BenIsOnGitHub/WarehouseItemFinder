@@ -516,7 +516,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // 📡 Network Interceptor: Capture JSON API payloads carrying search results
+    // 📡 Network Response Interceptor
     page.on('response', async (response) => {
       const url = response.url();
       if (url.includes('graphql') || url.includes('search') || url.includes('items') || url.includes('v3')) {
@@ -544,25 +544,23 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             }
           }
         } catch (e) {
-          // Ignore non-JSON response parsing errors
+          // Ignore JSON parsing errors
         }
       }
     });
 
-    // Inject guest cookies upfront
+    // Set ZIP cookies upfront
     await page.setCookie(
       { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
       { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
       { name: 'viewed_guest_landing', value: 'true', domain: '.costco.com', path: '/' }
     );
 
-    // --- STEP 1: Pass Guest Gate on Landing Page ---
+    // Step 1: Open Landing Page & Guest Gate
     console.log(`🌐 [Puppeteer Step 1] Opening Landing Page: ${landingUrl}`);
     try {
       await page.goto(landingUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
-    } catch (e) {
-      console.log(`⚠️ Step 1 page.goto timed out, continuing execution...`);
-    }
+    } catch (e) {}
 
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
@@ -571,30 +569,37 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         await guestButton.click();
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
-    } catch (btnErr) {
-      console.log(`ℹ️ [Puppeteer Step 1] Guest gate button not present or already bypassed.`);
-    }
+    } catch (btnErr) {}
 
-    // --- STEP 2: Navigate to Item Search URL ---
+    // Step 2: Search URL
     console.log(`🌐 [Puppeteer Step 2] Navigating to Search URL: ${searchUrl}`);
     try {
-      // Changed waitUntil to 'domcontentloaded' to avoid streaming network stalls
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
-    } catch (e) {
-      console.log(`⚠️ Step 2 page.goto hit timeout, proceeding to parse loaded state...`);
-    }
+    } catch (e) {}
 
-    // Allow 3 seconds for React re-hydration and API responses
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // --- STEP 3: Extract Product Details ---
+    // Step 3: Extract & Clean Product Title
     let productTitle = interceptedProduct?.title;
     let productId = interceptedProduct?.id;
     let productSlug = interceptedProduct?.slug;
 
     if (!productTitle) {
       const fallbackData = await page.evaluate(() => {
-        // 1. Try __NEXT_DATA__ JSON script tag
+        // Helper function to sanitize messy DOM text strings
+        function cleanProductTitle(rawText) {
+          if (!rawText) return '';
+          return rawText
+            .replace(/Current price:?\s*\$?\d+(\.\d{2})?/gi, '')
+            .replace(/Original price:?\s*\$?\d+(\.\d{2})?/gi, '')
+            .replace(/\$\d+(\.\d{2})?/g, '')
+            .replace(/\$\d+/g, '')
+            .replace(/^Organic/i, '') // Remove redundant leading badge tag if concatenated
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+
+        // 1. Check __NEXT_DATA__ JSON script tag
         const script = document.getElementById('__NEXT_DATA__');
         if (script && script.textContent) {
           try {
@@ -618,51 +623,42 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           } catch (e) {}
         }
 
-        // 2. DOM Scrape Fallback with Clean String Extraction
-      const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
-      
-      for (const link of productLinks) {
-        const textContent = link.textContent ? link.textContent.trim() : '';
-        const href = link.getAttribute('href') || '';
+        // 2. DOM Scrape Fallback: Target item card titles directly
+        const titleElements = Array.from(document.querySelectorAll('[data-testid="item_card_name"], [class*="ItemCardName"], a[href*="/products/"] h3, a[href*="/products/"] span'));
         
-        // Split text by lines
-        let lines = textContent.split('\n').map(l => l.trim()).filter(Boolean);
-        
-        // Filter out price badges, price labels, and numeric currency lines
-        const titleLines = lines.filter(line => {
-          const lower = line.toLowerCase();
-          return (
-            line.length > 2 &&
-            !lower.startsWith('$') &&
-            !lower.includes('current price') &&
-            !lower.includes('original price') &&
+        for (const el of titleElements) {
+          const raw = el.textContent ? el.textContent.trim() : '';
+          const cleaned = cleanProductTitle(raw);
+          const lower = cleaned.toLowerCase();
+
+          if (
+            cleaned.length > 3 &&
             !lower.includes('departments') &&
             !lower.includes('categories') &&
             !lower.includes('cart') &&
-            !lower.includes('delivery') &&
-            !lower.includes('pickup')
-          );
-        });
-
-        if (titleLines.length > 0) {
-          // Take the longest string segment, which represents the full product title
-          let bestTitle = titleLines.reduce((a, b) => a.length >= b.length ? a : b, '');
-          
-          // Strip inline price patterns like "Current price: $11.00$1100" or leading "Organic" badges if merged
-          bestTitle = bestTitle
-            .replace(/Current price:?\s*\$?\d+(\.\d{2})?/gi, '')
-            .replace(/\$\d+(\.\d{2})?/g, '')
-            .replace(/\$\d+/g, '')
-            .trim();
-
-          if (bestTitle.length > 3) {
+            !lower.includes('delivery')
+          ) {
+            const parentLink = el.closest('a[href*="/products/"]');
             return {
-              title: bestTitle,
-              href: href
+              title: cleaned,
+              href: parentLink ? parentLink.getAttribute('href') : ''
             };
           }
         }
-      }
+
+        // 3. Fallback: Parse entire product links
+        const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
+        for (const link of productLinks) {
+          const raw = link.textContent ? link.textContent.trim() : '';
+          const cleaned = cleanProductTitle(raw);
+          
+          if (cleaned.length > 3) {
+            return {
+              title: cleaned,
+              href: link.getAttribute('href') || ''
+            };
+          }
+        }
 
         return null;
       });
@@ -675,6 +671,11 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
     }
 
     if (productTitle) {
+      // Ensure leading "Organic" badge concatenation clean-up on API/JSON responses if needed
+      if (productTitle.startsWith("OrganicCurrent price:")) {
+        productTitle = productTitle.replace(/^OrganicCurrent price:?\s*\$?\d+(\.\d{2})?\$\d+/i, '').trim();
+      }
+
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
