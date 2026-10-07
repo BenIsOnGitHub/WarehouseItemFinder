@@ -1,5 +1,3 @@
-import puppeteer from '@cloudflare/puppeteer';
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -497,7 +495,8 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   return null;
 }
 
-// --- FALLBACK 2: Sameday / Instacart Engine ---
+import puppeteer from '@cloudflare/puppeteer';
+
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
   const targetUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
@@ -514,7 +513,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // 🔒 Bypass Guest Modal: Inject guest session & address cookies upfront
+    // Inject guest cookies upfront
     await page.setCookie(
       { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
       { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
@@ -524,22 +523,20 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
     console.log(`🌐 [Puppeteer] Navigating directly to search URL...`);
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 20000 });
 
-    // Backup check: If guest modal still appears, click it without blocking on waitForNavigation
+    // Backup check: Handle guest modal if present
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
       if (guestButton) {
         console.log(`👆 [Puppeteer] "Browse as a guest" button visible. Clicking...`);
         await guestButton.click();
-        // Wait 3 seconds for React DOM re-render
         await new Promise(resolve => setTimeout(resolve, 3000));
       }
     } catch (btnErr) {
       // Modal wasn't present
     }
 
-    // --- STRATEGY 1: Extract from __NEXT_DATA__ if present ---
+    // --- STRATEGY 1: JSON Script Scrape (__NEXT_DATA__) ---
     const extractedData = await page.evaluate(() => {
-      // 1. Try script tag
       const script = document.getElementById('__NEXT_DATA__');
       if (script && script.textContent) {
         try {
@@ -551,26 +548,42 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
           if (items.length > 0) {
             const first = items[0];
-            return {
-              title: first.name || first.title,
-              id: first.id || first.itemId,
-              slug: first.slug || ''
-            };
+            const title = first.name || first.title;
+            if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+              return {
+                title: title,
+                id: first.id || first.itemId,
+                slug: first.slug || ''
+              };
+            }
           }
         } catch (e) {}
       }
 
-      // --- STRATEGY 2: DOM Scrape Fallback ---
-      // Look for product card title elements directly rendered in DOM
-      const titleEl = document.querySelector('[data-testid="item_card_name"], [class*="ItemCardName"], h3, h2');
-      const linkEl = document.querySelector('a[href*="/products/"]');
+      // --- STRATEGY 2: Targeted Product Card DOM Scrape ---
+      // Target elements specifically inside product links / cards
+      const productLink = document.querySelector('a[href*="/products/"]');
+      if (productLink) {
+        // Find title text within or adjacent to product link
+        const titleSpan = productLink.querySelector('span[class*="Name"], span[class*="title"], h3') || productLink;
+        const rawText = titleSpan.textContent ? titleSpan.textContent.trim() : '';
+        
+        // Clean up price/size lines if merged
+        const cleanTitle = rawText.split('\n')[0].trim();
 
-      if (titleEl && titleEl.textContent.trim()) {
-        const titleText = titleEl.textContent.trim();
-        const href = linkEl ? linkEl.getAttribute('href') : '';
+        if (cleanTitle && cleanTitle.length > 2 && !['departments', 'categories'].includes(cleanTitle.toLowerCase())) {
+          return {
+            title: cleanTitle,
+            href: productLink.getAttribute('href')
+          };
+        }
+      }
+
+      // Fallback: Check for data-testid product card names
+      const testIdEl = document.querySelector('[data-testid="item_card_name"], [data-testid="product_title"]');
+      if (testIdEl && testIdEl.textContent.trim()) {
         return {
-          title: titleText,
-          href: href
+          title: testIdEl.textContent.trim()
         };
       }
 
