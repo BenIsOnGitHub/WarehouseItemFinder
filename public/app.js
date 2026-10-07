@@ -1,7 +1,7 @@
 // ==========================================
 // CONFIGURATION
 // ==========================================
-let CURRENT_WAREHOUSE = localStorage.getItem('selected_warehouse') || '1738';
+let CURRENT_WAREHOUSE = localStorage.getItem('selected_warehouse');
 
 const FAVORITES_KEY = 'product_favorites';
 const NOTES_KEY = 'product_notes';
