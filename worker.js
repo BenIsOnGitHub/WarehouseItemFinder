@@ -498,6 +498,8 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 }
 
 // --- FALLBACK 2: Sameday / Instacart Engine ---
+import puppeteer from '@cloudflare/puppeteer';
+
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
   const targetUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
@@ -506,11 +508,9 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
   let browser = null;
   try {
-    // 1. Launch Cloudflare Browser Instance
     browser = await puppeteer.launch(env.MYBROWSER);
     const page = await browser.newPage();
 
-    // Set viewport and realistic User-Agent
     await page.setViewport({ width: 1280, height: 800 });
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
@@ -525,21 +525,35 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
     });
 
     console.log(`🌐 [Puppeteer] Navigating to: ${targetUrl}`);
-    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
-    // 2. Handle "Browse as a guest" button click if presented
+    // Handle "Browse as a guest" modal button click
     try {
       const guestButton = await page.$('button::-p-text("Browse as a guest")');
       if (guestButton) {
         console.log(`👆 [Puppeteer] "Browse as a guest" button detected. Clicking...`);
-        await guestButton.click();
-        await page.waitForTimeout(1000);
+        
+        // Wait for page transition / network idle after clicking guest button
+        await Promise.all([
+          page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {}),
+          guestButton.click()
+        ]);
+        
+        // Small buffer to allow Next.js state hydration
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     } catch (btnErr) {
-      // Button wasn't present, proceed normally
+      console.log(`ℹ️ [Puppeteer] Guest button not present or already passed.`);
     }
 
-    // 3. Extract __NEXT_DATA__ JSON script from page DOM
+    // Wait for __NEXT_DATA__ script to be available in DOM
+    try {
+      await page.waitForSelector('#__NEXT_DATA__', { timeout: 5000 });
+    } catch (e) {
+      console.log(`⚠️ [Puppeteer] Timeout waiting for #__NEXT_DATA__ selector.`);
+    }
+
+    // Extract embedded Next.js state
     const nextDataJson = await page.evaluate(() => {
       const el = document.getElementById('__NEXT_DATA__');
       return el ? el.textContent : null;
@@ -547,10 +561,16 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
     if (nextDataJson) {
       const parsed = JSON.parse(nextDataJson);
+      
+      // Look through search results or modules in Next.js pageProps
       const pageProps = parsed?.props?.pageProps;
       const initialData = pageProps?.initialData;
-      const container = initialData?.search || pageProps?.fallbackData || initialData;
-      const items = container?.products || container?.items || [];
+      const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+      
+      // Extract products from container or module items
+      const items = searchContainer?.products || 
+                    searchContainer?.items || 
+                    searchContainer?.modules?.[0]?.data?.products || [];
 
       if (items.length > 0) {
         const first = items[0];
@@ -573,6 +593,8 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           is_wrong: 0,
           is_discontinued: 0
         };
+      } else {
+        console.log(`⚠️ [Puppeteer] __NEXT_DATA__ loaded, but 0 products found.`);
       }
     } else {
       console.log(`⚠️ [Puppeteer] Could not find __NEXT_DATA__ script block in HTML.`);
