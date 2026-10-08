@@ -718,70 +718,73 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-// STEP 4: Extract Real Category via Apollo Cache Polling
+// STEP 4: Click product card on search page to load real PDP & extract Apollo category
       if (!productCategory && productId) {
-        console.log(`🌐 [Puppeteer Step 4] Extracting Category via Apollo Cache for PDP: ${productUrl}`);
+        console.log(`🌐 [Puppeteer Step 4] Clicking product card to open PDP for real category...`);
         try {
-          await page.goto(productUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
-
-          const apolloCategory = await page.evaluate(async () => {
-            // Polling helper: Wait for Apollo Cache to hydrate with item keys
-            async function waitForApolloCache(maxMs = 5000) {
-              const start = Date.now();
-              while (Date.now() - start < maxMs) {
-                if (window.__APOLLO_CLIENT__) {
-                  const cache = window.__APOLLO_CLIENT__.cache.extract();
-                  if (Object.keys(cache).length > 20) return cache; // Hydration complete
-                }
-                await new Promise(r => setTimeout(r, 250));
-              }
-              return window.__APOLLO_CLIENT__ ? window.__APOLLO_CLIENT__.cache.extract() : {};
+          // Find and click the product link or card on the current search page
+          const productClicked = await page.evaluate((pid) => {
+            const card = document.querySelector(`a[href*="${pid}"]`) || 
+                         document.querySelector('[data-testid="item_card_name"]') ||
+                         document.querySelector('a[href*="/products/"]');
+            if (card) {
+              card.click();
+              return true;
             }
+            return false;
+          }, productId);
 
-            try {
-              const cache = await waitForApolloCache();
-              const crumbs = [];
+          if (productClicked) {
+            // Wait for client-side navigation and GraphQL hydration
+            await new Promise(resolve => setTimeout(resolve, 3500));
 
-              for (const key of Object.keys(cache)) {
-                const node = cache[key];
-                if (!node) continue;
+            const apolloCategory = await page.evaluate(() => {
+              try {
+                if (!window.__APOLLO_CLIENT__) return '';
+                const cache = window.__APOLLO_CLIENT__.cache.extract();
+                const crumbs = [];
 
-                // 1. Inspect Node types or Key prefixes for Department, Aisle, Category, or Taxonomy
-                const isCatNode = key.startsWith('Department:') || 
-                                  key.startsWith('Aisle:') || 
-                                  key.startsWith('Category:') || 
-                                  key.startsWith('Taxonomy') || 
-                                  key.includes('Breadcrumb');
+                for (const key of Object.keys(cache)) {
+                  const node = cache[key];
+                  if (!node) continue;
 
-                if (isCatNode) {
-                  const name = node.name || node.label || node.text || node.title;
-                  if (name && typeof name === 'string') {
-                    const cleanName = name.trim();
-                    const lower = cleanName.toLowerCase();
-                    if (
-                      cleanName.length > 1 &&
-                      !['home', 'costco', 'departments', 'categories', 'all products'].includes(lower)
-                    ) {
-                      crumbs.push(cleanName);
+                  const isCatNode = key.startsWith('Department:') || 
+                                    key.startsWith('Aisle:') || 
+                                    key.startsWith('Category:') || 
+                                    key.startsWith('Taxonomy') || 
+                                    key.includes('Breadcrumb');
+
+                  if (isCatNode) {
+                    const name = node.name || node.label || node.text || node.title;
+                    if (name && typeof name === 'string') {
+                      const cleanName = name.trim();
+                      const lower = cleanName.toLowerCase();
+                      if (
+                        cleanName.length > 1 &&
+                        !['home', 'costco', 'departments', 'categories', 'all products'].includes(lower)
+                      ) {
+                        crumbs.push(cleanName);
+                      }
                     }
                   }
                 }
-              }
 
-              if (crumbs.length > 0) {
-                // Deduplicate while preserving order
-                return crumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
-              }
-            } catch (e) {}
+                if (crumbs.length > 0) {
+                  return crumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
+                }
+              } catch (e) {}
 
-            return '';
-          });
+              return '';
+            });
 
-          if (apolloCategory) {
-            productCategory = apolloCategory;
-            console.log(`🎯 [Puppeteer PDP Hit] Category extracted via Apollo Cache: "${productCategory}"`);
+            if (apolloCategory) {
+              productCategory = apolloCategory;
+              console.log(`🎯 [Puppeteer PDP Hit] Category extracted via Apollo Cache: "${productCategory}"`);
+            } else {
+              console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes in Apollo cache.`);
+            }
           } else {
-            console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes in Apollo cache.`);
+            console.log(`⚠️ [Puppeteer PDP] Could not find product card element to click on search page.`);
           }
 
         } catch (pdpErr) {

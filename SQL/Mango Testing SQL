@@ -7,3 +7,6 @@ delete from products where item_number = 1633654
 Crest whitestrips (on costco.com)
 select * from products where item_number = 1837002
 delete from products where item_number = 1837002
+
+Keyword: Brazi only returns one item
+1018790
