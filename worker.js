@@ -561,11 +561,9 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
             if (items.length > 0 && !interceptedProduct) {
               const first = items[0];
-              console.log(`🔍 Instacart Raw Item Keys:`, JSON.stringify(first));
-              const title = first.name || first.title;
+              const title = (first.name || first.title || '').replace(/\s+/g, ' ').trim();
+
               if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-                
-                // Extract category hierarchy from JSON object
                 const category = extractCategoryFromItem(first);
 
                 interceptedProduct = {
@@ -612,7 +610,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Step 3: Extract & Clean Product Details
+    // Step 3: Extract Product Details
     let productTitle = interceptedProduct?.title;
     let productId = interceptedProduct?.id;
     let productSlug = interceptedProduct?.slug;
@@ -620,20 +618,12 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
     if (!productTitle) {
       const fallbackData = await page.evaluate(() => {
-        // Helper function to sanitize messy DOM text strings
-        function cleanProductTitle(rawText) {
+        function sanitizeProductName(rawText) {
           if (!rawText) return '';
-          return rawText
-            .replace(/Current price:?\s*\$?\d+(\.\d{2})?/gi, '')
-            .replace(/Original price:?\s*\$?\d+(\.\d{2})?/gi, '')
-            .replace(/\$\d+(\.\d{2})?/g, '')
-            .replace(/\$\d+/g, '')
-            .replace(/^Organic/i, '') // Remove redundant leading badge tag if concatenated
-            .replace(/\s+/g, ' ')
-            .trim();
+          return rawText.replace(/\s+/g, ' ').trim();
         }
 
-        // Check DOM breadcrumbs if present
+        // Check DOM breadcrumbs if present on search page
         const breadcrumbEls = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, a[href*="/categories/"]'));
         let domCategory = '';
         if (breadcrumbEls.length > 0) {
@@ -643,84 +633,69 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             .join(' > ');
         }
 
-// 1. Check __NEXT_DATA__ JSON script tag
-const script = document.getElementById('__NEXT_DATA__');
-if (script && script.textContent) {
-  try {
-    const parsed = JSON.parse(script.textContent);
-    const pageProps = parsed?.props?.pageProps;
-    const initialData = pageProps?.initialData;
-    const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
-    const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
+        // 1. Check __NEXT_DATA__ JSON script tag (Cleanest source)
+        const script = document.getElementById('__NEXT_DATA__');
+        if (script && script.textContent) {
+          try {
+            const parsed = JSON.parse(script.textContent);
+            const pageProps = parsed?.props?.pageProps;
+            const initialData = pageProps?.initialData;
+            const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+            const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
 
-    if (items.length > 0) {
-      const first = items[0];
-      const title = first.name || first.title;
-      if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-        
-        // Extract category/department from __NEXT_DATA__ item structure
-        let catStr = '';
+            if (items.length > 0) {
+              const first = items[0];
+              const title = sanitizeProductName(first.name || first.title);
 
-        if (Array.isArray(first.breadcrumbs) && first.breadcrumbs.length > 0) {
-          catStr = first.breadcrumbs
-            .map(b => typeof b === 'string' ? b : (b.name || b.label))
-            .filter(Boolean)
-            .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()))
-            .join(' > ');
+              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                let catStr = '';
+
+                if (Array.isArray(first.breadcrumbs) && first.breadcrumbs.length > 0) {
+                  catStr = first.breadcrumbs
+                    .map(b => typeof b === 'string' ? b : (b.name || b.label))
+                    .filter(Boolean)
+                    .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()))
+                    .join(' > ');
+                }
+
+                if (!catStr) {
+                  const dept = first.department?.name || first.department_name || first.department || '';
+                  const aisle = first.aisle?.name || first.aisle_name || first.aisle || '';
+                  const catName = first.category?.name || first.category_name || first.category || '';
+                  catStr = [dept, aisle, catName].filter(Boolean).join(' > ');
+                }
+
+                return {
+                  title: title,
+                  id: first.id || first.itemId,
+                  slug: first.slug || '',
+                  category: catStr || domCategory
+                };
+              }
+            }
+          } catch (e) {}
         }
 
-        if (!catStr) {
-          const dept = first.department?.name || first.department_name || first.department || '';
-          const aisle = first.aisle?.name || first.aisle_name || first.aisle || '';
-          const catName = first.category?.name || first.category_name || first.category || '';
-          catStr = [dept, aisle, catName].filter(Boolean).join(' > ');
-        }
+        // 2. DOM Scrape Fallback: Target strictly title heading nodes (avoids prices & badges)
+        const titleEl = document.querySelector('[data-testid="item_card_name"]') ||
+                        document.querySelector('h3[class*="ItemCardName"]') ||
+                        document.querySelector('a[href*="/products/"] h3') ||
+                        document.querySelector('a[href*="/products/"] [class*="title"]');
 
-        return {
-          title: title,
-          id: first.id || first.itemId,
-          slug: first.slug || '',
-          category: catStr || domCategory
-        };
-      }
-    }
-  } catch (e) {}
-}
+        if (titleEl) {
+          const rawTitle = titleEl.textContent ? titleEl.textContent.trim() : '';
+          const cleanTitle = sanitizeProductName(rawTitle);
 
-        // 2. DOM Scrape Fallback: Target item card titles directly
-        const titleElements = Array.from(document.querySelectorAll('[data-testid="item_card_name"], [class*="ItemCardName"], a[href*="/products/"] h3, a[href*="/products/"] span'));
-        
-        for (const el of titleElements) {
-          const raw = el.textContent ? el.textContent.trim() : '';
-          const cleaned = cleanProductTitle(raw);
-          const lower = cleaned.toLowerCase();
+          if (cleanTitle.length > 3) {
+            const parentLink = titleEl.closest('a[href*="/products/"]');
+            const href = parentLink ? parentLink.getAttribute('href') : '';
+            const match = href.match(/\/products\/(\d+)(?:-(.+))?/);
 
-          if (
-            cleaned.length > 3 &&
-            !lower.includes('departments') &&
-            !lower.includes('categories') &&
-            !lower.includes('cart') &&
-            !lower.includes('delivery')
-          ) {
-            const parentLink = el.closest('a[href*="/products/"]');
             return {
-              title: cleaned,
-              href: parentLink ? parentLink.getAttribute('href') : '',
-              category: domCategory
-            };
-          }
-        }
-
-        // 3. Fallback: Parse entire product links
-        const productLinks = Array.from(document.querySelectorAll('a[href*="/products/"]'));
-        for (const link of productLinks) {
-          const raw = link.textContent ? link.textContent.trim() : '';
-          const cleaned = cleanProductTitle(raw);
-          
-          if (cleaned.length > 3) {
-            return {
-              title: cleaned,
-              href: link.getAttribute('href') || '',
+              title: cleanTitle,
+              id: match ? match[1] : '',
+              slug: match ? match[2] : '',
+              href: href,
               category: domCategory
             };
           }
@@ -738,12 +713,48 @@ if (script && script.textContent) {
     }
 
     if (productTitle) {
-      if (productTitle.startsWith("OrganicCurrent price:")) {
-        productTitle = productTitle.replace(/^OrganicCurrent price:?\s*\$?\d+(\.\d{2})?\$\d+/i, '').trim();
-      }
-
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
+
+      // STEP 4: Navigate to PDP if category is still missing
+      if (!productCategory && productId) {
+        console.log(`🌐 [Puppeteer Step 3] Navigating to Product Detail Page for real category: ${productUrl}`);
+        try {
+          await page.goto(productUrl, { waitUntil: 'domcontentloaded', timeout: 10000 });
+
+          const pdpCategory = await page.evaluate(() => {
+            const breadcrumbEls = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, a[href*="/categories/"]'));
+            if (breadcrumbEls.length > 0) {
+              return breadcrumbEls
+                .map(el => el.textContent.trim())
+                .filter(text => text && !['home', 'costco', 'departments'].includes(text.toLowerCase()))
+                .join(' > ');
+            }
+
+            const script = document.getElementById('__NEXT_DATA__');
+            if (script && script.textContent) {
+              try {
+                const parsed = JSON.parse(script.textContent);
+                const pageProps = parsed?.props?.pageProps;
+                const product = pageProps?.initialData?.product || pageProps?.product;
+                if (product) {
+                  const dept = product.department_name || product.department?.name || '';
+                  const cat = product.category_name || product.category?.name || '';
+                  return [dept, cat].filter(Boolean).join(' > ');
+                }
+              } catch (e) {}
+            }
+            return '';
+          });
+
+          if (pdpCategory) {
+            productCategory = pdpCategory;
+            console.log(`🎯 [Puppeteer PDP Hit] Category found: "${productCategory}"`);
+          }
+        } catch (pdpErr) {
+          console.error("⚠️ PDP navigation error:", pdpErr);
+        }
+      }
 
       const finalCategory = productCategory || 'Uncategorized';
 
