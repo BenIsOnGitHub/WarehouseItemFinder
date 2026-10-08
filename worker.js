@@ -725,32 +725,27 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           await new Promise(resolve => setTimeout(resolve, 1500));
 
 const pdpCategory = await page.evaluate(() => {
-            // Target ONLY dedicated breadcrumb elements or aria-label="breadcrumb" (ignoring header nav)
-            const breadcrumbContainer = document.querySelector('[aria-label="breadcrumb"], [data-testid*="breadcrumb"], ul[class*="breadcrumb"], nav[class*="breadcrumb"]');
-            
-            if (breadcrumbContainer) {
-              const crumbs = Array.from(breadcrumbContainer.querySelectorAll('a, span'))
+            // Find all department/category links on the page, excluding header/footer elements
+            const catLinks = Array.from(document.querySelectorAll('a[href*="/departments/"], a[href*="/categories/"]'))
+              .filter(el => !el.closest('header') && !el.closest('footer') && !el.closest('[class*="Header"]') && !el.closest('[class*="Navigation"]'));
+
+            if (catLinks.length > 0) {
+              const crumbs = catLinks
                 .map(el => el.textContent.trim())
                 .filter(Boolean)
-                .filter(c => !['home', 'costco', 'departments', 'categories', 'all products', '/', '>'].includes(c.toLowerCase()))
+                .filter(c => !['home', 'costco', 'departments', 'categories', 'all products'].includes(c.toLowerCase()))
                 .filter((v, idx, arr) => arr.indexOf(v) === idx);
 
-              if (crumbs.length > 0) return crumbs.join(' > ');
+              if (crumbs.length > 0) {
+                return crumbs.join(' > ');
+              }
             }
 
-            // Fallback: Check JSON-LD metadata for structured breadcrumb list
-            const jsonLdScripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
-            for (const script of jsonLdScripts) {
-              try {
-                const data = JSON.parse(script.textContent);
-                if (data['@type'] === 'BreadcrumbList' && Array.isArray(data.itemListElement)) {
-                  const crumbs = data.itemListElement
-                    .map(item => item.name || item.item?.name)
-                    .filter(Boolean)
-                    .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()));
-                  if (crumbs.length > 0) return crumbs.join(' > ');
-                }
-              } catch (e) {}
+            // Fallback: Check if there is an isolated department/aisle tag near the product title
+            const deptEl = document.querySelector('[class*="Department"], [data-testid*="department"]');
+            if (deptEl) {
+              const text = deptEl.textContent.trim();
+              if (text && text.length > 2) return text;
             }
 
             return '';
