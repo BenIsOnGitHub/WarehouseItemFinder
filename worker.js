@@ -643,34 +643,49 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             .join(' > ');
         }
 
-        // 1. Check __NEXT_DATA__ JSON script tag
-        const script = document.getElementById('__NEXT_DATA__');
-        if (script && script.textContent) {
-          try {
-            const parsed = JSON.parse(script.textContent);
-            const pageProps = parsed?.props?.pageProps;
-            const initialData = pageProps?.initialData;
-            const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
-            const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
+// 1. Check __NEXT_DATA__ JSON script tag
+const script = document.getElementById('__NEXT_DATA__');
+if (script && script.textContent) {
+  try {
+    const parsed = JSON.parse(script.textContent);
+    const pageProps = parsed?.props?.pageProps;
+    const initialData = pageProps?.initialData;
+    const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+    const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
 
-            if (items.length > 0) {
-              const first = items[0];
-              const title = first.name || first.title;
-              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-                const dept = first.department_name || first.department || '';
-                const catName = first.category_name || first.category || '';
-                const catStr = [dept, catName].filter(Boolean).join(' > ');
+    if (items.length > 0) {
+      const first = items[0];
+      const title = first.name || first.title;
+      if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+        
+        // Extract category/department from __NEXT_DATA__ item structure
+        let catStr = '';
 
-                return {
-                  title: title,
-                  id: first.id || first.itemId,
-                  slug: first.slug || '',
-                  category: catStr || domCategory
-                };
-              }
-            }
-          } catch (e) {}
+        if (Array.isArray(first.breadcrumbs) && first.breadcrumbs.length > 0) {
+          catStr = first.breadcrumbs
+            .map(b => typeof b === 'string' ? b : (b.name || b.label))
+            .filter(Boolean)
+            .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()))
+            .join(' > ');
         }
+
+        if (!catStr) {
+          const dept = first.department?.name || first.department_name || first.department || '';
+          const aisle = first.aisle?.name || first.aisle_name || first.aisle || '';
+          const catName = first.category?.name || first.category_name || first.category || '';
+          catStr = [dept, aisle, catName].filter(Boolean).join(' > ');
+        }
+
+        return {
+          title: title,
+          id: first.id || first.itemId,
+          slug: first.slug || '',
+          category: catStr || domCategory
+        };
+      }
+    }
+  } catch (e) {}
+}
 
         // 2. DOM Scrape Fallback: Target item card titles directly
         const titleElements = Array.from(document.querySelectorAll('[data-testid="item_card_name"], [class*="ItemCardName"], a[href*="/products/"] h3, a[href*="/products/"] span'));
