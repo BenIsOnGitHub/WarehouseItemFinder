@@ -41,11 +41,11 @@ function getIdentifierDisplay(prod) {
   if (!hasItemNumber && !hasSku) {
     return `
       <div class="product-identifiers">
-        <span class="clickable-identifier missing" onclick="promptEditItemNumber('${prod.id}')">
-          Item number: Unknown
+        <span class="loc-badge unassigned" role="button" onclick="promptEditItemNumber('${prod.id}')">
+          Item number: Unknown ✎
         </span> | 
-        <span class="clickable-identifier missing" onclick="promptEditSku('${prod.id}')">
-          SKU: Unknown
+        <span class="loc-badge unassigned" role="button" onclick="promptEditSku('${prod.id}')">
+          SKU: Unknown ✎
         </span>
       </div>
     `;
@@ -54,12 +54,12 @@ function getIdentifierDisplay(prod) {
   // Item text format
   const itemText = hasItemNumber 
     ? `Item: ${escapeHtml(prod.item_number)}`
-    : `<span class="clickable-identifier missing" onclick="promptEditItemNumber('${prod.id}')">Item: Unknown</span>`;
+    : `<span class="loc-badge unassigned" role="button" onclick="promptEditItemNumber('${prod.id}')">Item: Unknown ✎</span>`;
 
   // Rule 1: SKU always visible
   const skuText = hasSku
     ? `SKU: ${escapeHtml(prod.sku)}`
-    : `<span class="clickable-identifier missing" onclick="promptEditSku('${prod.id}')">SKU: Unknown</span>`;
+    : `<span class="loc-badge unassigned" role="button" onclick="promptEditSku('${prod.id}')">SKU: Unknown ✎</span>`;
 
   return `
     <div class="product-identifiers">

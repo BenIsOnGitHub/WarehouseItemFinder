@@ -121,23 +121,34 @@ header {
   color: #dc3545;
   background-color: #f8ebd7;
   border: 1px solid #f5c6cb;
+  cursor: pointer; /* Ensures hover feedback for clickable unknown fields */
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
 }
 
 .loc-badge.assigned {
   color: #007bff;
   background-color: #e7f0ff;
   border: 1px solid #b8daff;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
 }
 
 .loc-badge:hover {
   filter: brightness(0.95);
 }
 
-.loc-edit-form {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
+/* Static plain text styling for assigned/known Item and SKU numbers */
+.identifier-value {
+  color: #333;
+  font-weight: 600;
 }
 
 /* Favorites Star Button */
@@ -883,3 +894,28 @@ header {
 [hidden] {
   display: none !important;
 }
+
+/* Unassigned / Missing value clickable styling (matches Location unassigned) */
+.identifier-unassigned {
+  color: #0284c7; /* Subtle interactive blue tint */
+  text-decoration: underline dotted;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.identifier-unassigned:hover {
+  color: #0369a1;
+  background-color: #f0f9ff;
+  text-decoration: underline solid;
+}
+
+/* Static assigned value styling (normal text, not clickable) */
+.identifier-value {
+  color: #374151;
+  font-weight: 600;
+}
+
+
