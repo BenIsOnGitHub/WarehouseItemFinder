@@ -635,7 +635,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             .join(' > ');
         }
 
-        // 1. Check __NEXT_DATA__ JSON script tag (Cleanest source)
+        // 1. Check __NEXT_DATA__ JSON script tag
         const script = document.getElementById('__NEXT_DATA__');
         if (script && script.textContent) {
           try {
@@ -678,7 +678,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           } catch (e) {}
         }
 
-        // 2. DOM Scrape Fallback: Target strictly title heading nodes
+        // 2. DOM Scrape Fallback
         const titleEl = document.querySelector('[data-testid="item_card_name"]') ||
                         document.querySelector('h3[class*="ItemCardName"]') ||
                         document.querySelector('a[href*="/products/"] h3') ||
@@ -718,11 +718,10 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-// STEP 4: Click product card on search page to load real PDP & extract Apollo category
+      // STEP 4: Click product card on search page to load real PDP & extract Apollo category
       if (!productCategory && productId) {
         console.log(`🌐 [Puppeteer Step 4] Clicking product card to open PDP for real category...`);
         try {
-          // Find and click the product link or card on the current search page
           const productClicked = await page.evaluate((pid) => {
             const card = document.querySelector(`a[href*="${pid}"]`) || 
                          document.querySelector('[data-testid="item_card_name"]') ||
@@ -735,7 +734,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           }, productId);
 
           if (productClicked) {
-            // Wait for client-side navigation and GraphQL hydration
             await new Promise(resolve => setTimeout(resolve, 3500));
 
             const apolloCategory = await page.evaluate(() => {
@@ -767,81 +765,3 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
                       }
                     }
                   }
-                }
-
-                if (crumbs.length > 0) {
-                  return crumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
-                }
-              } catch (e) {}
-
-              return '';
-            });
-
-            if (apolloCategory) {
-              productCategory = apolloCategory;
-              console.log(`🎯 [Puppeteer PDP Hit] Category extracted via Apollo Cache: "${productCategory}"`);
-            } else {
-              console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes in Apollo cache.`);
-            }
-          } else {
-            console.log(`⚠️ [Puppeteer PDP] Could not find product card element to click on search page.`);
-          }
-
-        } catch (pdpErr) {
-          console.error("⚠️ PDP navigation error:", pdpErr);
-        }
-      }
-
-// HTML Session Page Fallback
-async function fetchSamedayPageFallback(itemNumber, warehouseId, zipCode) {
-  try {
-    const searchUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
-    console.log(`📡 [Sameday Page] Fetching HTML fallback: ${searchUrl}`);
-
-    const response = await fetch(searchUrl, {
-      method: "GET",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Cookie": `warehouse_zip=${zipCode}; instacart_async_service_address=%7B%22postal_code%22%3A%22${zipCode}%22%7D`
-      },
-      redirect: "follow"
-    });
-
-    if (!response.ok) return null;
-
-    const html = await response.text();
-    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
-
-    if (nextDataMatch && nextDataMatch[1]) {
-      const parsed = JSON.parse(nextDataMatch[1]);
-      const container = parsed?.props?.pageProps?.initialData?.search || parsed?.props?.pageProps?.fallbackData;
-      const items = container?.products || container?.items || [];
-
-      if (items.length > 0) {
-        const first = items[0];
-        const productId = first.id || first.itemId || first.product_id || first.productId;
-        const title = first.name || first.title;
-        const slug = first.slug || "";
-        const fullPath = slug ? `${productId}-${slug}` : String(productId);
-
-        return {
-          id: '',
-          item_number: itemNumber,
-          product_id: productId || '',
-          product_name: title,
-          category: 'In-Store Item',
-          product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
-          warehouse_id: warehouseId,
-          aisle: '',
-          bay: '',
-          is_wrong: 0,
-          is_discontinued: 0
-        };
-      }
-    }
-  } catch (e) {
-    console.error("💥 [Sameday Page] Fallback error:", e);
-  }
-  return null;
-}
