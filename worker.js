@@ -547,34 +547,39 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // 📡 Network Response Interceptor
+    // 📡 Network Response Interceptor for Search & PDP GraphQL Queries
     page.on('response', async (response) => {
       const url = response.url();
-      if (url.includes('graphql') || url.includes('search') || url.includes('items') || url.includes('v3')) {
+      if (url.includes('graphql') || url.includes('v3') || url.includes('items')) {
         try {
           const contentType = response.headers()['content-type'] || '';
           if (contentType.includes('application/json')) {
             const json = await response.json();
             
+            // Search or Item Detail payload parsing
             const items = json?.data?.search?.products || 
                           json?.data?.items || 
+                          json?.data?.itemDetails ||
                           json?.items || 
                           json?.products || [];
 
-            if (items.length > 0 && !interceptedProduct) {
-              const first = items[0];
-              const title = (first.name || first.title || '').replace(/\s+/g, ' ').trim();
+            const productData = Array.isArray(items) ? items[0] : (json?.data?.product || json?.data?.item || null);
+
+            if (productData) {
+              const title = (productData.name || productData.title || '').replace(/\s+/g, ' ').trim();
 
               if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-                const category = extractCategoryFromItem(first);
+                const category = extractCategoryFromItem(productData);
 
                 interceptedProduct = {
                   title: title,
-                  id: first.id || first.itemId || first.product_id || first.productId,
-                  slug: first.slug || '',
-                  category: category
+                  id: productData.id || productData.itemId || productData.product_id || productData.productId,
+                  slug: productData.slug || '',
+                  category: category || interceptedProduct?.category || ''
                 };
-                console.log(`🎯 [Puppeteer Interceptor] Captured product: "${interceptedProduct.title}" | ID: "${interceptedProduct.id}" | Category: "${category}"`);
+                if (category) {
+                  console.log(`🎯 [Network Interceptor] Captured category: "${category}" for product: "${title}"`);
+                }
               }
             }
           }
@@ -625,17 +630,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           return rawText.replace(/\s+/g, ' ').trim();
         }
 
-        // Check DOM breadcrumbs if present on search page
-        const breadcrumbEls = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, a[href*="/categories/"]'));
-        let domCategory = '';
-        if (breadcrumbEls.length > 0) {
-          domCategory = breadcrumbEls
-            .map(el => el.textContent.trim())
-            .filter(text => text && !['home', 'costco', 'departments'].includes(text.toLowerCase()))
-            .join(' > ');
-        }
-
-        // 1. Check __NEXT_DATA__ JSON script tag
         const script = document.getElementById('__NEXT_DATA__');
         if (script && script.textContent) {
           try {
@@ -650,35 +644,16 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
               const title = sanitizeProductName(first.name || first.title);
 
               if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-                let catStr = '';
-
-                if (Array.isArray(first.breadcrumbs) && first.breadcrumbs.length > 0) {
-                  catStr = first.breadcrumbs
-                    .map(b => typeof b === 'string' ? b : (b.name || b.label))
-                    .filter(Boolean)
-                    .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()))
-                    .join(' > ');
-                }
-
-                if (!catStr) {
-                  const dept = first.department?.name || first.department_name || first.department || '';
-                  const aisle = first.aisle?.name || first.aisle_name || first.aisle || '';
-                  const catName = first.category?.name || first.category_name || first.category || '';
-                  catStr = [dept, aisle, catName].filter(Boolean).join(' > ');
-                }
-
                 return {
                   title: title,
                   id: first.id || first.itemId || first.product_id || first.productId,
-                  slug: first.slug || '',
-                  category: catStr || domCategory
+                  slug: first.slug || ''
                 };
               }
             }
           } catch (e) {}
         }
 
-        // 2. DOM Scrape Fallback
         const titleEl = document.querySelector('[data-testid="item_card_name"]') ||
                         document.querySelector('h3[class*="ItemCardName"]') ||
                         document.querySelector('a[href*="/products/"] h3') ||
@@ -696,9 +671,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             return {
               title: cleanTitle,
               id: match ? match[1] : '',
-              slug: match ? match[2] : '',
-              href: href,
-              category: domCategory
+              slug: match ? match[2] : ''
             };
           }
         }
@@ -710,7 +683,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         productTitle = fallbackData.title;
         productId = fallbackData.id;
         productSlug = fallbackData.slug;
-        productCategory = fallbackData.category;
       }
     }
 
@@ -718,9 +690,9 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      // STEP 4: Click product card on search page to load real PDP & extract Apollo/DOM category
+      // STEP 4: Trigger Product Card Click to force GraphQL item details query
       if (!productCategory && productId) {
-        console.log(`🌐 [Puppeteer Step 4] Clicking product card to open PDP for real category...`);
+        console.log(`🌐 [Puppeteer Step 4] Clicking product card to trigger ItemDetails GraphQL query...`);
         try {
           const productClicked = await page.evaluate((pid) => {
             const card = document.querySelector(`a[href*="${pid}"]`) || 
@@ -735,96 +707,11 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
           if (productClicked) {
             await new Promise(resolve => setTimeout(resolve, 3500));
-
-            let extractedCategory = await page.evaluate(() => {
-              try {
-                if (!window.__APOLLO_CLIENT__) return '';
-                const cache = window.__APOLLO_CLIENT__.cache.extract();
-
-                const detailKeys = Object.keys(cache).filter(k => 
-                  k.includes('ItemDetailsRetailerProduct') || 
-                  k.includes('ItemDetailsV4') || 
-                  k.includes('ItemDetailSupplementalFields') ||
-                  k.includes('Taxonomy')
-                );
-
-                const crumbs = [];
-
-                for (const key of detailKeys) {
-                  const node = cache[key];
-                  if (!node) continue;
-
-                  if (node.departmentName) crumbs.push(node.departmentName);
-                  if (node.categoryName) crumbs.push(node.categoryName);
-                  if (node.aisleName) crumbs.push(node.aisleName);
-                  if (node.department && node.department.name) crumbs.push(node.department.name);
-                  if (node.category && node.category.name) crumbs.push(node.category.name);
-
-                  if (Array.isArray(node.breadcrumbs)) {
-                    node.breadcrumbs.forEach(b => {
-                      const label = typeof b === 'string' ? b : (b.name || b.label || b.text);
-                      if (label) crumbs.push(label);
-                    });
-                  }
-                }
-
-                const cleanCrumbs = crumbs
-                  .filter(Boolean)
-                  .map(c => c.trim())
-                  .filter(c => !['home', 'costco', 'departments', 'all products'].includes(c.toLowerCase()))
-                  .filter((v, idx, arr) => arr.indexOf(v) === idx);
-
-                if (cleanCrumbs.length > 0) {
-                  return cleanCrumbs.join(' > ');
-                }
-
-              } catch (e) {}
-
-              return '';
-            });
-
-            // DOM Breadcrumb fallback scoped to PDP container only
-            if (!extractedCategory) {
-              extractedCategory = await page.evaluate(() => {
-                const pdpContainer = document.querySelector('[role="dialog"]') || 
-                                     document.querySelector('[data-testid*="item_details"]') ||
-                                     document.querySelector('main') ||
-                                     document.body;
-
-                const ignoredTerms = [
-                  'home', 'costco', 'departments', 'categories', 'all products', 
-                  'buy it again', 'shop business center', 'what\'s new', 'weekly savings', 'trending'
-                ];
-
-                const crumbs = Array.from(pdpContainer.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, ul[class*="breadcrumb"] a'))
-                  .map(a => a.textContent.trim())
-                  .filter(t => t && t.length > 1 && !ignoredTerms.includes(t.toLowerCase()));
-
-                if (crumbs.length > 0) {
-                  return crumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
-                }
-
-                const deptTag = pdpContainer.querySelector('[class*="department"], [class*="category"], [data-testid*="department"]');
-                if (deptTag && deptTag.textContent) {
-                  const text = deptTag.textContent.trim();
-                  if (!ignoredTerms.includes(text.toLowerCase())) return text;
-                }
-
-                return '';
-              });
+            if (interceptedProduct?.category) {
+              productCategory = interceptedProduct.category;
+              console.log(`🎯 [Puppeteer PDP Hit] Category captured via GraphQL: "${productCategory}"`);
             }
-
-            if (extractedCategory) {
-              productCategory = extractedCategory;
-              console.log(`🎯 [Puppeteer PDP Hit] Category extracted via PDP: "${productCategory}"`);
-            } else {
-              console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes on PDP.`);
-            }
-
-          } else {
-            console.log(`⚠️ [Puppeteer PDP] Could not find product card element to click on search page.`);
           }
-
         } catch (pdpErr) {
           console.error("⚠️ PDP navigation error:", pdpErr);
         }
