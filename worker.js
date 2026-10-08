@@ -718,72 +718,64 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      // STEP 4: Diagnostic PDP Inspection
+// STEP 4: Extract Real Category via Apollo Cache
       if (!productCategory && productId) {
-        console.log(`🌐 [Puppeteer Step 3] Navigating to Product Detail Page for real category: ${productUrl}`);
+        console.log(`🌐 [Puppeteer Step 4] Extracting Category via Apollo Cache for PDP: ${productUrl}`);
         try {
           await page.goto(productUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
           await new Promise(resolve => setTimeout(resolve, 2000));
 
-          const pdpDump = await page.evaluate(() => {
-            const windowStateKeys = Object.keys(window).filter(k => 
-              k.includes('APOLLO') || k.includes('NEXT') || k.includes('STATE') || k.includes('DATA') || k.includes('INSTACART')
-            );
+          const apolloCategory = await page.evaluate(() => {
+            try {
+              // Extract in-memory GraphQL cache state from Apollo Client
+              const cache = window.__APOLLO_CLIENT__ ? window.__APOLLO_CLIENT__.cache.extract() : {};
+              const breadcrumbs = [];
+              const categoryNames = [];
 
-            const links = Array.from(document.querySelectorAll('a'))
-              .filter(el => !el.closest('header') && !el.closest('footer'))
-              .map(a => ({ text: a.textContent.trim(), href: a.getAttribute('href') }))
-              .filter(l => l.text.length > 0);
+              for (const key of Object.keys(cache)) {
+                const node = cache[key];
+                if (!node) continue;
 
-            const mainText = document.querySelector('main') ? document.querySelector('main').innerText : 'No <main> found';
+                // 1. Check for dedicated Breadcrumb / Taxonomy nodes
+                if (key.includes('Breadcrumb') || key.includes('Taxonomy')) {
+                  const name = node.name || node.label || node.text;
+                  if (name && !['home', 'costco', 'departments', 'all products'].includes(name.toLowerCase())) {
+                    breadcrumbs.push(name);
+                  }
+                }
 
-            return {
-              windowKeys: windowStateKeys,
-              links: links,
-              mainSnippet: mainText.substring(0, 500)
-            };
+                // 2. Fallback: Search for Department or Aisle cache keys
+                if (key.startsWith('Department:') || key.startsWith('Aisle:')) {
+                  if (node.name && !['home', 'costco', 'departments'].includes(node.name.toLowerCase())) {
+                    categoryNames.push(node.name);
+                  }
+                }
+              }
+
+              if (breadcrumbs.length > 0) {
+                return breadcrumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
+              }
+
+              if (categoryNames.length > 0) {
+                return categoryNames.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
+              }
+
+            } catch (e) {}
+
+            return '';
           });
 
-          console.log("🔬 [PDP DUMP] Window Keys:", JSON.stringify(pdpDump.windowKeys));
-          console.log("🔬 [PDP DUMP] Main Snippet:", JSON.stringify(pdpDump.mainSnippet));
-          console.log("🔬 [PDP DUMP] Content Links:", JSON.stringify(pdpDump.links));
+          if (apolloCategory) {
+            productCategory = apolloCategory;
+            console.log(`🎯 [Puppeteer PDP Hit] Category extracted via Apollo Cache: "${productCategory}"`);
+          } else {
+            console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes in Apollo cache.`);
+          }
 
         } catch (pdpErr) {
           console.error("⚠️ PDP navigation error:", pdpErr);
         }
       }
-
-      const finalCategory = productCategory || 'Uncategorized';
-
-      console.log(`🎉 [Puppeteer Hit] Product: "${productTitle}" | Product ID: "${productId}" | Category: "${finalCategory}"`);
-
-      return {
-        id: '',
-        item_number: itemNumber,
-        product_id: productId || '',
-        product_name: productTitle,
-        category: finalCategory,
-        product_url: productUrl,
-        warehouse_id: warehouseId,
-        aisle: '',
-        bay: '',
-        is_wrong: 0,
-        is_discontinued: 0
-      };
-    } else {
-      console.log(`⚠️ [Puppeteer] Could not locate product title via API intercept, __NEXT_DATA__, or DOM.`);
-    }
-
-  } catch (err) {
-    console.error(`💥 [Puppeteer Exception]:`, err);
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
-  }
-
-  return null;
-}
 
 // HTML Session Page Fallback
 async function fetchSamedayPageFallback(itemNumber, warehouseId, zipCode) {
