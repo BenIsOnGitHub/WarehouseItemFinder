@@ -561,6 +561,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
             if (items.length > 0 && !interceptedProduct) {
               const first = items[0];
+              console.log(`🔍 Instacart Raw Item Keys:`, JSON.stringify(first));
               const title = first.name || first.title;
               if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
                 
