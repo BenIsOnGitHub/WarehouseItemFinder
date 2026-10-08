@@ -499,24 +499,25 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 function extractCategoryFromItem(item) {
   if (!item) return '';
 
-  // 1. Breadcrumbs array (e.g. [{ name: 'Frozen' }, { name: 'Frozen Fruit' }])
+  // 1. Check Breadcrumbs
   if (Array.isArray(item.breadcrumbs) && item.breadcrumbs.length > 0) {
     const crumbs = item.breadcrumbs
-      .map(b => typeof b === 'string' ? b : (b.name || b.label || b.text))
+      .map(b => typeof b === 'string' ? b : (b.name || b.label || b.text || b.title))
       .filter(Boolean)
-      .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()));
+      .filter(c => !['home', 'costco', 'departments', 'categories', 'all products'].includes(c.toLowerCase()));
     if (crumbs.length > 0) return crumbs.join(' > ');
   }
 
-  // 2. Department / Aisle / Category properties
-  const dept = item.department_name || item.departmentName || item.department || '';
-  const aisle = item.aisle_name || item.aisleName || item.aisle || '';
-  const cat = item.category_name || item.categoryName || item.category || '';
+  // 2. Check Department / Category / Aisle / Taxonomy properties
+  const dept = item.department_name || item.departmentName || item.department?.name || item.department || '';
+  const aisle = item.aisle_name || item.aisleName || item.aisle?.name || item.aisle || '';
+  const cat = item.category_name || item.categoryName || item.category?.name || item.category || item.taxonomy || '';
 
   const parts = [dept, aisle, cat]
     .map(p => typeof p === 'string' ? p.trim() : (p?.name || ''))
     .filter(Boolean)
-    .filter((v, idx, arr) => arr.indexOf(v) === idx); // Unique values
+    .filter(c => !['home', 'costco', 'departments', 'categories'].includes(c.toLowerCase()))
+    .filter((v, idx, arr) => arr.indexOf(v) === idx);
 
   if (parts.length > 0) return parts.join(' > ');
 
