@@ -430,4 +430,411 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
             if (item['@type'] === 'Product' && item.name) {
               if (!productTitle) productTitle = item.name;
               if (!extractedCategory && typeof item.category === 'string') {
-                extractedCategory = item.category
+                extractedCategory = item.category;
+              }
+            }
+
+            if (!extractedCategory && item['@type'] === 'BreadcrumbList' && Array.isArray(item.itemListElement)) {
+              const crumbs = item.itemListElement
+                .map(c => c.name || (c.item && c.item.name))
+                .filter(Boolean)
+                .filter(name => name.toLowerCase() !== 'home');
+
+              if (crumbs.length > 0) {
+                extractedCategory = crumbs.join(' > ');
+              }
+            }
+          }
+        } catch (parseErr) {
+          // Skip malformed script blocks
+        }
+      }
+    }
+
+    if (!extractedCategory) {
+      const metaCategory = html.match(/<meta[^>]*name=["'](category|keywords|search\.category)["'][^>]*content=["']([^"']+)["']/i) ||
+                           html.match(/<meta[^>]*content=["']([^"']+)["']/i) && html.match(/name=["'](category|keywords|search\.category)["']/i);
+      if (metaCategory && metaCategory[2]) {
+        extractedCategory = metaCategory[2].split(',')[0].trim();
+      }
+    }
+
+    if (!productTitle) {
+      const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      if (titleMatch) {
+        productTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+      }
+    }
+
+    if (extractedCategory) {
+      extractedCategory = extractedCategory
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    if (productTitle) {
+      return {
+        id: '',
+        item_number: itemNumber,
+        product_id: '',
+        product_name: productTitle,
+        category: extractedCategory || 'Uncategorized',
+        product_url: response.url || targetUrl,
+        warehouse_id: cleanWhsId,
+        aisle: '',
+        bay: '',
+        is_wrong: 0,
+        is_discontinued: 0
+      };
+    }
+
+  } catch (err) {
+    console.error('Error fetching live Costco item:', err);
+  }
+
+  return null;
+}
+
+// --- Helper Function to Extract & Clean Categories ---
+function extractCategoryFromItem(item) {
+  if (!item) return '';
+
+  // 1. Check Breadcrumbs
+  if (Array.isArray(item.breadcrumbs) && item.breadcrumbs.length > 0) {
+    const crumbs = item.breadcrumbs
+      .map(b => typeof b === 'string' ? b : (b.name || b.label || b.text || b.title))
+      .filter(Boolean)
+      .filter(c => !['home', 'costco', 'departments', 'categories', 'all products'].includes(c.toLowerCase()));
+    if (crumbs.length > 0) return crumbs.join(' > ');
+  }
+
+  // 2. Check Department / Category / Aisle / Taxonomy properties
+  const dept = item.department_name || item.departmentName || item.department?.name || item.department || '';
+  const aisle = item.aisle_name || item.aisleName || item.aisle?.name || item.aisle || '';
+  const cat = item.category_name || item.categoryName || item.category?.name || item.category || item.taxonomy || '';
+
+  const parts = [dept, aisle, cat]
+    .map(p => typeof p === 'string' ? p.trim() : (p?.name || ''))
+    .filter(Boolean)
+    .filter(c => !['home', 'costco', 'departments', 'categories'].includes(c.toLowerCase()))
+    .filter((v, idx, arr) => arr.indexOf(v) === idx);
+
+  if (parts.length > 0) return parts.join(' > ');
+
+  return '';
+}
+
+import puppeteer from '@cloudflare/puppeteer';
+
+async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
+  const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
+  const landingUrl = 'https://sameday.costco.com/';
+  const searchUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
+
+  console.log(`🌐 [Puppeteer] Launching Cloudflare Headless Browser for Item #${itemNumber}...`);
+
+  let browser = null;
+  let interceptedProduct = null;
+
+  try {
+    browser = await puppeteer.launch(env.MYBROWSER);
+    const page = await browser.newPage();
+
+    await page.setViewport({ width: 1280, height: 800 });
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+    );
+
+    // 📡 Network Response Interceptor
+    page.on('response', async (response) => {
+      const url = response.url();
+      if (url.includes('graphql') || url.includes('search') || url.includes('items') || url.includes('v3')) {
+        try {
+          const contentType = response.headers()['content-type'] || '';
+          if (contentType.includes('application/json')) {
+            const json = await response.json();
+            
+            const items = json?.data?.search?.products || 
+                          json?.data?.items || 
+                          json?.items || 
+                          json?.products || [];
+
+            if (items.length > 0 && !interceptedProduct) {
+              const first = items[0];
+              const title = (first.name || first.title || '').replace(/\s+/g, ' ').trim();
+
+              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                const category = extractCategoryFromItem(first);
+
+                interceptedProduct = {
+                  title: title,
+                  id: first.id || first.itemId || first.product_id || first.productId,
+                  slug: first.slug || '',
+                  category: category
+                };
+                console.log(`🎯 [Puppeteer Interceptor] Captured product: "${interceptedProduct.title}" | ID: "${interceptedProduct.id}" | Category: "${category}"`);
+              }
+            }
+          }
+        } catch (e) {}
+      }
+    });
+
+    // Set ZIP cookies upfront
+    await page.setCookie(
+      { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
+      { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
+      { name: 'viewed_guest_landing', value: 'true', domain: '.costco.com', path: '/' }
+    );
+
+    // Step 1: Open Landing Page & Guest Gate
+    console.log(`🌐 [Puppeteer Step 1] Opening Landing Page: ${landingUrl}`);
+    try {
+      await page.goto(landingUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
+    } catch (e) {}
+
+    try {
+      const guestButton = await page.$('button::-p-text("Browse as a guest")');
+      if (guestButton) {
+        console.log(`👆 [Puppeteer Step 1] Clicking "Browse as a guest"...`);
+        await guestButton.click();
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    } catch (btnErr) {}
+
+    // Step 2: Search URL
+    console.log(`🌐 [Puppeteer Step 2] Navigating to Search URL: ${searchUrl}`);
+    try {
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    } catch (e) {}
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Step 3: Extract Product Details
+    let productTitle = interceptedProduct?.title;
+    let productId = interceptedProduct?.id;
+    let productSlug = interceptedProduct?.slug;
+    let productCategory = interceptedProduct?.category;
+
+    if (!productTitle) {
+      const fallbackData = await page.evaluate(() => {
+        function sanitizeProductName(rawText) {
+          if (!rawText) return '';
+          return rawText.replace(/\s+/g, ' ').trim();
+        }
+
+        // Check DOM breadcrumbs if present on search page
+        const breadcrumbEls = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, a[href*="/categories/"]'));
+        let domCategory = '';
+        if (breadcrumbEls.length > 0) {
+          domCategory = breadcrumbEls
+            .map(el => el.textContent.trim())
+            .filter(text => text && !['home', 'costco', 'departments'].includes(text.toLowerCase()))
+            .join(' > ');
+        }
+
+        // 1. Check __NEXT_DATA__ JSON script tag (Cleanest source)
+        const script = document.getElementById('__NEXT_DATA__');
+        if (script && script.textContent) {
+          try {
+            const parsed = JSON.parse(script.textContent);
+            const pageProps = parsed?.props?.pageProps;
+            const initialData = pageProps?.initialData;
+            const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
+            const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
+
+            if (items.length > 0) {
+              const first = items[0];
+              const title = sanitizeProductName(first.name || first.title);
+
+              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                let catStr = '';
+
+                if (Array.isArray(first.breadcrumbs) && first.breadcrumbs.length > 0) {
+                  catStr = first.breadcrumbs
+                    .map(b => typeof b === 'string' ? b : (b.name || b.label))
+                    .filter(Boolean)
+                    .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()))
+                    .join(' > ');
+                }
+
+                if (!catStr) {
+                  const dept = first.department?.name || first.department_name || first.department || '';
+                  const aisle = first.aisle?.name || first.aisle_name || first.aisle || '';
+                  const catName = first.category?.name || first.category_name || first.category || '';
+                  catStr = [dept, aisle, catName].filter(Boolean).join(' > ');
+                }
+
+                return {
+                  title: title,
+                  id: first.id || first.itemId || first.product_id || first.productId,
+                  slug: first.slug || '',
+                  category: catStr || domCategory
+                };
+              }
+            }
+          } catch (e) {}
+        }
+
+        // 2. DOM Scrape Fallback: Target strictly title heading nodes
+        const titleEl = document.querySelector('[data-testid="item_card_name"]') ||
+                        document.querySelector('h3[class*="ItemCardName"]') ||
+                        document.querySelector('a[href*="/products/"] h3') ||
+                        document.querySelector('a[href*="/products/"] [class*="title"]');
+
+        if (titleEl) {
+          const rawTitle = titleEl.textContent ? titleEl.textContent.trim() : '';
+          const cleanTitle = sanitizeProductName(rawTitle);
+
+          if (cleanTitle.length > 3) {
+            const parentLink = titleEl.closest('a[href*="/products/"]');
+            const href = parentLink ? parentLink.getAttribute('href') : '';
+            const match = href.match(/\/products\/(\d+)(?:-(.+))?/);
+
+            return {
+              title: cleanTitle,
+              id: match ? match[1] : '',
+              slug: match ? match[2] : '',
+              href: href,
+              category: domCategory
+            };
+          }
+        }
+
+        return null;
+      });
+
+      if (fallbackData) {
+        productTitle = fallbackData.title;
+        productId = fallbackData.id;
+        productSlug = fallbackData.slug;
+        productCategory = fallbackData.category;
+      }
+    }
+
+    if (productTitle) {
+      const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
+      const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
+
+      // STEP 4: Diagnostic PDP Inspection
+      if (!productCategory && productId) {
+        console.log(`🌐 [Puppeteer Step 3] Navigating to Product Detail Page for real category: ${productUrl}`);
+        try {
+          await page.goto(productUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          const pdpDump = await page.evaluate(() => {
+            const windowStateKeys = Object.keys(window).filter(k => 
+              k.includes('APOLLO') || k.includes('NEXT') || k.includes('STATE') || k.includes('DATA') || k.includes('INSTACART')
+            );
+
+            const links = Array.from(document.querySelectorAll('a'))
+              .filter(el => !el.closest('header') && !el.closest('footer'))
+              .map(a => ({ text: a.textContent.trim(), href: a.getAttribute('href') }))
+              .filter(l => l.text.length > 0);
+
+            const mainText = document.querySelector('main') ? document.querySelector('main').innerText : 'No <main> found';
+
+            return {
+              windowKeys: windowStateKeys,
+              links: links,
+              mainSnippet: mainText.substring(0, 500)
+            };
+          });
+
+          console.log("🔬 [PDP DUMP] Window Keys:", JSON.stringify(pdpDump.windowKeys));
+          console.log("🔬 [PDP DUMP] Main Snippet:", JSON.stringify(pdpDump.mainSnippet));
+          console.log("🔬 [PDP DUMP] Content Links:", JSON.stringify(pdpDump.links));
+
+        } catch (pdpErr) {
+          console.error("⚠️ PDP navigation error:", pdpErr);
+        }
+      }
+
+      const finalCategory = productCategory || 'Uncategorized';
+
+      console.log(`🎉 [Puppeteer Hit] Product: "${productTitle}" | Product ID: "${productId}" | Category: "${finalCategory}"`);
+
+      return {
+        id: '',
+        item_number: itemNumber,
+        product_id: productId || '',
+        product_name: productTitle,
+        category: finalCategory,
+        product_url: productUrl,
+        warehouse_id: warehouseId,
+        aisle: '',
+        bay: '',
+        is_wrong: 0,
+        is_discontinued: 0
+      };
+    } else {
+      console.log(`⚠️ [Puppeteer] Could not locate product title via API intercept, __NEXT_DATA__, or DOM.`);
+    }
+
+  } catch (err) {
+    console.error(`💥 [Puppeteer Exception]:`, err);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+
+  return null;
+}
+
+// HTML Session Page Fallback
+async function fetchSamedayPageFallback(itemNumber, warehouseId, zipCode) {
+  try {
+    const searchUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
+    console.log(`📡 [Sameday Page] Fetching HTML fallback: ${searchUrl}`);
+
+    const response = await fetch(searchUrl, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Cookie": `warehouse_zip=${zipCode}; instacart_async_service_address=%7B%22postal_code%22%3A%22${zipCode}%22%7D`
+      },
+      redirect: "follow"
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
+
+    if (nextDataMatch && nextDataMatch[1]) {
+      const parsed = JSON.parse(nextDataMatch[1]);
+      const container = parsed?.props?.pageProps?.initialData?.search || parsed?.props?.pageProps?.fallbackData;
+      const items = container?.products || container?.items || [];
+
+      if (items.length > 0) {
+        const first = items[0];
+        const productId = first.id || first.itemId || first.product_id || first.productId;
+        const title = first.name || first.title;
+        const slug = first.slug || "";
+        const fullPath = slug ? `${productId}-${slug}` : String(productId);
+
+        return {
+          id: '',
+          item_number: itemNumber,
+          product_id: productId || '',
+          product_name: title,
+          category: 'In-Store Item',
+          product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
+          warehouse_id: warehouseId,
+          aisle: '',
+          bay: '',
+          is_wrong: 0,
+          is_discontinued: 0
+        };
+      }
+    }
+  } catch (e) {
+    console.error("💥 [Sameday Page] Fallback error:", e);
+  }
+  return null;
+}
