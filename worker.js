@@ -718,7 +718,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-// STEP 4: Click product card on search page to load real PDP & extract Apollo category
+      // STEP 4: Click product card on search page to load real PDP & extract Apollo category
       if (!productCategory && productId) {
         console.log(`🌐 [Puppeteer Step 4] Clicking product card to open PDP for real category...`);
         try {
@@ -741,7 +741,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
                 if (!window.__APOLLO_CLIENT__) return '';
                 const cache = window.__APOLLO_CLIENT__.cache.extract();
 
-                // 1. Search Apollo cache for specific Instacart detail nodes
                 const detailKeys = Object.keys(cache).filter(k => 
                   k.includes('ItemDetailsRetailerProduct') || 
                   k.includes('ItemDetailsV4') || 
@@ -755,14 +754,12 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
                   const node = cache[key];
                   if (!node) continue;
 
-                  // Extract department / category / taxonomy properties
                   if (node.departmentName) crumbs.push(node.departmentName);
                   if (node.categoryName) crumbs.push(node.categoryName);
                   if (node.aisleName) crumbs.push(node.aisleName);
                   if (node.department && node.department.name) crumbs.push(node.department.name);
                   if (node.category && node.category.name) crumbs.push(node.category.name);
 
-                  // Extract breadcrumbs if formatted as an array of objects/strings
                   if (Array.isArray(node.breadcrumbs)) {
                     node.breadcrumbs.forEach(b => {
                       const label = typeof b === 'string' ? b : (b.name || b.label || b.text);
@@ -771,7 +768,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
                   }
                 }
 
-                // Filter out standard non-category names and deduplicate
                 const cleanCrumbs = crumbs
                   .filter(Boolean)
                   .map(c => c.trim())
@@ -782,7 +778,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
                   return cleanCrumbs.join(' > ');
                 }
 
-                // 2. Fallback: Search all cache values for any department or aisle name
                 for (const key of Object.keys(cache)) {
                   const node = cache[key];
                   if (node && typeof node === 'object') {
@@ -821,6 +816,38 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           console.error("⚠️ PDP navigation error:", pdpErr);
         }
       }
+
+      const finalCategory = productCategory || 'Uncategorized';
+
+      console.log(`🎉 [Puppeteer Hit] Product: "${productTitle}" | Product ID: "${productId}" | Category: "${finalCategory}"`);
+
+      return {
+        id: '',
+        item_number: itemNumber,
+        product_id: productId || '',
+        product_name: productTitle,
+        category: finalCategory,
+        product_url: productUrl,
+        warehouse_id: warehouseId,
+        aisle: '',
+        bay: '',
+        is_wrong: 0,
+        is_discontinued: 0
+      };
+    } else {
+      console.log(`⚠️ [Puppeteer] Could not locate product title via API intercept, __NEXT_DATA__, or DOM.`);
+    }
+
+  } catch (err) {
+    console.error(`💥 [Puppeteer Exception]:`, err);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+
+  return null;
+}
 
 // HTML Session Page Fallback
 async function fetchSamedayPageFallback(itemNumber, warehouseId, zipCode) {
