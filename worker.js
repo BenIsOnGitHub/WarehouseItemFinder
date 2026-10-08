@@ -499,9 +499,11 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
 
 // --- Helper Function to Extract & Clean Categories ---
 function extractCategoryFromItem(item) {
-  if (!item) return '';
+  if (!item || typeof item !== 'object') return '';
 
-  // 1. Check Breadcrumbs
+  const parts = [];
+
+  // 1. Direct Breadcrumb Arrays
   if (Array.isArray(item.breadcrumbs) && item.breadcrumbs.length > 0) {
     const crumbs = item.breadcrumbs
       .map(b => typeof b === 'string' ? b : (b.name || b.label || b.text || b.title))
@@ -510,18 +512,30 @@ function extractCategoryFromItem(item) {
     if (crumbs.length > 0) return crumbs.join(' > ');
   }
 
-  // 2. Check Department / Category / Aisle / Taxonomy properties
+  // 2. Department & Category Objects or String Properties
   const dept = item.departmentName || item.department_name || item.department?.name || (typeof item.department === 'string' ? item.department : '');
   const aisle = item.aisleName || item.aisle_name || item.aisle?.name || (typeof item.aisle === 'string' ? item.aisle : '');
   const cat = item.categoryName || item.category_name || item.category?.name || (typeof item.category === 'string' ? item.category : '');
 
-  const parts = [dept, aisle, cat]
+  if (dept) parts.push(dept);
+  if (aisle) parts.push(aisle);
+  if (cat) parts.push(cat);
+
+  // 3. Taxonomy Nodes / Collections
+  if (item.taxonomyNode || item.taxonomy_node) {
+    const tax = item.taxonomyNode || item.taxonomy_node;
+    if (tax.name) parts.push(tax.name);
+  }
+
+  const cleanParts = parts
     .map(p => typeof p === 'string' ? p.trim() : '')
     .filter(Boolean)
     .filter(c => !['home', 'costco', 'departments', 'categories'].includes(c.toLowerCase()))
     .filter((v, idx, arr) => arr.indexOf(v) === idx);
 
-  if (parts.length > 0) return parts.join(' > ');
+  if (cleanParts.length > 0) {
+    return cleanParts.join(' > ');
+  }
 
   return '';
 }
