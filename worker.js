@@ -298,7 +298,6 @@ async function handleSearch(request, env, corsHeaders) {
 
         const now = new Date().toISOString();
 
-        // 🔒 SKU IS COMPLETELY OMITTED FROM INSERT STATEMENTS BELOW (Ensures SKU is never populated with item_number)
         try {
           await env.DB.prepare(`
             INSERT INTO products (id, item_number, product_name, category, product_url, warehouse_id, updated_at)
@@ -716,41 +715,30 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      // STEP 4: Navigate to PDP if category is still missing
+      // STEP 4: Navigate to PDP and debug the exact JSON payload
       if (!productCategory && productId) {
         console.log(`🌐 [Puppeteer Step 3] Navigating to Product Detail Page for real category: ${productUrl}`);
         try {
           await page.goto(productUrl, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
-          const pdpCategory = await page.evaluate(() => {
-            const breadcrumbEls = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, a[href*="/categories/"]'));
-            if (breadcrumbEls.length > 0) {
-              return breadcrumbEls
-                .map(el => el.textContent.trim())
-                .filter(text => text && !['home', 'costco', 'departments'].includes(text.toLowerCase()))
-                .join(' > ');
-            }
-
+          const pdpDebug = await page.evaluate(() => {
             const script = document.getElementById('__NEXT_DATA__');
-            if (script && script.textContent) {
-              try {
-                const parsed = JSON.parse(script.textContent);
-                const pageProps = parsed?.props?.pageProps;
-                const product = pageProps?.initialData?.product || pageProps?.product;
-                if (product) {
-                  const dept = product.department_name || product.department?.name || '';
-                  const cat = product.category_name || product.category?.name || '';
-                  return [dept, cat].filter(Boolean).join(' > ');
-                }
-              } catch (e) {}
+            if (!script) return { error: 'No __NEXT_DATA__ found' };
+            
+            try {
+              const parsed = JSON.parse(script.textContent);
+              return {
+                pagePropsKeys: Object.keys(parsed?.props?.pageProps || {}),
+                initialDataKeys: Object.keys(parsed?.props?.pageProps?.initialData || {}),
+                sampleData: parsed?.props?.pageProps?.initialData || parsed?.props?.pageProps
+              };
+            } catch (e) {
+              return { error: e.message };
             }
-            return '';
           });
 
-          if (pdpCategory) {
-            productCategory = pdpCategory;
-            console.log(`🎯 [Puppeteer PDP Hit] Category found: "${productCategory}"`);
-          }
+          console.log("🔍 PDP Data Structure:", JSON.stringify(pdpDebug).substring(0, 1000));
+
         } catch (pdpErr) {
           console.error("⚠️ PDP navigation error:", pdpErr);
         }
@@ -796,46 +784,4 @@ async function fetchSamedayPageFallback(itemNumber, warehouseId, zipCode) {
     const response = await fetch(searchUrl, {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Cookie": `warehouse_zip=${zipCode}; instacart_async_service_address=%7B%22postal_code%22%3A%22${zipCode}%22%7D`
-      },
-      redirect: "follow"
-    });
-
-    if (!response.ok) return null;
-
-    const html = await response.text();
-    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
-
-    if (nextDataMatch && nextDataMatch[1]) {
-      const parsed = JSON.parse(nextDataMatch[1]);
-      const container = parsed?.props?.pageProps?.initialData?.search || parsed?.props?.pageProps?.fallbackData;
-      const items = container?.products || container?.items || [];
-
-      if (items.length > 0) {
-        const first = items[0];
-        const productId = first.id || first.itemId;
-        const title = first.name || first.title;
-        const slug = first.slug || "";
-        const fullPath = slug ? `${productId}-${slug}` : String(productId);
-
-        return {
-          id: '',
-          item_number: itemNumber,
-          product_name: title,
-          category: 'In-Store Item',
-          product_url: `https://sameday.costco.com/store/costco/products/${fullPath}`,
-          warehouse_id: warehouseId,
-          aisle: '',
-          bay: '',
-          is_wrong: 0,
-          is_discontinued: 0
-        };
-      }
-    }
-  } catch (e) {
-    console.error("💥 [Sameday Page] Fallback error:", e);
-  }
-  return null;
-}
+        "User
