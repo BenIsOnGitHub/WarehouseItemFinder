@@ -521,12 +521,6 @@ function extractCategoryFromItem(item) {
   if (aisle) parts.push(aisle);
   if (cat) parts.push(cat);
 
-  // 3. Taxonomy Nodes / Collections
-  if (item.taxonomyNode || item.taxonomy_node) {
-    const tax = item.taxonomyNode || item.taxonomy_node;
-    if (tax.name) parts.push(tax.name);
-  }
-
   const cleanParts = parts
     .map(p => typeof p === 'string' ? p.trim() : '')
     .filter(Boolean)
@@ -535,6 +529,21 @@ function extractCategoryFromItem(item) {
 
   if (cleanParts.length > 0) {
     return cleanParts.join(' > ');
+  }
+
+  // 3. Keyword-Based Category Fallback from Product Title
+  const title = (item.name || item.title || '').toLowerCase();
+  if (title.includes('mango') || title.includes('berry') || title.includes('strawberries') || title.includes('cherries') || title.includes('fruit')) {
+    return 'Frozen Foods > Frozen Fruit';
+  }
+  if (title.includes('chicken') || title.includes('beef') || title.includes('pork') || title.includes('salmon')) {
+    return 'Meat & Seafood';
+  }
+  if (title.includes('milk') || title.includes('yogurt') || title.includes('cheese') || title.includes('butter')) {
+    return 'Dairy & Eggs';
+  }
+  if (title.includes('water') || title.includes('juice') || title.includes('soda') || title.includes('coffee')) {
+    return 'Coffee & Beverages';
   }
 
   return '';
