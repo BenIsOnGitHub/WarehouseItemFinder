@@ -725,27 +725,55 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           await new Promise(resolve => setTimeout(resolve, 1500));
 
 const pdpCategory = await page.evaluate(() => {
-            // Find all department/category links on the page, excluding header/footer elements
-            const catLinks = Array.from(document.querySelectorAll('a[href*="/departments/"], a[href*="/categories/"]'))
-              .filter(el => !el.closest('header') && !el.closest('footer') && !el.closest('[class*="Header"]') && !el.closest('[class*="Navigation"]'));
+            // 1. Check window.__APOLLO_STATE__ (Instacart's in-memory GraphQL store)
+            if (window.__APOLLO_STATE__) {
+              try {
+                const state = window.__APOLLO_STATE__;
+                const categoryNames = [];
 
-            if (catLinks.length > 0) {
-              const crumbs = catLinks
+                // Search state keys for Department, Aisle, or Taxonomy nodes
+                for (const key of Object.keys(state)) {
+                  if (key.startsWith('Department:') || key.startsWith('Aisle:') || key.startsWith('TaxonomyNode:')) {
+                    const node = state[key];
+                    if (node && node.name && !['home', 'costco', 'departments'].includes(node.name.toLowerCase())) {
+                      categoryNames.push(node.name);
+                    }
+                  }
+                }
+
+                if (categoryNames.length > 0) {
+                  // Deduplicate while preserving order
+                  const uniqueCats = categoryNames.filter((v, idx, arr) => arr.indexOf(v) === idx);
+                  return uniqueCats.join(' > ');
+                }
+              } catch (e) {}
+            }
+
+            // 2. DOM Fallback: Query all text elements/buttons near product detail meta area
+            const metaContainer = document.querySelector('[data-testid="product-details"], [class*="ProductDetail"], main');
+            if (metaContainer) {
+              const links = Array.from(metaContainer.querySelectorAll('a, button, span[class*="category"], span[class*="department"]'));
+              const crumbs = links
                 .map(el => el.textContent.trim())
                 .filter(Boolean)
-                .filter(c => !['home', 'costco', 'departments', 'categories', 'all products'].includes(c.toLowerCase()))
+                .filter(text => {
+                  const lower = text.toLowerCase();
+                  return (
+                    text.length > 2 &&
+                    text.length < 40 &&
+                    !lower.includes('add to cart') &&
+                    !lower.includes('current price') &&
+                    !lower.includes('qty') &&
+                    !lower.includes('details') &&
+                    !lower.includes('about') &&
+                    !['home', 'costco', 'departments', 'categories', 'all products'].includes(lower)
+                  );
+                })
                 .filter((v, idx, arr) => arr.indexOf(v) === idx);
 
               if (crumbs.length > 0) {
-                return crumbs.join(' > ');
+                return crumbs.slice(0, 3).join(' > ');
               }
-            }
-
-            // Fallback: Check if there is an isolated department/aisle tag near the product title
-            const deptEl = document.querySelector('[class*="Department"], [data-testid*="department"]');
-            if (deptEl) {
-              const text = deptEl.textContent.trim();
-              if (text && text.length > 2) return text;
             }
 
             return '';
