@@ -718,48 +718,60 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-// STEP 4: Extract Real Category via Apollo Cache
+// STEP 4: Extract Real Category via Apollo Cache Polling
       if (!productCategory && productId) {
         console.log(`🌐 [Puppeteer Step 4] Extracting Category via Apollo Cache for PDP: ${productUrl}`);
         try {
           await page.goto(productUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
-          await new Promise(resolve => setTimeout(resolve, 2000));
 
-          const apolloCategory = await page.evaluate(() => {
+          const apolloCategory = await page.evaluate(async () => {
+            // Polling helper: Wait for Apollo Cache to hydrate with item keys
+            async function waitForApolloCache(maxMs = 5000) {
+              const start = Date.now();
+              while (Date.now() - start < maxMs) {
+                if (window.__APOLLO_CLIENT__) {
+                  const cache = window.__APOLLO_CLIENT__.cache.extract();
+                  if (Object.keys(cache).length > 20) return cache; // Hydration complete
+                }
+                await new Promise(r => setTimeout(r, 250));
+              }
+              return window.__APOLLO_CLIENT__ ? window.__APOLLO_CLIENT__.cache.extract() : {};
+            }
+
             try {
-              // Extract in-memory GraphQL cache state from Apollo Client
-              const cache = window.__APOLLO_CLIENT__ ? window.__APOLLO_CLIENT__.cache.extract() : {};
-              const breadcrumbs = [];
-              const categoryNames = [];
+              const cache = await waitForApolloCache();
+              const crumbs = [];
 
               for (const key of Object.keys(cache)) {
                 const node = cache[key];
                 if (!node) continue;
 
-                // 1. Check for dedicated Breadcrumb / Taxonomy nodes
-                if (key.includes('Breadcrumb') || key.includes('Taxonomy')) {
-                  const name = node.name || node.label || node.text;
-                  if (name && !['home', 'costco', 'departments', 'all products'].includes(name.toLowerCase())) {
-                    breadcrumbs.push(name);
+                // 1. Inspect Node types or Key prefixes for Department, Aisle, Category, or Taxonomy
+                const isCatNode = key.startsWith('Department:') || 
+                                  key.startsWith('Aisle:') || 
+                                  key.startsWith('Category:') || 
+                                  key.startsWith('Taxonomy') || 
+                                  key.includes('Breadcrumb');
+
+                if (isCatNode) {
+                  const name = node.name || node.label || node.text || node.title;
+                  if (name && typeof name === 'string') {
+                    const cleanName = name.trim();
+                    const lower = cleanName.toLowerCase();
+                    if (
+                      cleanName.length > 1 &&
+                      !['home', 'costco', 'departments', 'categories', 'all products'].includes(lower)
+                    ) {
+                      crumbs.push(cleanName);
+                    }
                   }
                 }
-
-                // 2. Fallback: Search for Department or Aisle cache keys
-                if (key.startsWith('Department:') || key.startsWith('Aisle:')) {
-                  if (node.name && !['home', 'costco', 'departments'].includes(node.name.toLowerCase())) {
-                    categoryNames.push(node.name);
-                  }
-                }
               }
 
-              if (breadcrumbs.length > 0) {
-                return breadcrumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
+              if (crumbs.length > 0) {
+                // Deduplicate while preserving order
+                return crumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
               }
-
-              if (categoryNames.length > 0) {
-                return categoryNames.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
-              }
-
             } catch (e) {}
 
             return '';

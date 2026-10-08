@@ -1,0 +1,9 @@
+Product testing SQL
+
+Frozen mango (not on costco.com)
+select * from products where item_number = 1633654
+delete from products where item_number = 1633654
+
+Crest whitestrips (on costco.com)
+select * from products where item_number = 1837002
+delete from products where item_number = 1837002
