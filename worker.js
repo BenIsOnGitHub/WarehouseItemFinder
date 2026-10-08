@@ -495,6 +495,34 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   return null;
 }
 
+// --- Helper Function to Extract & Clean Categories ---
+function extractCategoryFromItem(item) {
+  if (!item) return '';
+
+  // 1. Breadcrumbs array (e.g. [{ name: 'Frozen' }, { name: 'Frozen Fruit' }])
+  if (Array.isArray(item.breadcrumbs) && item.breadcrumbs.length > 0) {
+    const crumbs = item.breadcrumbs
+      .map(b => typeof b === 'string' ? b : (b.name || b.label || b.text))
+      .filter(Boolean)
+      .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()));
+    if (crumbs.length > 0) return crumbs.join(' > ');
+  }
+
+  // 2. Department / Aisle / Category properties
+  const dept = item.department_name || item.departmentName || item.department || '';
+  const aisle = item.aisle_name || item.aisleName || item.aisle || '';
+  const cat = item.category_name || item.categoryName || item.category || '';
+
+  const parts = [dept, aisle, cat]
+    .map(p => typeof p === 'string' ? p.trim() : (p?.name || ''))
+    .filter(Boolean)
+    .filter((v, idx, arr) => arr.indexOf(v) === idx); // Unique values
+
+  if (parts.length > 0) return parts.join(' > ');
+
+  return '';
+}
+
 import puppeteer from '@cloudflare/puppeteer';
 
 async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
@@ -534,18 +562,21 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
               const first = items[0];
               const title = first.name || first.title;
               if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                
+                // Extract category hierarchy from JSON object
+                const category = extractCategoryFromItem(first);
+
                 interceptedProduct = {
                   title: title,
                   id: first.id || first.itemId,
-                  slug: first.slug || ''
+                  slug: first.slug || '',
+                  category: category
                 };
-                console.log(`🎯 [Puppeteer Interceptor] Captured product via API response: "${interceptedProduct.title}"`);
+                console.log(`🎯 [Puppeteer Interceptor] Captured product: "${interceptedProduct.title}" | Category: "${category}"`);
               }
             }
           }
-        } catch (e) {
-          // Ignore JSON parsing errors
-        }
+        } catch (e) {}
       }
     });
 
@@ -579,10 +610,11 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Step 3: Extract & Clean Product Title
+    // Step 3: Extract & Clean Product Details
     let productTitle = interceptedProduct?.title;
     let productId = interceptedProduct?.id;
     let productSlug = interceptedProduct?.slug;
+    let productCategory = interceptedProduct?.category;
 
     if (!productTitle) {
       const fallbackData = await page.evaluate(() => {
@@ -599,6 +631,16 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             .trim();
         }
 
+        // Check DOM breadcrumbs if present
+        const breadcrumbEls = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, a[href*="/categories/"]'));
+        let domCategory = '';
+        if (breadcrumbEls.length > 0) {
+          domCategory = breadcrumbEls
+            .map(el => el.textContent.trim())
+            .filter(text => text && !['home', 'costco', 'departments'].includes(text.toLowerCase()))
+            .join(' > ');
+        }
+
         // 1. Check __NEXT_DATA__ JSON script tag
         const script = document.getElementById('__NEXT_DATA__');
         if (script && script.textContent) {
@@ -613,10 +655,15 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
               const first = items[0];
               const title = first.name || first.title;
               if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
+                const dept = first.department_name || first.department || '';
+                const catName = first.category_name || first.category || '';
+                const catStr = [dept, catName].filter(Boolean).join(' > ');
+
                 return {
                   title: title,
                   id: first.id || first.itemId,
-                  slug: first.slug || ''
+                  slug: first.slug || '',
+                  category: catStr || domCategory
                 };
               }
             }
@@ -641,7 +688,8 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
             const parentLink = el.closest('a[href*="/products/"]');
             return {
               title: cleaned,
-              href: parentLink ? parentLink.getAttribute('href') : ''
+              href: parentLink ? parentLink.getAttribute('href') : '',
+              category: domCategory
             };
           }
         }
@@ -655,7 +703,8 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           if (cleaned.length > 3) {
             return {
               title: cleaned,
-              href: link.getAttribute('href') || ''
+              href: link.getAttribute('href') || '',
+              category: domCategory
             };
           }
         }
@@ -667,11 +716,11 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
         productTitle = fallbackData.title;
         productId = fallbackData.id;
         productSlug = fallbackData.slug;
+        productCategory = fallbackData.category;
       }
     }
 
     if (productTitle) {
-      // Ensure leading "Organic" badge concatenation clean-up on API/JSON responses if needed
       if (productTitle.startsWith("OrganicCurrent price:")) {
         productTitle = productTitle.replace(/^OrganicCurrent price:?\s*\$?\d+(\.\d{2})?\$\d+/i, '').trim();
       }
@@ -679,13 +728,15 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      console.log(`🎉 [Puppeteer Hit] Successfully scraped product: "${productTitle}"`);
+      const finalCategory = productCategory || 'Uncategorized';
+
+      console.log(`🎉 [Puppeteer Hit] Product: "${productTitle}" | Category: "${finalCategory}"`);
 
       return {
         id: '',
         item_number: itemNumber,
         product_name: productTitle,
-        category: 'In-Store Item',
+        category: finalCategory,
         product_url: productUrl,
         warehouse_id: warehouseId,
         aisle: '',

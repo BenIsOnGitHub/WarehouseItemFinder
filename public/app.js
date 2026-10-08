@@ -43,7 +43,7 @@ function getIdentifierDisplay(prod) {
       <div class="product-identifiers">
         <span class="loc-badge unassigned" role="button" onclick="promptEditItemNumber('${prod.id}')">
           Item number: Unknown ✎
-        </span> | 
+        </span> 
         <span class="loc-badge unassigned" role="button" onclick="promptEditSku('${prod.id}')">
           SKU: Unknown ✎
         </span>
