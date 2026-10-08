@@ -783,14 +783,34 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
               return '';
             });
 
-            // DOM Breadcrumb fallback
+            // DOM Breadcrumb fallback scoped to PDP container only
             if (!extractedCategory) {
               extractedCategory = await page.evaluate(() => {
-                const crumbs = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav a, [class*="Breadcrumb"] a'))
+                const pdpContainer = document.querySelector('[role="dialog"]') || 
+                                     document.querySelector('[data-testid*="item_details"]') ||
+                                     document.querySelector('main') ||
+                                     document.body;
+
+                const ignoredTerms = [
+                  'home', 'costco', 'departments', 'categories', 'all products', 
+                  'buy it again', 'shop business center', 'what\'s new', 'weekly savings', 'trending'
+                ];
+
+                const crumbs = Array.from(pdpContainer.querySelectorAll('[data-testid*="breadcrumb"] a, nav[aria-label*="breadcrumb"] a, ul[class*="breadcrumb"] a'))
                   .map(a => a.textContent.trim())
-                  .filter(t => t && !['home', 'costco', 'departments'].includes(t.toLowerCase()));
-                
-                return crumbs.length > 0 ? crumbs.join(' > ') : '';
+                  .filter(t => t && t.length > 1 && !ignoredTerms.includes(t.toLowerCase()));
+
+                if (crumbs.length > 0) {
+                  return crumbs.filter((v, idx, arr) => arr.indexOf(v) === idx).join(' > ');
+                }
+
+                const deptTag = pdpContainer.querySelector('[class*="department"], [class*="category"], [data-testid*="department"]');
+                if (deptTag && deptTag.textContent) {
+                  const text = deptTag.textContent.trim();
+                  if (!ignoredTerms.includes(text.toLowerCase())) return text;
+                }
+
+                return '';
               });
             }
 
