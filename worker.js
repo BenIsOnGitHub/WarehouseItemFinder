@@ -511,12 +511,12 @@ function extractCategoryFromItem(item) {
   }
 
   // 2. Check Department / Category / Aisle / Taxonomy properties
-  const dept = item.department_name || item.departmentName || item.department?.name || item.department || '';
-  const aisle = item.aisle_name || item.aisleName || item.aisle?.name || item.aisle || '';
-  const cat = item.category_name || item.categoryName || item.category?.name || item.category || item.taxonomy || '';
+  const dept = item.departmentName || item.department_name || item.department?.name || (typeof item.department === 'string' ? item.department : '');
+  const aisle = item.aisleName || item.aisle_name || item.aisle?.name || (typeof item.aisle === 'string' ? item.aisle : '');
+  const cat = item.categoryName || item.category_name || item.category?.name || (typeof item.category === 'string' ? item.category : '');
 
   const parts = [dept, aisle, cat]
-    .map(p => typeof p === 'string' ? p.trim() : (p?.name || ''))
+    .map(p => typeof p === 'string' ? p.trim() : '')
     .filter(Boolean)
     .filter(c => !['home', 'costco', 'departments', 'categories'].includes(c.toLowerCase()))
     .filter((v, idx, arr) => arr.indexOf(v) === idx);
@@ -718,7 +718,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      // STEP 4: Click product card on search page to load real PDP & extract Apollo category
+      // STEP 4: Click product card on search page to load real PDP & extract Apollo/DOM category
       if (!productCategory && productId) {
         console.log(`🌐 [Puppeteer Step 4] Clicking product card to open PDP for real category...`);
         try {
@@ -736,7 +736,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           if (productClicked) {
             await new Promise(resolve => setTimeout(resolve, 3500));
 
-            const extractedCategory = await page.evaluate(() => {
+            let extractedCategory = await page.evaluate(() => {
               try {
                 if (!window.__APOLLO_CLIENT__) return '';
                 const cache = window.__APOLLO_CLIENT__.cache.extract();
@@ -778,34 +778,27 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
                   return cleanCrumbs.join(' > ');
                 }
 
-                for (const key of Object.keys(cache)) {
-                  const node = cache[key];
-                  if (node && typeof node === 'object') {
-                    if (node.department_name) crumbs.push(node.department_name);
-                    if (node.category_name) crumbs.push(node.category_name);
-                  }
-                }
-
-                const fallbackCrumbs = crumbs
-                  .filter(Boolean)
-                  .map(c => c.trim())
-                  .filter(c => !['home', 'costco', 'departments'].includes(c.toLowerCase()))
-                  .filter((v, idx, arr) => arr.indexOf(v) === idx);
-
-                if (fallbackCrumbs.length > 0) {
-                  return fallbackCrumbs.join(' > ');
-                }
-
               } catch (e) {}
 
               return '';
             });
 
+            // DOM Breadcrumb fallback
+            if (!extractedCategory) {
+              extractedCategory = await page.evaluate(() => {
+                const crumbs = Array.from(document.querySelectorAll('[data-testid*="breadcrumb"] a, nav a, [class*="Breadcrumb"] a'))
+                  .map(a => a.textContent.trim())
+                  .filter(t => t && !['home', 'costco', 'departments'].includes(t.toLowerCase()));
+                
+                return crumbs.length > 0 ? crumbs.join(' > ') : '';
+              });
+            }
+
             if (extractedCategory) {
               productCategory = extractedCategory;
-              console.log(`🎯 [Puppeteer PDP Hit] Category extracted via Apollo Cache: "${productCategory}"`);
+              console.log(`🎯 [Puppeteer PDP Hit] Category extracted via PDP: "${productCategory}"`);
             } else {
-              console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes in Apollo cache.`);
+              console.log(`⚠️ [Puppeteer PDP] Could not locate category nodes on PDP.`);
             }
 
           } else {
