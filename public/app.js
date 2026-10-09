@@ -70,8 +70,13 @@ function getIdentifierDisplay(prod) {
 
 function formatTimeAgo(dateStr) {
   if (!dateStr) return '';
-  const utcStr = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
-  const updatedDate = new Date(utcStr);
+  
+  let cleanStr = dateStr.replace(/(\.\d{3})\d+/, '$1');
+  if (!cleanStr.endsWith('Z') && !cleanStr.includes('+')) {
+    cleanStr += 'Z';
+  }
+
+  const updatedDate = new Date(cleanStr);
   if (isNaN(updatedDate.getTime())) return '';
 
   const diffMs = new Date() - updatedDate;
@@ -820,21 +825,26 @@ function renderBrowseByAislePage() {
 function getDateGroupLabel(dateStr) {
   if (!dateStr) return 'Unknown Date';
 
-  const utcStr = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
-  const itemDate = new Date(utcStr);
+  // 1. Sanitize ISO string: truncate sub-millisecond digits (>3 decimal places) 
+  // e.g. .142774+00:00 -> .142+00:00 so JS Date can parse it properly
+  let cleanStr = dateStr.replace(/(\.\d{3})\d+/, '$1');
+  if (!cleanStr.endsWith('Z') && !cleanStr.includes('+')) {
+    cleanStr += 'Z';
+  }
+
+  const itemDate = new Date(cleanStr);
   if (isNaN(itemDate.getTime())) return 'Unknown Date';
 
   const now = new Date();
   
-  // Normalize to start of day for accurate calendar day comparison
+  // Normalize to start of day for accurate calendar comparison
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfItemDate = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
 
   const diffMs = startOfToday - startOfItemDate;
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) return 'Today'; // Handles future UTC offset edge cases
-  if (diffDays === 0) return 'Today';
+  if (diffDays <= 0) return 'Today'; // Handles future UTC offset timezones
   if (diffDays === 1) return 'Yesterday';
   if (diffDays <= 7) return 'This Week';
   if (diffDays <= 30) return 'This Month';
@@ -860,7 +870,7 @@ function renderBrowseByDatePage() {
     dateGroups[groupKey].push(prod);
   });
 
-  // Preserve logical chronological order
+  // Explicit order ensuring Unknown Date is at the very end
   const groupOrder = ['Today', 'Yesterday', 'This Week', 'This Month', 'Earlier', 'Unknown Date'];
   const activeGroups = groupOrder.filter(key => dateGroups[key] && dateGroups[key].length > 0);
 

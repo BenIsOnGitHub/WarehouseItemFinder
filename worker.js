@@ -318,21 +318,42 @@ async function handleSearch(request, env, corsHeaders) {
         fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
       }
 
-      if (fetchedProduct) {
-        console.log(`🎉 Live Fetch Success: Found "${fetchedProduct.product_name}". Inserting into D1...`);
-        const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+if (fetchedProduct) {
+        console.log(`🎉 Live Fetch Success: Found "${fetchedProduct.product_name}". Updating or Inserting in D1...`);
+        
+        // Check if item already exists for this warehouse
+        const existing = await env.DB.prepare(
+          "SELECT id FROM products WHERE warehouse_id = ? AND item_number = ?"
+        ).bind(warehouseId, query).first();
+
+        const targetId = existing?.id || ((typeof crypto !== 'undefined' && crypto.randomUUID) 
           ? crypto.randomUUID() 
-          : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+          : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`);
 
         const now = new Date().toISOString();
 
-        // Exact 8-column insert with 8 bound parameters
-        try {
+        if (existing) {
+          // Update existing duplicate/older record instead of creating a new one
+          await env.DB.prepare(`
+            UPDATE products 
+            SET product_name = ?, product_id = ?, category = ?, product_url = ?, updated_at = ?
+            WHERE id = ?
+          `).bind(
+            fetchedProduct.product_name || '',
+            fetchedProduct.product_id || '',
+            fetchedProduct.category || '',
+            fetchedProduct.product_url || '',
+            now,
+            targetId
+          ).run();
+          console.log(`🔄 Updated existing D1 record with ID: ${targetId}`);
+        } else {
+          // Insert new record if it truly doesn't exist yet
           await env.DB.prepare(`
             INSERT INTO products (id, item_number, product_id, product_name, category, product_url, warehouse_id, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
-            newId,
+            targetId,
             query,
             fetchedProduct.product_id || '',
             fetchedProduct.product_name || '',
@@ -341,23 +362,10 @@ async function handleSearch(request, env, corsHeaders) {
             warehouseId,
             now
           ).run();
-          console.log(`💾 Saved to D1 with ID: ${newId} | Product ID: ${fetchedProduct.product_id} (Item Number: ${query})`);
-        } catch (dbErr) {
-          console.error("⚠️ D1 Insert error, running fallback insert:", dbErr);
-          await env.DB.prepare(`
-            INSERT INTO products (id, item_number, product_name, product_url, warehouse_id, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-          `).bind(
-            newId,
-            query,
-            fetchedProduct.product_name || '',
-            fetchedProduct.product_url || '',
-            warehouseId,
-            now
-          ).run();
+          console.log(`💾 Saved new item to D1 with ID: ${targetId}`);
         }
 
-        fetchedProduct.id = newId;
+        fetchedProduct.id = targetId;
         return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
       } else {
         console.log(`❌ All Fallbacks Exhausted: Item "${query}" not found on Costco.com or Sameday.`);
