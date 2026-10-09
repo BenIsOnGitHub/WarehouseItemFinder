@@ -517,6 +517,8 @@ async function startBrowse(page = 1) {
     // 2. Render UI based on active browse mode
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
+    } else if (currentBrowseMode === 'category') {
+      renderBrowseByCategoryPage();
     } else {
       renderBrowsePage();
     }
@@ -606,6 +608,96 @@ function renderBrowsePage() {
           </div>
         </div>
         <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderBrowseByCategoryPage() {
+  updatePaginationUI();
+  const container = document.getElementById('browseListContainer');
+  if (!container) return;
+
+  if (browseData.length === 0) {
+    container.innerHTML = '<div class="empty-aisle-notice">No items found for this category page.</div>';
+    return;
+  }
+
+  // Group items by category
+  const categoryGroups = {};
+  browseData.forEach(prod => {
+    const catKey = (prod.category && prod.category.trim()) ? prod.category.trim() : 'Uncategorized';
+    if (!categoryGroups[catKey]) categoryGroups[catKey] = [];
+    categoryGroups[catKey].push(prod);
+  });
+
+  const sortedCategories = Object.keys(categoryGroups).sort((a, b) => {
+    if (a === 'Uncategorized') return 1;
+    if (b === 'Uncategorized') return -1;
+    return a.localeCompare(b);
+  });
+
+  const favorites = getFavorites();
+  const favoriteIds = new Set(favorites.map(f => f.id));
+
+  container.innerHTML = sortedCategories.map(catKey => {
+    const catItems = categoryGroups[catKey];
+
+    return `
+      <div class="aisle-group">
+        <h2 class="aisle-group-header">
+          ${escapeHtml(catKey)}
+        </h2>
+        <div class="aisle-group-body">
+          ${catItems.map(prod => {
+            const isFav = favoriteIds.has(prod.id);
+            const identifierText = getIdentifierDisplay(prod);
+            const favClass = isFav ? 'fav-btn active' : 'fav-btn';
+            const aisle = prod.aisle || '';
+            const bay = prod.bay || '';
+            const isWrong = prod.is_wrong ? 1 : 0;
+            const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
+            const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+
+            let incorrectBtn = '';
+            if (aisle) {
+              if (prod.is_wrong) {
+                incorrectBtn = `
+                  <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
+                    Reported as incorrect
+                  </button>
+                `;
+              } else {
+                incorrectBtn = `
+                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
+                    Report as incorrect
+                  </button>
+                `;
+              }
+            }
+
+            const safeAisle = String(aisle).replace(/'/g, "\\'");
+            const safeBay = String(bay).replace(/'/g, "\\'");
+
+            return `
+              <div class="browse-product-row aisle-item-row">
+                <div class="browse-product-details">
+                  <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
+                  <div class="product-details">
+                    ${identifierText} | 
+                    <span id="loc-edit-${prod.id}">
+                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
+                        ${locationStr} &#9998;
+                      </span>
+                      ${incorrectBtn}
+                    </span>
+                  </div>
+                </div>
+                <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
     `;
   }).join('');
