@@ -525,6 +525,8 @@ async function startBrowse(page = 1) {
     currentBrowsePageNum = data.page || page;
     totalBrowsePages = data.totalPages || 1;
 
+		renderActiveFilterChips();
+
     // Render based on active mode
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
@@ -1595,5 +1597,71 @@ async function populateCategoryDropdown() {
     }
   } catch (err) {
     console.error('Error populating categories dropdown:', err);
+  }
+}
+
+function renderActiveFilterChips() {
+  const container = document.getElementById('activeFilterChips');
+  if (!container) return;
+
+  const selectedCategory = document.getElementById('filterCategorySelect')?.value || '';
+  const selectedAisle = document.getElementById('filterAisleSelect')?.value || document.getElementById('browseAisleSelect')?.value || '';
+
+  const chips = [];
+
+  if (selectedAisle) {
+    chips.push({
+      label: `Aisle: ${selectedAisle}`,
+      clear: () => {
+        const select = document.getElementById('filterAisleSelect') || document.getElementById('browseAisleSelect');
+        if (select) select.value = '';
+        onAisleFilterChange('');
+      }
+    });
+  }
+
+  if (selectedCategory) {
+    chips.push({
+      label: `Category: ${selectedCategory}`,
+      clear: () => {
+        const select = document.getElementById('filterCategorySelect');
+        if (select) select.value = '';
+        startBrowse(1);
+      }
+    });
+  }
+
+  if (showReportedIncorrectOnly) {
+    chips.push({
+      label: `Reported Incorrect`,
+      clear: () => {
+        const checkbox = document.getElementById('showReportedCheckbox');
+        if (checkbox) checkbox.checked = false;
+        onToggleIncorrectFilter(false);
+      }
+    });
+  }
+
+  if (chips.length === 0) {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'flex';
+  container.innerHTML = chips.map((chip, index) => `
+    <span class="filter-chip">
+      ${escapeHtml(chip.label)}
+      <button class="filter-chip-remove" onclick="removeFilterChip(${index})">&times;</button>
+    </span>
+  `).join('');
+
+  // Store actions on window object for inline onclick binding
+  window._activeChipHandlers = chips.map(c => c.clear);
+}
+
+function removeFilterChip(index) {
+  if (window._activeChipHandlers && window._activeChipHandlers[index]) {
+    window._activeChipHandlers[index]();
   }
 }
