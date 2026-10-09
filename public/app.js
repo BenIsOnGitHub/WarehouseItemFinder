@@ -1563,6 +1563,9 @@ async function populateCategoryDropdown() {
   const categorySelect = document.getElementById('filterCategorySelect');
   if (!categorySelect) return;
 
+  // 1. Remember what the user currently has selected
+  const currentlySelected = categorySelect.value || '';
+
   try {
     const res = await fetch(`${API_BASE_URL}/api/categories?warehouse=${CURRENT_WAREHOUSE}`);
     const categories = await res.json();
@@ -1572,11 +1575,23 @@ async function populateCategoryDropdown() {
     if (Array.isArray(categories)) {
       categories.forEach(cat => {
         if (!cat || !cat.trim()) return;
+        const cleanCat = cat.trim();
         const option = document.createElement('option');
-        option.value = cat.trim();
-        option.textContent = cat.trim();
+        option.value = cleanCat;
+        option.textContent = cleanCat;
+
+        // 2. Preserve selection if it matches
+        if (cleanCat === currentlySelected) {
+          option.selected = true;
+        }
+
         categorySelect.appendChild(option);
       });
+    }
+
+    // 3. Fallback restore in case element value didn't latch
+    if (currentlySelected) {
+      categorySelect.value = currentlySelected;
     }
   } catch (err) {
     console.error('Error populating categories dropdown:', err);
