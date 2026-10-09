@@ -1,8 +1,7 @@
 import csv
 import os
-import re
 
-csv_filename = "warehouse_products_notUploaded.csv"
+csv_filename = "warehouse_products.csv"
 sql_filename = "seed_products.sql"
 
 print(f"[*] Checking directory: {os.getcwd()}")
@@ -14,25 +13,11 @@ if not os.path.exists(csv_filename):
 
 print(f"[+] Found '{csv_filename}'. Opening...")
 
-def parse_category(url_str):
-    """Extracts clean category name from URL slug (between final '/' and '.html')."""
-    if not url_str:
+def clean_sql(val: str) -> str:
+    """Escapes single quotes for SQL string literals."""
+    if not val:
         return ""
-    
-    # Extract filename slug before .html
-    match = re.search(r'([^/]+)\.html(?:[?#].*)?$', url_str, re.IGNORECASE)
-    if match:
-        slug = match.group(1)
-        # Format slug: replace hyphens/underscores with spaces and convert to Title Case
-        clean_name = re.sub(r'[-_]+', ' ', slug).strip().title()
-        return clean_name
-    
-    # Fallback if URL doesn't end in .html: grab string after last slash
-    fallback_match = re.search(r'([^/]+)/?$', url_str)
-    if fallback_match:
-        return re.sub(r'[-_]+', ' ', fallback_match.group(1)).strip().title()
-        
-    return ""
+    return val.replace("'", "''").strip()
 
 with open(csv_filename, mode="r", encoding="utf-8") as f_in:
     reader = csv.reader(f_in)
@@ -45,34 +30,41 @@ with open(csv_filename, mode="r", encoding="utf-8") as f_in:
 
     headers_lower = [h.lower().strip() for h in headers]
 
-    # Map column indices
-    sku_idx = next((i for i, h in enumerate(headers_lower) if "sku" in h), 0)
-    name_idx = next((i for i, h in enumerate(headers_lower) if "name" in h or "title" in h), 1)
-    wh_idx = next((i for i, h in enumerate(headers_lower) if "warehouse" in h or "wh" in h), 2)
-    url_idx = next((i for i, h in enumerate(headers_lower) if "product_url" in h or "url" in h), 3)
-    cat_url_idx = next((i for i, h in enumerate(headers_lower) if "category" in h), -1)
-    updated_idx = next((i for i, h in enumerate(headers_lower) if "updated" in h), -1)
+    # Map column indices accurately from header row
+    def get_idx(name_substring):
+        return next((i for i, h in enumerate(headers_lower) if name_substring in h), -1)
+
+    id_idx = get_idx("id") if "id" in headers_lower else 0
+    wh_idx = get_idx("warehouse")
+    prod_id_idx = get_idx("product_id")
+    item_num_idx = get_idx("item_number")
+    name_idx = next((i for i, h in enumerate(headers_lower) if "product_name" in h or "title" in h or "name" in h), -1)
+    cat_idx = next((i for i, h in enumerate(headers_lower) if h == "category"), -1)
+    cat_url_idx = get_idx("category_url")
+    url_idx = get_idx("product_url")
+    updated_idx = get_idx("updated")
 
     row_count = 0
     with open(sql_filename, mode="w", encoding="utf-8") as f_out:
-        # Schema Header
+        # D1 Table Schema
         f_out.write("""CREATE TABLE IF NOT EXISTS products (
     id TEXT PRIMARY KEY,
     warehouse_id TEXT NOT NULL,
+    product_id TEXT,
     item_number TEXT,
-    sku TEXT NOT NULL,
     product_name TEXT NOT NULL,
+    category TEXT,
+    category_url TEXT,
+    product_url TEXT,
     aisle TEXT,
     bay TEXT,
     is_wrong INTEGER NOT NULL DEFAULT 0,
     is_discontinued INTEGER NOT NULL DEFAULT 0,
-    product_url TEXT,
     updated_at TEXT,
-    category TEXT,
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_products_warehouse_search ON products(warehouse_id, item_number, sku);
+CREATE INDEX IF NOT EXISTS idx_products_warehouse_search ON products(warehouse_id, item_number, product_id);
 CREATE INDEX IF NOT EXISTS idx_products_warehouse_name ON products(warehouse_id, product_name COLLATE NOCASE);
 CREATE INDEX IF NOT EXISTS idx_products_warehouse_category ON products(warehouse_id, category, product_name COLLATE NOCASE);
 CREATE INDEX IF NOT EXISTS idx_products_warehouse_aisle ON products(warehouse_id, aisle, bay);
@@ -84,25 +76,29 @@ CREATE INDEX IF NOT EXISTS idx_products_flagged ON products(warehouse_id, is_wro
             if not row or len(row) < 2:
                 continue
 
-            sku = row[sku_idx].replace("'", "''").strip() if len(row) > sku_idx else ""
-            title = row[name_idx].replace("'", "''").strip() if len(row) > name_idx else ""
-            wh_id = row[wh_idx].replace("'", "''").strip() if len(row) > wh_idx else "1738"
-            url = row[url_idx].replace("'", "''").strip() if len(row) > url_idx else ""
-            
-            raw_cat_url = row[cat_url_idx].strip() if (cat_url_idx != -1 and len(row) > cat_url_idx) else ""
-            category_name = parse_category(raw_cat_url).replace("'", "''")
+            rec_id = clean_sql(row[id_idx]) if (id_idx != -1 and len(row) > id_idx) else ""
+            wh_id = clean_sql(row[wh_idx]) if (wh_idx != -1 and len(row) > wh_idx) else "1738"
+            prod_id = clean_sql(row[prod_id_idx]) if (prod_id_idx != -1 and len(row) > prod_id_idx) else ""
+            item_num = clean_sql(row[item_num_idx]) if (item_num_idx != -1 and len(row) > item_num_idx) else ""
+            title = clean_sql(row[name_idx]) if (name_idx != -1 and len(row) > name_idx) else ""
+            category = clean_sql(row[cat_idx]) if (cat_idx != -1 and len(row) > cat_idx) else ""
+            cat_url = clean_sql(row[cat_url_idx]) if (cat_url_idx != -1 and len(row) > cat_url_idx) else ""
+            url = clean_sql(row[url_idx]) if (url_idx != -1 and len(row) > url_idx) else ""
+            updated_at = clean_sql(row[updated_idx]) if (updated_idx != -1 and len(row) > updated_idx and row[updated_idx].strip()) else "2026-10-08 00:00:00"
 
-            updated_at = row[updated_idx].replace("'", "''").strip() if (updated_idx != -1 and len(row) > updated_idx and row[updated_idx].strip()) else "2026-09-27 00:00:00"
-
-            if not sku or not title:
+            if not rec_id or not title:
                 continue
 
-            sql = f"""INSERT INTO products (sku, warehouse_id, product_name, product_url, category, updated_at) 
-VALUES ('{sku}', '{wh_id}', '{title}', '{url}', '{category_name}', '{updated_at}')
-ON CONFLICT(sku, warehouse_id) DO UPDATE SET 
+            sql = f"""INSERT INTO products (id, warehouse_id, product_id, item_number, product_name, category, category_url, product_url, is_wrong, is_discontinued, updated_at) 
+VALUES ('{rec_id}', '{wh_id}', '{prod_id}', '{item_num}', '{title}', '{category}', '{cat_url}', '{url}', 0, 0, '{updated_at}')
+ON CONFLICT(id) DO UPDATE SET 
+    warehouse_id = excluded.warehouse_id,
+    product_id = excluded.product_id,
+    item_number = excluded.item_number,
     product_name = excluded.product_name,
-    product_url = excluded.product_url,
     category = excluded.category,
+    category_url = excluded.category_url,
+    product_url = excluded.product_url,
     updated_at = excluded.updated_at;\n"""
             f_out.write(sql)
             row_count += 1

@@ -492,44 +492,27 @@ function setBrowseMode(mode) {
 }
 
 async function startBrowse(page = 1) {
-  currentBrowsePageNum = page;
-  const container = document.getElementById('browseListContainer');
-  if (container) container.innerHTML = '<div class="loading-state">Loading products...</div>';
+  const warehouseId = currentWarehouseId;
+  const selectedCategory = document.getElementById('filterCategorySelect')?.value || '';
+  const selectedAisle = document.getElementById('browseAisleSelect')?.value || '';
 
-  // Safely extract plain string ID if CURRENT_WAREHOUSE is an object
-  const activeWarehouseId = (typeof CURRENT_WAREHOUSE === 'object' && CURRENT_WAREHOUSE !== null)
-    ? (CURRENT_WAREHOUSE.warehouse_id || CURRENT_WAREHOUSE.id)
-    : CURRENT_WAREHOUSE;
+  let url = `/api/browse?warehouse=${warehouseId}&page=${page}&limit=20&sort=${currentBrowseMode}`;
+
+  if (selectedCategory) {
+    url += `&category=${encodeURIComponent(selectedCategory)}`;
+  }
+  if (selectedAisle) {
+    url += `&aisle=${encodeURIComponent(selectedAisle)}`;
+  }
 
   try {
-    const url = `${API_BASE_URL}/api/browse?warehouse=${encodeURIComponent(activeWarehouseId)}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}&show_discontinued=${showDiscontinuedItems}&show_incorrect=${showReportedIncorrectOnly}&aisle=${encodeURIComponent(selectedAisle)}`;
-
     const res = await fetch(url);
     const data = await res.json();
 
-    if (!res.ok || data.error) {
-      console.error('API Error:', data.error);
-      if (container) {
-        if (data.error && data.error.includes('exceeded D1\'s free tier')) {
-          container.innerHTML = `<div class="empty-aisle-notice">Cloudflare D1 daily free quota exceeded. Please try again tomorrow or upgrade your Cloudflare plan.</div>`;
-        } else {
-          container.innerHTML = `<div class="empty-aisle-notice">Error loading products: ${data.error || 'Server error'}</div>`;
-        }
-      }
-      return;
-    }
-
-    browseData = data.products || [];
-    totalBrowsePages = data.totalPages || 1;
-
-    if (currentBrowseMode === 'aisle') {
-      renderBrowseByAislePage();
-    } else {
-      renderBrowsePage();
-    }
+    renderBrowseProducts(data.products || []);
+    renderBrowsePagination(data.page, data.totalPages);
   } catch (err) {
-    console.error('Failed to load browse page:', err);
-    if (container) container.innerHTML = '<div class="empty-aisle-notice">Unable to connect to server.</div>';
+    console.error('Error fetching browse products:', err);
   }
 }
 
@@ -882,7 +865,14 @@ function onBrowseSortChange(sortValue) {
   if (value) {
     currentBrowseMode = value;
   }
-  populateAisleDropdown();
+
+  // Handle dropdown visibility / updates based on mode
+  if (currentBrowseMode === 'aisle') {
+    populateAisleDropdown();
+  } else if (currentBrowseMode === 'category') {
+    populateCategoryDropdown(); // Populates distinct categories dropdown if present
+  }
+
   startBrowse(1);
 }
 
@@ -1324,3 +1314,8 @@ function initVoiceSearch() {
     micBtn.classList.remove('listening');
   };
 }
+
+<div style="padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
+      <div>
+        <label for="filterCategorySelect" style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #444;">Subcategory</label>
+        <select id="filterCategorySelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
