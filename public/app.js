@@ -509,16 +509,17 @@ async function startBrowse(page = 1) {
     const res = await fetch(url);
     const data = await res.json();
 
-    // 1. Store state globally
     browseData = data.products || [];
     currentBrowsePageNum = data.page || page;
     totalBrowsePages = data.totalPages || 1;
 
-    // 2. Render UI based on active browse mode
+    // Render based on active mode
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
     } else if (currentBrowseMode === 'category') {
       renderBrowseByCategoryPage();
+    } else if (['updated_at', 'updated', 'date_added'].includes(currentBrowseMode)) {
+      renderBrowseByDatePage();
     } else {
       renderBrowsePage();
     }
@@ -816,6 +817,125 @@ function renderBrowseByAislePage() {
   }).join('');
 }
 
+function getDateGroupLabel(dateStr) {
+  if (!dateStr) return 'Unknown Date';
+
+  const utcStr = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
+  const itemDate = new Date(utcStr);
+  if (isNaN(itemDate.getTime())) return 'Unknown Date';
+
+  const now = new Date();
+  
+  // Normalize to start of day for accurate calendar day comparison
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfItemDate = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
+
+  const diffMs = startOfToday - startOfItemDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return 'Today'; // Handles future UTC offset edge cases
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays <= 7) return 'This Week';
+  if (diffDays <= 30) return 'This Month';
+
+  return 'Earlier';
+}
+
+function renderBrowseByDatePage() {
+  updatePaginationUI();
+  const container = document.getElementById('browseListContainer');
+  if (!container) return;
+
+  if (browseData.length === 0) {
+    container.innerHTML = '<div class="empty-aisle-notice">No items found for this page.</div>';
+    return;
+  }
+
+  // Group items by time bucket
+  const dateGroups = {};
+  browseData.forEach(prod => {
+    const groupKey = getDateGroupLabel(prod.updated_at);
+    if (!dateGroups[groupKey]) dateGroups[groupKey] = [];
+    dateGroups[groupKey].push(prod);
+  });
+
+  // Preserve logical chronological order
+  const groupOrder = ['Today', 'Yesterday', 'This Week', 'This Month', 'Earlier', 'Unknown Date'];
+  const activeGroups = groupOrder.filter(key => dateGroups[key] && dateGroups[key].length > 0);
+
+  const favorites = getFavorites();
+  const favoriteIds = new Set(favorites.map(f => f.id));
+
+  container.innerHTML = activeGroups.map(groupKey => {
+    const items = dateGroups[groupKey];
+
+    return `
+      <div class="aisle-group">
+        <h2 class="aisle-group-header">
+          ${groupKey}
+        </h2>
+        <div class="aisle-group-body">
+          ${items.map(prod => {
+            const isFav = favoriteIds.has(prod.id);
+            const identifierText = getIdentifierDisplay(prod);
+            const favClass = isFav ? 'fav-btn active' : 'fav-btn';
+            const aisle = prod.aisle || '';
+            const bay = prod.bay || '';
+            const isWrong = prod.is_wrong ? 1 : 0;
+            const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
+            const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+
+            const timeAgoText = formatTimeAgo(prod.updated_at);
+            const timeAgoHtml = timeAgoText 
+              ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` 
+              : '';
+
+            let incorrectBtn = '';
+            if (aisle) {
+              if (prod.is_wrong) {
+                incorrectBtn = `
+                  <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
+                    Reported as incorrect
+                  </button>
+                `;
+              } else {
+                incorrectBtn = `
+                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
+                    Report as incorrect
+                  </button>
+                `;
+              }
+            }
+
+            const safeAisle = String(aisle).replace(/'/g, "\\'");
+            const safeBay = String(bay).replace(/'/g, "\\'");
+
+            return `
+              <div class="browse-product-row aisle-item-row">
+                <div class="browse-product-details">
+                  <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
+                  <div class="product-details">
+                    ${identifierText} | 
+                    <span id="loc-edit-${prod.id}">
+                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
+                        ${locationStr} &#9998;
+                      </span>
+                      ${incorrectBtn}
+                    </span>
+                    ${timeAgoHtml}
+                  </div>
+                </div>
+                <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 // ==========================================
 // WAREHOUSE SELECTOR & NAVIGATION
 // ==========================================
@@ -867,6 +987,7 @@ function onWarehouseChange(newWarehouseId) {
   }
 
   populateAisleDropdown();
+  populateCategoryDropdown();
   
   document.querySelectorAll('.warehouse-select-dropdown, #warehouseSelect').forEach(selectEl => {
     selectEl.value = CURRENT_WAREHOUSE;
@@ -952,11 +1073,15 @@ function toggleFilterDrawer(open) {
   const backdrop = document.getElementById('filterDrawerBackdrop');
   
   if (open) {
-    backdrop.style.display = 'block';
-    drawer.style.right = '0px';
+    // Populate categories & aisles whenever opening the drawer
+    populateCategoryDropdown();
+    populateAisleDropdown();
+
+    if (backdrop) backdrop.style.display = 'block';
+    if (drawer) drawer.style.right = '0px';
   } else {
-    drawer.style.right = '-300px';
-    backdrop.style.display = 'none';
+    if (drawer) drawer.style.right = '-300px';
+    if (backdrop) backdrop.style.display = 'none';
   }
 }
 
@@ -1091,6 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWarehouseSelection();
   loadWarehouses();
   populateAisleDropdown();
+  populateCategoryDropdown();
   startBrowse(1);
 
 // Initialize search input mode and event listeners
@@ -1415,22 +1541,27 @@ function initVoiceSearch() {
     micBtn.classList.remove('listening');
   };
 }
+
 async function populateCategoryDropdown() {
-  const categorySelect = document.getElementById('browseCategorySelect');
+  const categorySelect = document.getElementById('filterCategorySelect');
   if (!categorySelect) return;
 
   try {
-    const res = await fetch(`/api/categories?warehouse=${CURRENT_WAREHOUSE}`);
+    const res = await fetch(`${API_BASE_URL}/api/categories?warehouse=${CURRENT_WAREHOUSE}`);
     const categories = await res.json();
 
     categorySelect.innerHTML = '<option value="">All Categories</option>';
-    categories.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat;
-      option.textContent = cat;
-      categorySelect.appendChild(option);
-    });
+    
+    if (Array.isArray(categories)) {
+      categories.forEach(cat => {
+        if (!cat || !cat.trim()) return;
+        const option = document.createElement('option');
+        option.value = cat.trim();
+        option.textContent = cat.trim();
+        categorySelect.appendChild(option);
+      });
+    }
   } catch (err) {
-    console.error('Error populating categories:', err);
+    console.error('Error populating categories dropdown:', err);
   }
 }
