@@ -494,9 +494,9 @@ function setBrowseMode(mode) {
 async function startBrowse(page = 1) {
   const warehouseId = CURRENT_WAREHOUSE;
   const selectedCategory = document.getElementById('filterCategorySelect')?.value || '';
-  const selectedAisle = document.getElementById('browseAisleSelect')?.value || '';
+  const selectedAisle = document.getElementById('filterAisleSelect')?.value || document.getElementById('browseAisleSelect')?.value || '';
 
-  let url = `/api/browse?warehouse=${warehouseId}&page=${page}&limit=20&sort=${currentBrowseMode}`;
+  let url = `${API_BASE_URL}/api/browse?warehouse=${warehouseId}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}`;
 
   if (selectedCategory) {
     url += `&category=${encodeURIComponent(selectedCategory)}`;
@@ -509,8 +509,17 @@ async function startBrowse(page = 1) {
     const res = await fetch(url);
     const data = await res.json();
 
-    renderBrowseProducts(data.products || []);
-    renderBrowsePagination(data.page, data.totalPages);
+    // 1. Store state globally
+    browseData = data.products || [];
+    currentBrowsePageNum = data.page || page;
+    totalBrowsePages = data.totalPages || 1;
+
+    // 2. Render UI based on active browse mode
+    if (currentBrowseMode === 'aisle') {
+      renderBrowseByAislePage();
+    } else {
+      renderBrowsePage();
+    }
   } catch (err) {
     console.error('Error fetching browse products:', err);
   }
