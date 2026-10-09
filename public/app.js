@@ -503,6 +503,13 @@ async function startBrowse(page = 1) {
 
   let url = `${API_BASE_URL}/api/browse?warehouse=${warehouseId}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}`;
 
+  // Pass reported incorrect flag to API
+  if (showReportedIncorrectOnly) {
+    url += `&show_incorrect=true`;
+  }
+  if (showDiscontinuedItems) {
+    url += `&show_discontinued=true`;
+  }
   if (selectedCategory) {
     url += `&category=${encodeURIComponent(selectedCategory)}`;
   }
