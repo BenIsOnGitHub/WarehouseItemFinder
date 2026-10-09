@@ -492,7 +492,7 @@ function setBrowseMode(mode) {
 }
 
 async function startBrowse(page = 1) {
-  const warehouseId = currentWarehouseId;
+  const warehouseId = CURRENT_WAREHOUSE;
   const selectedCategory = document.getElementById('filterCategorySelect')?.value || '';
   const selectedAisle = document.getElementById('browseAisleSelect')?.value || '';
 
@@ -1319,7 +1319,7 @@ async function populateCategoryDropdown() {
   if (!categorySelect) return;
 
   try {
-    const res = await fetch(`/api/categories?warehouse=${currentWarehouseId}`);
+    const res = await fetch(`/api/categories?warehouse=${CURRENT_WAREHOUSE}`);
     const categories = await res.json();
 
     categorySelect.innerHTML = '<option value="">All Categories</option>';
