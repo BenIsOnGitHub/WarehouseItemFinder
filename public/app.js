@@ -1314,8 +1314,22 @@ function initVoiceSearch() {
     micBtn.classList.remove('listening');
   };
 }
+async function populateCategoryDropdown() {
+  const categorySelect = document.getElementById('browseCategorySelect');
+  if (!categorySelect) return;
 
-<div style="padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
-      <div>
-        <label for="filterCategorySelect" style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #444;">Subcategory</label>
-        <select id="filterCategorySelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+  try {
+    const res = await fetch(`/api/categories?warehouse=${currentWarehouseId}`);
+    const categories = await res.json();
+
+    categorySelect.innerHTML = '<option value="">All Categories</option>';
+    categories.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      categorySelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Error populating categories:', err);
+  }
+}
