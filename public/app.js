@@ -1383,7 +1383,7 @@ function renderProductCard(prod, options = {}) {
   const clone = template.content.cloneNode(true);
 
   // 1. Title
-  clone.querySelector('.product-title strong').textContent = prod.product_name || '';
+  clone.querySelector('.product-title').textContent = prod.product_name || '';
 
   // 2. Identifiers
   clone.querySelector('.product-identifiers-row').innerHTML = getIdentifierDisplay(prod);
