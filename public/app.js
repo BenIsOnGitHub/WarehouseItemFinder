@@ -360,7 +360,6 @@ function renderLocationDisplay(id, aisle, bay, isWrong = 0) {
 function renderResultsUI(results) {
   const container = document.getElementById('results');
   const countEl = document.getElementById('count');
-  
   if (!container) return;
 
   if (countEl) {
@@ -372,63 +371,10 @@ function renderResultsUI(results) {
     return;
   }
 
-  const favorites = getFavorites();
-  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
-
-  container.innerHTML = results.map(prod => {
-    const prodItemNumber = String(prod.item_number || '').trim();
-    const isFav = favoriteItemNumbers.has(prodItemNumber);
-    const identifierText = getIdentifierDisplay(prod);
-    const favClass = isFav ? 'fav-btn active' : 'fav-btn';
-    const aisle = prod.aisle || '';
-    const bay = prod.bay || '';
-    const isWrong = prod.is_wrong ? 1 : 0;
-    const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
-    const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
-
-    const timeAgoText = formatTimeAgo(prod.updated_at);
-    const timeAgoHtml = timeAgoText ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` : '';
-
-    let incorrectBtn = '';
-    if (aisle) {
-      if (prod.is_wrong) {
-        incorrectBtn = `
-          <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-            Reported as incorrect
-          </button>
-        `;
-      } else {
-        incorrectBtn = `
-          <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
-            Report as incorrect
-          </button>
-        `;
-      }
-    }
-
-    const safeAisle = String(aisle).replace(/'/g, "\\'");
-    const safeBay = String(bay).replace(/'/g, "\\'");
-
-    return `
-      <li class="product-card">
-        <div class="product-info">
-          <div class="product-title">${escapeHtml(prod.product_name)}</div>
-          <div class="product-details">
-            ${identifierText}
-            <span id="loc-edit-${prod.id}">
-              <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})">
-                ${locationStr} &#9998;
-              </span>
-              ${incorrectBtn}
-            </span><br>
-            ${timeAgoHtml}<br>
-          </div> <!-- product-details end -->
-          ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
-        </div> <!-- product-info end -->
-        <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
-      </li>
-    `;
-  }).join('');
+  container.innerHTML = '';
+  results.forEach(prod => {
+    container.appendChild(renderProductCard(prod));
+  });
 }
 
 // ==========================================
@@ -451,41 +397,20 @@ function renderFavoritesUI() {
     return;
   }
 
-  container.innerHTML = favorites.map((prod, index) => {
+  container.innerHTML = '';
+  favorites.forEach((prod, index) => {
     const noteKey = prod.item_number || prod.id;
     const prodNote = notes[noteKey] || '';
-    const identifierText = getIdentifierDisplay(prod);
-    const isFirst = index === 0;
-    const isLast = index === favorites.length - 1;
-    const targetKey = prod.item_number || prod.id;
-
-    const reorderBtnsHtml = favorites.length > 1 ? `
-    <div class="reorder-btns">
-      <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
-      <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
-    </div>
-  ` : '';
-
-	  return `
-	    <li class="product-card">
-	      ${reorderBtnsHtml}
-	      <div class="product-info">
-	        <div class="product-title">${escapeHtml(prod.product_name)}</div>
-	        <div class="product-details">${identifierText}</div>
-	        <div class="note-container">
-	          <input 
-	            type="text" 
-	            class="note-input" 
-	            placeholder="Add note (e.g. check endcap)" 
-	            value="${escapeHtml(prodNote)}"
-	            onchange="saveNote('${escapeHtml(noteKey)}', this.value)"
-	          />
-	        </div>
-	      </div>
-	      <button class="fav-btn active" onclick="toggleFavorite('${targetKey}', this)">&#9733;</button>
-	    </li>
-	  `;
-	}).join('');
+    const card = renderProductCard(prod, {
+      showReorder: favorites.length > 1,
+      index: index,
+      total: favorites.length,
+      showNote: true,
+      noteText: prodNote,
+      noteKey: noteKey
+    });
+    container.appendChild(card);
+  });
 }
 
 // ==========================================
@@ -568,64 +493,15 @@ function renderBrowsePage() {
   const container = document.getElementById('browseListContainer');
   if (!container) return;
 
-  const favorites = getFavorites();
-  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
+  if (browseData.length === 0) {
+    container.innerHTML = '<div class="empty-aisle-notice">No items found.</div>';
+    return;
+  }
 
-  container.innerHTML = browseData.map(prod => {
-    const prodItemNumber = String(prod.item_number || '').trim();
-    const isFav = favoriteItemNumbers.has(prodItemNumber);
-    const identifierText = getIdentifierDisplay(prod);
-    const favClass = isFav ? 'fav-btn active' : 'fav-btn';
-    const aisle = prod.aisle || '';
-    const bay = prod.bay || '';
-    const isWrong = prod.is_wrong ? 1 : 0;
-    const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
-    const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
-
-    const timeAgoText = formatTimeAgo(prod.updated_at);
-    const timeAgoHtml = timeAgoText 
-      ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` 
-      : '';
-
-    let incorrectBtn = '';
-    if (aisle) {
-      if (prod.is_wrong) {
-        incorrectBtn = `
-          <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-            Reported as incorrect
-          </button>
-        `;
-      } else {
-        incorrectBtn = `
-          <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
-            Report as incorrect
-          </button>
-        `;
-      }
-    }
-
-    const safeAisle = String(aisle).replace(/'/g, "\\'");
-    const safeBay = String(bay).replace(/'/g, "\\'");
-
-    return `
-      <div class="browse-product-row">
-        <div class="browse-product-details">
-          <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
-          <div class="product-details">
-            ${identifierText} | 
-            <span id="loc-edit-${prod.id}">
-              <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
-                ${locationStr} &#9998;
-              </span>
-              ${incorrectBtn}
-            </span>
-            ${timeAgoHtml}
-          </div>
-        </div>
-        <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
-      </div>
-    `;
-  }).join('');
+  container.innerHTML = '';
+  browseData.forEach(prod => {
+    container.appendChild(renderProductCard(prod));
+  });
 }
 
 function renderBrowseByCategoryPage() {
@@ -634,7 +510,7 @@ function renderBrowseByCategoryPage() {
   if (!container) return;
 
   if (browseData.length === 0) {
-    container.innerHTML = '<div class="empty-aisle-notice">No items found for this category page.</div>';
+    container.innerHTML = '<div class="empty-aisle-notice">No items found.</div>';
     return;
   }
 
@@ -651,71 +527,19 @@ function renderBrowseByCategoryPage() {
     return a.localeCompare(b);
   });
 
-  const favorites = getFavorites();
-  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
+  container.innerHTML = '';
+  sortedCategories.forEach(catKey => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'aisle-group';
+    groupEl.innerHTML = `<h2 class="aisle-group-header">${escapeHtml(catKey)}</h2><div class="aisle-group-body"></div>`;
+    
+    const bodyEl = groupEl.querySelector('.aisle-group-body');
+    categoryGroups[catKey].forEach(prod => {
+      bodyEl.appendChild(renderProductCard(prod));
+    });
 
-  container.innerHTML = sortedCategories.map(catKey => {
-    const catItems = categoryGroups[catKey];
-
-    return `
-      <div class="aisle-group">
-        <h2 class="aisle-group-header">
-          ${escapeHtml(catKey)}
-        </h2>
-        <div class="aisle-group-body">
-          ${catItems.map(prod => {
-            const prodItemNumber = String(prod.item_number || '').trim();
-            const isFav = favoriteItemNumbers.has(prodItemNumber);
-            const identifierText = getIdentifierDisplay(prod);
-            const favClass = isFav ? 'fav-btn active' : 'fav-btn';
-            const aisle = prod.aisle || '';
-            const bay = prod.bay || '';
-            const isWrong = prod.is_wrong ? 1 : 0;
-            const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
-            const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
-
-            let incorrectBtn = '';
-            if (aisle) {
-              if (prod.is_wrong) {
-                incorrectBtn = `
-                  <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-                    Reported as incorrect
-                  </button>
-                `;
-              } else {
-                incorrectBtn = `
-                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
-                    Report as incorrect
-                  </button>
-                `;
-              }
-            }
-
-            const safeAisle = String(aisle).replace(/'/g, "\\'");
-            const safeBay = String(bay).replace(/'/g, "\\'");
-
-            return `
-              <div class="browse-product-row aisle-item-row">
-                <div class="browse-product-details">
-                  <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
-                  <div class="product-details">
-                    ${identifierText} | 
-                    <span id="loc-edit-${prod.id}">
-                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
-                        ${locationStr} &#9998;
-                      </span>
-                      ${incorrectBtn}
-                    </span>
-                  </div>
-                </div>
-                <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+    container.appendChild(groupEl);
+  });
 }
 
 function renderBrowseByAislePage() {
@@ -724,7 +548,7 @@ function renderBrowseByAislePage() {
   if (!container) return;
 
   if (browseData.length === 0) {
-    container.innerHTML = '<div class="empty-aisle-notice">No items found for this aisle page.</div>';
+    container.innerHTML = '<div class="empty-aisle-notice">No items found.</div>';
     return;
   }
 
@@ -741,12 +565,9 @@ function renderBrowseByAislePage() {
     return numA - numB;
   });
 
-  const favorites = getFavorites();
-  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
-
-  container.innerHTML = sortedAisles.map(aisleKey => {
+  container.innerHTML = '';
+  sortedAisles.forEach(aisleKey => {
     const aisleItems = aisleGroups[aisleKey];
-
     const bayGroups = {};
     aisleItems.forEach(prod => {
       const bayKey = prod.bay ? `Bay ${prod.bay}` : 'Bay Unassigned';
@@ -760,76 +581,27 @@ function renderBrowseByAislePage() {
       return numA - numB;
     });
 
-    return `
-      <div class="aisle-group">
-        <h2 class="aisle-group-header">
-          ${aisleKey}
-        </h2>
-        <div class="aisle-group-body">
-          ${sortedBays.map(bayKey => {
-            const items = bayGroups[bayKey];
-            const subHeadingText = aisleKey !== 'Aisle Unassigned' && bayKey !== 'Bay Unassigned'
-              ? `${aisleKey} - ${bayKey}`
-              : bayKey;
+    const groupEl = document.createElement('div');
+    groupEl.className = 'aisle-group';
+    groupEl.innerHTML = `<h2 class="aisle-group-header">${aisleKey}</h2><div class="aisle-group-body"></div>`;
+    const bodyEl = groupEl.querySelector('.aisle-group-body');
 
-            return `
-              <div class="bay-subgroup">
-                <h3 class="bay-group-header">${subHeadingText}</h3>${items.map(prod => {
-                  const prodItemNumber = String(prod.item_number || '').trim();
-                  const isFav = favoriteItemNumbers.has(prodItemNumber);
-                  const identifierText = getIdentifierDisplay(prod);
-                  const favClass = isFav ? 'fav-btn active' : 'fav-btn';
-                  const aisle = prod.aisle || '';
-                  const bay = prod.bay || '';
-                  const isWrong = prod.is_wrong ? 1 : 0;
-                  const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
-                  const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+    sortedBays.forEach(bayKey => {
+      const items = bayGroups[bayKey];
+      const subHeadingText = aisleKey !== 'Aisle Unassigned' && bayKey !== 'Bay Unassigned' ? `${aisleKey} - ${bayKey}` : bayKey;
 
-                  let incorrectBtn = '';
-                  if (aisle) {
-                    if (prod.is_wrong) {
-                      incorrectBtn = `
-                        <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-                          Reported as incorrect
-                        </button>
-                      `;
-                    } else {
-                      incorrectBtn = `
-                        <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
-                          Report as incorrect
-                        </button>
-                      `;
-                    }
-                  }
+      const subgroupEl = document.createElement('div');
+      subgroupEl.className = 'bay-subgroup';
+      subgroupEl.innerHTML = `<h3 class="bay-group-header">${subHeadingText}</h3>`;
+      
+      items.forEach(prod => {
+        subgroupEl.appendChild(renderProductCard(prod));
+      });
+      bodyEl.appendChild(subgroupEl);
+    });
 
-                  const safeAisle = String(aisle).replace(/'/g, "\\'");
-                  const safeBay = String(bay).replace(/'/g, "\\'");
-
-                  return `
-                    <div class="browse-product-row aisle-item-row">
-                      <div class="browse-product-details">
-                        <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
-                        <div class="product-details">
-                          ${identifierText} | 
-                          <span id="loc-edit-${prod.id}">
-                            <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})" title="Click to update location">
-                              ${locationStr} &#9998;
-                            </span>
-                            ${incorrectBtn}
-                          </span>
-                        </div>
-                      </div>
-                      <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+    container.appendChild(groupEl);
+  });
 }
 
 function getDateGroupLabel(dateStr) {
@@ -864,7 +636,7 @@ function renderBrowseByDatePage() {
   if (!container) return;
 
   if (browseData.length === 0) {
-    container.innerHTML = '<div class="empty-aisle-notice">No items found for this page.</div>';
+    container.innerHTML = '<div class="empty-aisle-notice">No items found.</div>';
     return;
   }
 
@@ -878,77 +650,20 @@ function renderBrowseByDatePage() {
   const groupOrder = ['Today', 'Yesterday', 'This Week', 'This Month', 'Earlier', 'Unknown Date'];
   const activeGroups = groupOrder.filter(key => dateGroups[key] && dateGroups[key].length > 0);
 
-  const favorites = getFavorites();
-  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
-
-  container.innerHTML = activeGroups.map(groupKey => {
+  container.innerHTML = '';
+  activeGroups.forEach(groupKey => {
     const items = dateGroups[groupKey];
+    const groupEl = document.createElement('div');
+    groupEl.className = 'aisle-group';
+    groupEl.innerHTML = `<h2 class="aisle-group-header">${groupKey}</h2><div class="aisle-group-body"></div>`;
+    
+    const bodyEl = groupEl.querySelector('.aisle-group-body');
+    items.forEach(prod => {
+      bodyEl.appendChild(renderProductCard(prod));
+    });
 
-    return `
-      <div class="aisle-group">
-        <h2 class="aisle-group-header">
-          ${groupKey}
-        </h2>
-        <div class="aisle-group-body">
-          ${items.map(prod => {
-            const prodItemNumber = String(prod.item_number || '').trim();
-            const isFav = favoriteItemNumbers.has(prodItemNumber);
-            const identifierText = getIdentifierDisplay(prod);
-            const favClass = isFav ? 'fav-btn active' : 'fav-btn';
-            const aisle = prod.aisle || '';
-            const bay = prod.bay || '';
-            const isWrong = prod.is_wrong ? 1 : 0;
-            const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
-            const badgeClass = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
-
-            const timeAgoText = formatTimeAgo(prod.updated_at);
-            const timeAgoHtml = timeAgoText 
-              ? ` <span class="updated-time-tag" style="font-size: 11px; color: #777; margin-left: 4px;">(${timeAgoText})</span>` 
-              : '';
-
-            let incorrectBtn = '';
-            if (aisle) {
-              if (prod.is_wrong) {
-                incorrectBtn = `
-                  <button class="flag-incorrect-btn reported" disabled title="Reported as incorrect">
-                    Reported as incorrect
-                  </button>
-                `;
-              } else {
-                incorrectBtn = `
-                  <button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${prod.id}')" title="Report incorrect location">
-                    Report as incorrect
-                  </button>
-                `;
-              }
-            }
-
-            const safeAisle = String(aisle).replace(/'/g, "\\'");
-            const safeBay = String(bay).replace(/'/g, "\\'");
-
-            return `
-              <div class="browse-product-row aisle-item-row">
-                <div class="browse-product-details">
-                  <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
-                  <div class="product-details">
-                    ${identifierText} | 
-                    <span id="loc-edit-${prod.id}">
-                      <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}',${isWrong})" title="Click to update location">
-                        ${locationStr} &#9998;
-                      </span>
-                      ${incorrectBtn}
-                    </span>
-                    ${timeAgoHtml}
-                  </div>
-                </div>
-                <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+    container.appendChild(groupEl);
+  });
 }
 
 // ==========================================
@@ -1661,4 +1376,42 @@ function removeFilterChip(index) {
   if (window._activeChipHandlers && window._activeChipHandlers[index]) {
     window._activeChipHandlers[index]();
   }
+}
+
+function renderProductCard(prod, options = {}) {
+  const template = document.getElementById('product-card-template');
+  const clone = template.content.cloneNode(true);
+
+  // 1. Title
+  clone.querySelector('.product-title strong').textContent = prod.product_name || '';
+
+  // 2. Identifiers
+  clone.querySelector('.product-identifiers-row').innerHTML = getIdentifierDisplay(prod);
+
+  // 3. Location & Badge
+  const locContainer = clone.querySelector('.loc-edit-container');
+  locContainer.id = `loc-edit-${prod.id}`;
+  renderLocationDisplayInto(locContainer, prod);
+
+  // 4. Time ago tag
+  const timeText = formatTimeAgo(prod.updated_at);
+  clone.querySelector('.updated-time-tag').textContent = timeText ? `(${timeText})` : '';
+
+  // 5. Retailer link
+  if (prod.product_url) {
+    const linkRow = clone.querySelector('.product-link-row');
+    linkRow.style.display = 'block';
+    linkRow.querySelector('a').href = prod.product_url;
+  }
+
+  // 6. Favorite button state
+  const favBtn = clone.querySelector('.fav-btn');
+  const favorites = getFavorites();
+  const isFav = favorites.some(f => String(f.item_number).trim() === String(prod.item_number).trim());
+  if (isFav) favBtn.classList.add('active');
+  
+  const targetKey = prod.item_number || prod.id;
+  favBtn.onclick = (e) => toggleFavorite(targetKey, favBtn);
+
+  return clone;
 }
