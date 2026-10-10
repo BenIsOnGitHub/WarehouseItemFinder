@@ -484,6 +484,7 @@ function renderFavoritesUI() {
     const identifierText = getIdentifierDisplay(prod);
     const isFirst = index === 0;
     const isLast = index === favorites.length - 1;
+    const targetKey = prod.id || prod.item_number;
 
     return `
       <li class="product-card">
@@ -492,19 +493,19 @@ function renderFavoritesUI() {
           <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
         </div>
         <div class="product-info">
-          <div class="product-title">${prod.product_name}</div>
+          <div class="product-title">${escapeHtml(prod.product_name)}</div>
           <div class="product-details">${identifierText}</div>
           <div class="note-container">
             <input 
               type="text" 
               class="note-input" 
               placeholder="Add note (e.g. check endcap)" 
-              value="${prodNote.replace(/"/g, '&quot;')}"
-              onchange="saveNote('${noteKey}', this.value)"
+              value="${escapeHtml(prodNote)}"
+              onchange="saveNote('${escapeHtml(noteKey)}', this.value)"
             />
           </div>
         </div>
-        <button class="fav-btn active" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+        <button class="fav-btn active" onclick="toggleFavorite('${targetKey}', this)">&#9733;</button>
       </li>
     `;
   }).join('');
