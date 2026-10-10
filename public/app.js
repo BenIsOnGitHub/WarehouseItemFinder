@@ -123,7 +123,7 @@ function saveNote(id, noteText) {
 function toggleFavorite(prodOrId, starElement) {
   let favorites = getFavorites();
 
-  // Handle being passed an ID/Item Number string or a full object
+  // Find product object by ID from active browse or search results
   let product = typeof prodOrId === 'object' ? prodOrId : null;
 
   if (!product) {
@@ -389,7 +389,9 @@ function renderResultsUI(results) {
   
   if (!container) return;
 
-  countEl.textContent = `${results.length} item${results.length === 1 ? '' : 's'} found`;
+  if (countEl) {
+    countEl.textContent = `${results.length} item${results.length === 1 ? '' : 's'} found`;
+  }
 
   if (results.length === 0) {
     container.innerHTML = '<li class="no-results">No products found.</li>';
@@ -400,7 +402,8 @@ function renderResultsUI(results) {
   const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = results.map(prod => {
-    const isFav = favoriteItemNumbers.has(prod.id);
+    const prodItemNumber = String(prod.item_number || '').trim();
+    const isFav = favoriteItemNumbers.has(prodItemNumber);
     const identifierText = getIdentifierDisplay(prod);
     const favClass = isFav ? 'fav-btn active' : 'fav-btn';
     const aisle = prod.aisle || '';
@@ -435,7 +438,7 @@ function renderResultsUI(results) {
     return `
       <li class="product-card">
         <div class="product-info">
-          <div class="product-title">${prod.product_name}</div>
+          <div class="product-title">${escapeHtml(prod.product_name)}</div>
           <div class="product-details">
             ${identifierText} | 
             <span id="loc-edit-${prod.id}">
@@ -448,7 +451,7 @@ function renderResultsUI(results) {
           </div>
           ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
         </div>
-        <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)'>&#9733;</button>
+        <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
       </li>
     `;
   }).join('');
@@ -1247,7 +1250,7 @@ async function performSearch() {
     const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
     if (response.ok) {
       const data = await response.json();
-      window._lastSearchResults = data;
+      window._lastSearchResults = data; // Cache active search results in memory
       renderResultsUI(data);
     } else {
       alert('Search request failed.');
