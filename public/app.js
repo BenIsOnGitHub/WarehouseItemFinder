@@ -1288,19 +1288,50 @@ async function promptEditItemNumber(productId) {
 }
 
 async function promptEditSku(productId) {
-  const choice = confirm("Press 'OK' to type a SKU manually, or 'Cancel' to open the camera scanner.");
+  const modal = document.getElementById('skuChoiceModal');
+  const cameraBtn = document.getElementById('skuCameraBtn');
+  const manualBtn = document.getElementById('skuManualBtn');
 
-  if (choice) {
-    const newSku = prompt("Enter SKU manually:");
-    if (!newSku || !newSku.trim()) return;
-    await updateProductIdentifier(productId, { sku: newSku.trim() });
-  } else {
-    startCameraBarcodeScanner(async (scannedBarcode) => {
-      if (scannedBarcode) {
-        await updateProductIdentifier(productId, { sku: scannedBarcode });
-      }
-    });
+  if (!modal) {
+    // Fallback if modal HTML isn't present
+    const choice = confirm("Choose SKU entry method:\n\n[OK] = Camera\n[Cancel] = Manual");
+    if (choice) {
+      startCameraBarcodeScanner(async (code) => { if (code) await updateProductIdentifier(productId, { sku: code }); });
+    } else {
+      const sku = prompt("Enter SKU manually:");
+      if (sku && sku.trim()) await updateProductIdentifier(productId, { sku: sku.trim() });
+    }
+    return;
   }
+
+  modal.style.display = 'flex';
+
+  return new Promise((resolve) => {
+    function cleanup() {
+      modal.style.display = 'none';
+      cameraBtn.onclick = null;
+      manualBtn.onclick = null;
+    }
+
+    cameraBtn.onclick = async () => {
+      cleanup();
+      startCameraBarcodeScanner(async (scannedBarcode) => {
+        if (scannedBarcode) {
+          await updateProductIdentifier(productId, { sku: scannedBarcode });
+        }
+      });
+      resolve();
+    };
+
+    manualBtn.onclick = async () => {
+      cleanup();
+      const newSku = prompt("Enter SKU manually:");
+      if (newSku && newSku.trim()) {
+        await updateProductIdentifier(productId, { sku: newSku.trim() });
+      }
+      resolve();
+    };
+  });
 }
 
 async function startCameraBarcodeScanner(onScanned) {

@@ -236,5 +236,15 @@
   </div>
 </template>
 
+<div id="skuChoiceModal" class="custom-modal-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+  <div class="custom-modal-content" style="background: white; padding: 20px; border-radius: 8px; text-align: center; max-width: 300px; width: 100%;">
+    <p style="margin-bottom: 20px; font-weight: 600;">Choose SKU entry method:</p>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button id="skuCameraBtn" class="btn btn-primary" style="padding: 10px 15px;">Camera</button>
+      <button id="skuManualBtn" class="btn btn-secondary" style="padding: 10px 15px;">Manual</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
