@@ -165,6 +165,15 @@ header {
 }
 
 /* Pagination Controls */
+
+.pagination-wrapper {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	gap: 12px;"
+}
+
 .pagination-controls {
   display: flex;
   gap: 6px;
@@ -206,6 +215,10 @@ header {
 .browse-cat-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.browselistcontainer {
+	margin-top: 15px;
 }
 
 .page-indicator-text {
@@ -999,4 +1012,167 @@ header {
 
 .filter-chip-remove:hover {
   color: #0c4a6e;
+}
+
+.drawer-backdrop {
+	display: none; 
+	position: fixed; 
+	inset: 0; 
+	background: rgba(0,0,0,0.4); 
+	z-index: 1000;
+}
+
+.drawer-panel {
+	position: fixed; 
+	top: 0; 
+	right: -300px; 
+	width: 300px; 
+	height: 100%; 
+	background: #fff; 
+	box-shadow: -2px 0 8px rgba(0,0,0,0.2); 
+	z-index: 1001; 
+	transition: right 0.3s ease; 
+	display: flex; 
+	flex-direction: column;
+}
+
+.drawer-panel-inner {
+	padding: 16px; 
+	border-bottom: 1px 
+	solid #eee; 
+	display: flex; 
+	justify-content: space-between; 
+	align-items: center;
+}
+
+.drawer-panel-inner-title {
+	margin: 0; 
+	font-size: 18px;
+}
+
+.drawer-panel-inner-title-close-button {
+	background: none; 
+	border: none; 
+	font-size: 20px; 
+	cursor: pointer;
+}
+
+.filter-category-select-outer {
+	padding: 16px; 
+	flex: 1; 
+	display: flex; 
+	flex-direction: column; 
+	gap: 16px; 
+	overflow-y: auto;
+}
+
+.filter-category-select-inner {
+	display: block; 
+	font-weight: 600; 
+	font-size: 13px; 
+	margin-bottom: 6px; 
+	color: #444;
+}
+
+.filter-category-select {
+width: 100%; 
+padding: 8px; 
+border-radius: 6px; 
+border: 1px solid #ccc;
+}
+
+.filter-aisle-select-inner {
+	display: block; 
+	font-weight: 600; 
+	font-size: 13px; 
+	margin-bottom: 6px; 
+	color: #444;
+}
+
+.filter-aisle-select {
+	width: 100%; 
+	padding: 8px; 
+	border-radius: 6px; 
+	border: 1px solid #ccc;
+}
+
+.filter-is-wrong {
+	display: flex; 
+	align-items: center; 
+	gap: 8px; 
+	margin-top: 8px;
+}
+
+.filter-is-wrong-checkbox {
+	width: 18px; 
+	height: 18px; 
+	cursor: pointer;
+}
+
+.filter-is-wrong-checkbox-label {
+	font-size: 14px; 
+	cursor: pointer;
+}
+
+.filter-footer {
+	padding: 16px; 
+	border-top: 1px solid #eee; 
+	display: flex; 
+	gap: 10px;
+}
+
+.filter-footer-reset {
+	flex: 1; 
+	padding: 10px; 
+	border: 1px solid #ccc; 
+	background: #f5f5f5; 
+	border-radius: 6px; 
+	cursor: pointer;
+}
+
+.filter-footer-apply {
+	flex: 1; 
+	padding: 10px; 
+	border: none; 
+	background: #0070d2; 
+	color: #fff; 
+	font-weight: bold; 
+	border-radius: 6px; 
+	cursor: pointer;
+}
+
+/* Choose whether to enter SKU via camera barcode capture or manually */
+.custom-modal-backdrop {
+	style="display: none; position: fixed; 
+	top: 0; left: 0; 
+	width: 100vw; 
+	height: 100vh; 
+	background: rgba(0,0,0,0.5); 
+	z-index: 10000; 
+	justify-content: center; 
+	align-items: center;
+}
+
+.custom-modal-content {
+	background: white; 
+	padding: 20px; 
+	border-radius: 8px; 
+	text-align: center; 
+	max-width: 300px; 
+	width: 100%;
+}
+
+.custom-modal-p {
+	margin-bottom: 20px; 
+	font-weight: 600;
+}
+
+.custom-modal-div {
+	display: flex; 
+	gap: 10px; 
+	justify-content: center;
+}
+
+.custom-modal-button {
+	padding: 10px 15px;
 }
