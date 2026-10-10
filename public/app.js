@@ -120,11 +120,21 @@ function saveNote(id, noteText) {
   localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
 }
 
-function toggleFavorite(product, starElement) {
+function toggleFavorite(prodOrId, starElement) {
   let favorites = getFavorites();
-  const productItemNumber = String(product.item_number || '').trim();
 
-  // Find index matching universal item_number
+  // Handle being passed an ID/Item Number string or a full object
+  let product = typeof prodOrId === 'object' ? prodOrId : null;
+
+  if (!product) {
+    const targetId = String(prodOrId);
+    product = browseData.find(p => String(p.id) === targetId || String(p.item_number) === targetId) ||
+              (window._lastSearchResults || []).find(p => String(p.id) === targetId || String(p.item_number) === targetId);
+  }
+
+  if (!product) return;
+
+  const productItemNumber = String(product.item_number || '').trim();
   const existingIndex = favorites.findIndex(item => String(item.item_number).trim() === productItemNumber);
 
   if (existingIndex > -1) {
@@ -438,7 +448,7 @@ function renderResultsUI(results) {
           </div>
           ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
         </div>
-        <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+        <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)'>&#9733;</button>
       </li>
     `;
   }).join('');
@@ -1237,6 +1247,7 @@ async function performSearch() {
     const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
     if (response.ok) {
       const data = await response.json();
+      window._lastSearchResults = data;
       renderResultsUI(data);
     } else {
       alert('Search request failed.');
