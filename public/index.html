@@ -22,7 +22,6 @@
     
     <div class="header-title-container">
       <h1 class="app-title">Warehouse Item Finder</h1>
-      
       <!-- Clickable Warehouse Selector Text -->
       <button type="button" id="warehouse-selector-btn" class="warehouse-selector-btn">
         <span id="active-warehouse-text">Set Warehouse</span>
@@ -40,12 +39,14 @@
       </div>
     </div>
   </div>
+  
   <button class="hamburger-btn" id="menuToggle" aria-label="Open Navigation Menu">&#9776;</button>
 
+	<!-- Hamburger menu -->
   <div class="nav-dropdown" id="navDropdown">
     <button onclick="switchView('search-view'); resetSearchView();">Search Products</button>
     <button onclick="switchView('browse-view'); startBrowse(1);">Browse Products</button>
-    <button onclick="showFavoritesView()">My Favorite Products</button> 
+    <button onclick="showFavoritesView()">My Favorites</button> 
   </div>
 </header>
 
@@ -55,9 +56,9 @@
   <section id="search-view" class="page-view active">
     <h1>Search</h1>
     
-<div class="search-container">
-  <!-- Radio Option Selectors -->
-  <div class="search-mode-group">
+	<div class="search-container">
+	  <!-- Radio Option Selectors -->
+	  <div class="search-mode-group">
     
     <label class="radio-label">
       <input type="radio" name="searchMode" value="product_name" checked> Name
@@ -70,7 +71,7 @@
     </label>
   </div>
 
-  <!-- Search Input & Button -->
+  <!-- View 1: Search Input & Button -->
   <div class="search-input-group">
     <div class="input-with-mic">
       <input 
@@ -94,10 +95,10 @@
         &#127908;
       </button>
     </div>
-    <button id="search-btn" class="btn btn-primary" type="button">Search</button>
+    <button id="search-btn" class="btn btn-primary" type="button">Search</button><br>
+    Note: First-time searches for a product may take time to load
   </div>
 </div>
-    
     
     <!-- Install UI -->
     <div id="installContainer" style="display:none;">
@@ -109,20 +110,12 @@
     <ul id="results"></ul>
   </section>
 
-  <!-- View 2: Favorites List -->
-  <section id="favorites-view" class="page-view">
-    <h1>My Favorite Products</h1>
-    <div id="favCount"></div>
-    <ul id="favoritesList"></ul>
-  </section>
-
-  <!-- View 3: Browse Products -->
+  <!-- View 2: Browse Products -->
   <section id="browse-view" class="page-view">
     <h1>Browse</h1>
 
-<!-- Sort & Filter Control Bar -->
-    <div class="browse-controls-bar" style="margin: 15px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-      <div style="display: flex; align-items: center; gap: 8px;">
+		<!-- Sort & Filter Control Bar -->
+    <div class="browse-controls-bar">
         <label for="browseSortSelect" style="font-weight: 600; font-size: 14px; color: #555;">Sort By</label>
         <select id="browseSortSelect" onchange="onBrowseSortChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
           <option value="name">Name</option>
@@ -132,7 +125,6 @@
           <option value="sku">SKU</option>
           <option value="updated_at">Date Updated</option>
         </select>
-      </div>
 
       <button id="openFilterBtn" class="toggle-btn" onclick="toggleFilterDrawer(true)" style="padding: 6px 14px; cursor: pointer;">
         Filter &#9881;
@@ -169,7 +161,12 @@
     </div>
   </section>
   
-
+ <!-- View 3: Favorites List -->
+  <section id="favorites-view" class="page-view">
+    <h1>My Favorites</h1>
+    <div id="favCount"></div>
+    <ul id="favoritesList"></ul>
+  </section>
   
 </div>
 

@@ -171,6 +171,13 @@ header {
   align-items: center;
 }
 
+.browse-controls-bar {
+	margin: 15px 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	
 .browse-cat-btn {
   background-color: #ffffff;
   border: 1px solid #ccc;
@@ -801,7 +808,6 @@ header {
   background-color: #f0f4f8;
 }
 
-/* Fix ⭐ Favorite Button Styling to match blue header bar */
 .header-fav-btn {
   background-color: #013687;
   color: #ffffff;
