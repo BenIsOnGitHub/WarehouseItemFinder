@@ -35,7 +35,7 @@ function getIdentifierDisplay(prod) {
   const hasSku = prod.sku && String(prod.sku).trim() !== '';
 
   const itemBadgeClass = hasItemNumber ? 'loc-badge assigned' : 'loc-badge unassigned';
-  const itemText = hasItemNumber ? `Item: ${escapeHtml(prod.item_number)} &#9998;` : 'Item number: Unknown &#9998;';
+  const itemText = hasItemNumber ? `Item: ${escapeHtml(prod.item_number)}` : 'Item number: Unknown';
 
   const skuBadgeClass = hasSku ? 'loc-badge assigned' : 'loc-badge unassigned';
   const skuText = hasSku ? `SKU: ${escapeHtml(prod.sku)} &#9998;` : 'SKU: Unknown &#9998;';
