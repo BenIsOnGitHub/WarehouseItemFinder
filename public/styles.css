@@ -1143,7 +1143,8 @@ border: 1px solid #ccc;
 
 /* Choose whether to enter SKU via camera barcode capture or manually */
 .custom-modal-backdrop {
-	style="display: none; position: fixed; 
+	display: none; 
+	position: fixed; 
 	top: 0; left: 0; 
 	width: 100vw; 
 	height: 100vh; 
