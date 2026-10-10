@@ -34,30 +34,20 @@ function getIdentifierDisplay(prod) {
   const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
   const hasSku = prod.sku && String(prod.sku).trim() !== '';
 
-  if (!hasItemNumber && !hasSku) {
-    return `
-      <div class="product-identifiers">
-        <span class="loc-badge unassigned" role="button" onclick="promptEditItemNumber('${prod.id}')">
-          Item number: Unknown ✎
-        </span> 
-        <span class="loc-badge unassigned" role="button" onclick="promptEditSku('${prod.id}')">
-          SKU: Unknown ✎
-        </span>
-      </div>
-    `;
-  }
+  const itemBadgeClass = hasItemNumber ? 'loc-badge assigned' : 'loc-badge unassigned';
+  const itemText = hasItemNumber ? `Item: ${escapeHtml(prod.item_number)} &#9998;` : 'Item number: Unknown &#9998;';
 
-  const itemText = hasItemNumber 
-    ? `Item: ${escapeHtml(prod.item_number)}`
-    : `<span class="loc-badge unassigned" role="button" onclick="promptEditItemNumber('${prod.id}')">Item: Unknown ✎</span>`;
-
-  const skuText = hasSku
-    ? `SKU: ${escapeHtml(prod.sku)}`
-    : `<span class="loc-badge unassigned" role="button" onclick="promptEditSku('${prod.id}')">SKU: Unknown ✎</span>`;
+  const skuBadgeClass = hasSku ? 'loc-badge assigned' : 'loc-badge unassigned';
+  const skuText = hasSku ? `SKU: ${escapeHtml(prod.sku)} &#9998;` : 'SKU: Unknown &#9998;';
 
   return `
-    <div class="product-identifiers">
-      ${itemText} | ${skuText}
+    <div class="product-identifiers" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+      <span class="${itemBadgeClass}" role="button" onclick="promptEditItemNumber('${prod.id}')" title="Click to update item number">
+        ${itemText}
+      </span> 
+      <span class="${skuBadgeClass}" role="button" onclick="promptEditSku('${prod.id}')" title="Click to update SKU">
+        ${skuText}
+      </span>
     </div>
   `;
 }
