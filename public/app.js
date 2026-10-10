@@ -457,31 +457,35 @@ function renderFavoritesUI() {
     const identifierText = getIdentifierDisplay(prod);
     const isFirst = index === 0;
     const isLast = index === favorites.length - 1;
-    const targetKey = prod.id || prod.item_number;
+    const targetKey = prod.item_number || prod.id;
 
-    return `
-      <li class="product-card">
-        <div class="reorder-btns">
-          <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
-          <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
-        </div>
-        <div class="product-info">
-          <div class="product-title">${escapeHtml(prod.product_name)}</div>
-          <div class="product-details">${identifierText}</div>
-          <div class="note-container">
-            <input 
-              type="text" 
-              class="note-input" 
-              placeholder="Add note (e.g. check endcap)" 
-              value="${escapeHtml(prodNote)}"
-              onchange="saveNote('${escapeHtml(noteKey)}', this.value)"
-            />
-          </div>
-        </div>
-        <button class="fav-btn active" onclick="toggleFavorite('${targetKey}', this)">&#9733;</button>
-      </li>
-    `;
-  }).join('');
+    const reorderBtnsHtml = favorites.length > 1 ? `
+    <div class="reorder-btns">
+      <button class="move-btn" onclick="moveFavorite(${index}, -1)" ${isFirst ? 'disabled' : ''}>&#9650;</button>
+      <button class="move-btn" onclick="moveFavorite(${index}, 1)" ${isLast ? 'disabled' : ''}>&#9660;</button>
+    </div>
+  ` : '';
+
+	  return `
+	    <li class="product-card">
+	      ${reorderBtnsHtml}
+	      <div class="product-info">
+	        <div class="product-title">${escapeHtml(prod.product_name)}</div>
+	        <div class="product-details">${identifierText}</div>
+	        <div class="note-container">
+	          <input 
+	            type="text" 
+	            class="note-input" 
+	            placeholder="Add note (e.g. check endcap)" 
+	            value="${escapeHtml(prodNote)}"
+	            onchange="saveNote('${escapeHtml(noteKey)}', this.value)"
+	          />
+	        </div>
+	      </div>
+	      <button class="fav-btn active" onclick="toggleFavorite('${targetKey}', this)">&#9733;</button>
+	    </li>
+	  `;
+	}).join('');
 }
 
 // ==========================================
