@@ -414,17 +414,17 @@ function renderResultsUI(results) {
         <div class="product-info">
           <div class="product-title">${escapeHtml(prod.product_name)}</div>
           <div class="product-details">
-            ${identifierText} | 
+            ${identifierText}<br>
             <span id="loc-edit-${prod.id}">
               <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})">
                 ${locationStr} &#9998;
               </span>
               ${incorrectBtn}
-            </span>
-            ${timeAgoHtml}
-          </div>
+            </span><br>
+            ${timeAgoHtml}<br>
+          </div> <!-- product-details end -->
           ${prod.product_url ? `<a href="${prod.product_url}" target="_blank" class="external-product-link">View on Retailer Website</a>` : ''}
-        </div>
+        </div> <!-- product-info end -->
         <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
       </li>
     `;
