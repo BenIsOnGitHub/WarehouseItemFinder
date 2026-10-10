@@ -29,66 +29,94 @@ export default {
         const showDiscontinued = url.searchParams.get('show_discontinued') === 'true';
         const showIncorrect = url.searchParams.get('show_incorrect') === 'true' || url.searchParams.get('show_incorrect') === '1';
         const selectedAisle = url.searchParams.get('aisle');
-        const selectedCategory = url.searchParams.get('category'); // Optional category filter
+        const selectedCategory = url.searchParams.get('category');
         const offset = (page - 1) * limit;
 
         try {
-          const whereConditions = ["warehouse_id = ?"];
-          const bindParams = [warehouseId];
+          // Base condition: join product_locations for current warehouse
+          const whereConditions = [];
+          const bindParams = [warehouseId, warehouseId];
 
           if (!showDiscontinued) {
-            whereConditions.push("(is_discontinued IS NULL OR is_discontinued = 0)");
+            whereConditions.push("(gp.is_discontinued IS NULL OR gp.is_discontinued = 0)");
           }
 
           if (showIncorrect) {
-            whereConditions.push("(is_wrong = 1 OR is_wrong = '1' OR is_wrong IS TRUE)");
+            whereConditions.push("(loc.is_wrong = 1 OR loc.is_wrong = '1' OR loc.is_wrong IS TRUE)");
           }
 
           if (sort === 'aisle') {
-            whereConditions.push("(aisle IS NOT NULL AND TRIM(aisle) != '')");
+            whereConditions.push("(loc.aisle IS NOT NULL AND TRIM(loc.aisle) != '')");
           }
 
           if (selectedAisle) {
-            whereConditions.push("aisle = ?");
+            whereConditions.push("loc.aisle = ?");
             bindParams.push(selectedAisle);
           }
 
           if (selectedCategory) {
-            whereConditions.push("category = ?");
+            whereConditions.push("gp.category = ?");
             bindParams.push(selectedCategory);
           }
 
-          const whereClause = "WHERE " + whereConditions.join(" AND ");
+          const whereClause = whereConditions.length > 0 ? "WHERE " + whereConditions.join(" AND ") : "";
 
-          const countQuery = `SELECT COUNT(*) AS total FROM products ${whereClause}`;
-          const countStmt = await env.DB.prepare(countQuery).bind(...bindParams).first();
+          // Count Query using JOIN
+          const countQuery = `
+            SELECT COUNT(*) AS total 
+            FROM global_products gp
+            LEFT JOIN product_locations loc 
+              ON gp.item_number = loc.item_number 
+             AND loc.warehouse_id = ?
+            ${whereClause}
+          `;
+          
+          // Drop first warehouseId from bindParams when executing count (first param is used in LEFT JOIN)
+          const countStmt = await env.DB.prepare(countQuery).bind(...bindParams.slice(1)).first();
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
-          // SQL Order By Logic
-          let orderByClause = "ORDER BY product_name ASC";
+          // Order By logic across global & location tables
+          let orderByClause = "ORDER BY gp.product_name ASC";
           if (sort === 'aisle') {
             orderByClause = `
               ORDER BY 
-                CAST(aisle AS INTEGER) ASC, 
-                CAST(bay AS INTEGER) ASC, 
-                product_name ASC
+                CAST(loc.aisle AS INTEGER) ASC, 
+                CAST(loc.bay AS INTEGER) ASC, 
+                gp.product_name ASC
             `;
           } else if (sort === 'category') {
             orderByClause = `
               ORDER BY 
-                CASE WHEN category IS NULL OR TRIM(category) = '' THEN 1 ELSE 0 END,
-                category ASC,
-                product_name ASC
+                CASE WHEN gp.category IS NULL OR TRIM(gp.category) = '' THEN 1 ELSE 0 END,
+                gp.category ASC,
+                gp.product_name ASC
             `;
           } else if (sort === 'item_number') {
-            orderByClause = `ORDER BY CAST(item_number AS INTEGER) ASC, item_number ASC`;
+            orderByClause = `ORDER BY CAST(gp.item_number AS INTEGER) ASC, gp.item_number ASC`;
           } else if (sort === 'updated_at' || sort === 'updated') {
-            orderByClause = `ORDER BY updated_at DESC`;
+            orderByClause = `ORDER BY COALESCE(loc.updated_at, gp.updated_at) DESC`;
           }
 
           const selectQuery = `
-            SELECT id, product_id, item_number, product_name, category, category_url, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
-            FROM products
+            SELECT 
+              COALESCE(loc.id, 'temp_' || gp.item_number) AS id,
+              gp.item_number,
+              gp.sku,
+              gp.product_id,
+              gp.product_name,
+              gp.category,
+              gp.category_url,
+              gp.product_url,
+              gp.is_discontinued,
+              ? AS warehouse_id,
+              COALESCE(loc.aisle, '') AS aisle,
+              COALESCE(loc.bay, '') AS bay,
+              COALESCE(loc.is_wrong, 0) AS is_wrong,
+              COALESCE(loc.updated_at, gp.updated_at) AS updated_at
+            FROM global_products gp
+            LEFT JOIN product_locations loc 
+              ON gp.item_number = loc.item_number 
+             AND loc.warehouse_id = ?
             ${whereClause}
             ${orderByClause}
             LIMIT ? OFFSET ?
@@ -119,7 +147,7 @@ export default {
         const warehouseId = url.searchParams.get('warehouse');
         const { results } = await env.DB.prepare(`
           SELECT DISTINCT aisle 
-          FROM products 
+          FROM product_locations 
           WHERE warehouse_id = ? 
             AND aisle IS NOT NULL 
             AND TRIM(aisle) != ''
@@ -134,69 +162,71 @@ export default {
       if (pathname === '/api/categories') {
         const warehouseId = url.searchParams.get('warehouse') || url.searchParams.get('warehouse_id');
         const { results } = await env.DB.prepare(`
-          SELECT DISTINCT category 
-          FROM products 
-          WHERE warehouse_id = ? 
-            AND category IS NOT NULL 
-            AND TRIM(category) != ''
-          ORDER BY category ASC
+          SELECT DISTINCT gp.category 
+          FROM global_products gp
+          LEFT JOIN product_locations loc 
+            ON gp.item_number = loc.item_number 
+           AND loc.warehouse_id = ?
+          WHERE gp.category IS NOT NULL 
+            AND TRIM(gp.category) != ''
+          ORDER BY gp.category ASC
         `).bind(warehouseId).all();
 
         const categories = (results || []).map(r => r.category);
         return new Response(JSON.stringify(categories), { headers: corsHeaders });
       }
 
-			// 4. Update Location API
-			if (pathname === '/api/update-location' && request.method === 'POST') {
-			  const body = await request.json();
-			  const { id, warehouse_id, item_number, aisle, bay, is_wrong } = body;
+      // 4. Update Location API
+      if (pathname === '/api/update-location' && request.method === 'POST') {
+        const body = await request.json();
+        const { id, warehouse_id, item_number, aisle, bay, is_wrong } = body;
 
-			  let targetItemNumber = item_number;
-			  let targetWarehouseId = warehouse_id;
+        let targetItemNumber = item_number;
+        let targetWarehouseId = warehouse_id;
 
-			  // Resolve item_number and warehouse_id if only 'id' was provided
-			  if (!targetItemNumber || !targetWarehouseId) {
-			    if (!id) {
-			      return new Response(JSON.stringify({ error: 'Missing product ID or item_number/warehouse_id' }), { status: 400, headers: corsHeaders });
-			    }
+        // If item_number or warehouse_id aren't provided directly in payload, resolve via ID
+        if (!targetItemNumber || !targetWarehouseId) {
+          if (!id) {
+            return new Response(JSON.stringify({ error: 'Missing product ID or item_number/warehouse_id' }), { status: 400, headers: corsHeaders });
+          }
 
-			    if (id.startsWith('temp_')) {
-			      targetItemNumber = id.replace('temp_', '');
-			    } else {
-			      const locRecord = await env.DB.prepare('SELECT item_number, warehouse_id FROM product_locations WHERE id = ?').bind(id).first();
-			      if (locRecord) {
-			        targetItemNumber = locRecord.item_number;
-			        targetWarehouseId = locRecord.warehouse_id;
-			      }
-			    }
-			  }
+          if (id.startsWith('temp_')) {
+            targetItemNumber = id.replace('temp_', '');
+          } else {
+            const locRecord = await env.DB.prepare('SELECT item_number, warehouse_id FROM product_locations WHERE id = ?').bind(id).first();
+            if (locRecord) {
+              targetItemNumber = locRecord.item_number;
+              targetWarehouseId = locRecord.warehouse_id;
+            }
+          }
+        }
 
-			  if (!targetItemNumber || !targetWarehouseId) {
-			    return new Response(JSON.stringify({ error: 'Could not resolve item_number and warehouse_id' }), { status: 400, headers: corsHeaders });
-			  }
+        if (!targetItemNumber || !targetWarehouseId) {
+          return new Response(JSON.stringify({ error: 'Could not resolve item_number and warehouse_id' }), { status: 400, headers: corsHeaders });
+        }
 
-			  const now = new Date().toISOString();
+        const now = new Date().toISOString();
 
-			  // Find existing location record ID or generate a new UUID
-			  const existingLoc = await env.DB.prepare('SELECT id FROM product_locations WHERE warehouse_id = ? AND item_number = ?')
-			    .bind(targetWarehouseId, targetItemNumber).first();
+        // Generate or retain location ID
+        const existingLoc = await env.DB.prepare('SELECT id FROM product_locations WHERE warehouse_id = ? AND item_number = ?')
+          .bind(targetWarehouseId, targetItemNumber).first();
 
-			  const targetId = existingLoc?.id || (id && !id.startsWith('temp_') ? id : ((typeof crypto !== 'undefined' && crypto.randomUUID) 
-			    ? crypto.randomUUID() 
-			    : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`));
+        const targetId = existingLoc?.id || (id && !id.startsWith('temp_') ? id : ((typeof crypto !== 'undefined' && crypto.randomUUID) 
+          ? crypto.randomUUID() 
+          : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`));
 
-			  await env.DB.prepare(`
-			    INSERT INTO product_locations (id, warehouse_id, item_number, aisle, bay, is_wrong, updated_at)
-			    VALUES (?, ?, ?, ?, ?, ?, ?)
-			    ON CONFLICT(warehouse_id, item_number) DO UPDATE SET
-			      aisle = excluded.aisle,
-			      bay = excluded.bay,
-			      is_wrong = excluded.is_wrong,
-			      updated_at = excluded.updated_at
-			  `).bind(targetId, targetWarehouseId, targetItemNumber, aisle || '', bay || '', is_wrong ? 1 : 0, now).run();
+        await env.DB.prepare(`
+          INSERT INTO product_locations (id, warehouse_id, item_number, aisle, bay, is_wrong, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(warehouse_id, item_number) DO UPDATE SET
+            aisle = excluded.aisle,
+            bay = excluded.bay,
+            is_wrong = excluded.is_wrong,
+            updated_at = excluded.updated_at
+        `).bind(targetId, targetWarehouseId, targetItemNumber, aisle || '', bay || '', is_wrong ? 1 : 0, now).run();
 
-			  return new Response(JSON.stringify({ success: true, id: targetId }), { headers: corsHeaders });
-			}
+        return new Response(JSON.stringify({ success: true, id: targetId }), { headers: corsHeaders });
+      }
 
       // 5. Warehouses API
       if (pathname === '/api/warehouses') {
@@ -211,52 +241,82 @@ export default {
 
       // 6. Flag Location Incorrect API
       if (pathname === '/api/flag-incorrect' && request.method === 'POST') {
-        const { id } = await request.json();
-        if (!id) return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
+        const { id, warehouse_id, item_number } = await request.json();
+        
+        if (id && !id.startsWith('temp_')) {
+          await env.DB.prepare(`
+            UPDATE product_locations SET is_wrong = 1, updated_at = datetime('now') WHERE id = ?
+          `).bind(id).run();
+        } else if (warehouse_id && item_number) {
+          const now = new Date().toISOString();
+          const targetId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+            ? crypto.randomUUID() 
+            : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-        await env.DB.prepare(`
-          UPDATE products SET is_wrong = 1, updated_at = datetime('now') WHERE id = ?
-        `).bind(id).run();
+          await env.DB.prepare(`
+            INSERT INTO product_locations (id, warehouse_id, item_number, is_wrong, updated_at)
+            VALUES (?, ?, ?, 1, ?)
+            ON CONFLICT(warehouse_id, item_number) DO UPDATE SET
+              is_wrong = 1,
+              updated_at = excluded.updated_at
+          `).bind(targetId, warehouse_id, item_number, now).run();
+        } else {
+          return new Response(JSON.stringify({ error: 'Missing product ID or location parameters' }), { status: 400, headers: corsHeaders });
+        }
 
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-      // 7. Flag Product as Discontinued API
+      // 7. Flag Product as Discontinued API (Global Product Trait)
       if (pathname === '/api/flag-discontinued' && request.method === 'POST') {
-        const { id, is_discontinued } = await request.json();
-        if (!id) return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
+        const { id, item_number, is_discontinued } = await request.json();
+
+        let targetItemNumber = item_number;
+        if (!targetItemNumber && id) {
+          if (id.startsWith('temp_')) {
+            targetItemNumber = id.replace('temp_', '');
+          } else {
+            const loc = await env.DB.prepare('SELECT item_number FROM product_locations WHERE id = ?').bind(id).first();
+            targetItemNumber = loc?.item_number;
+          }
+        }
+
+        if (!targetItemNumber) {
+          return new Response(JSON.stringify({ error: 'Missing item_number or valid ID' }), { status: 400, headers: corsHeaders });
+        }
 
         await env.DB.prepare(`
-          UPDATE products SET is_discontinued = ?, updated_at = datetime('now') WHERE id = ?
-        `).bind(is_discontinued ? 1 : 0, id).run();
+          UPDATE global_products SET is_discontinued = ?, updated_at = datetime('now') WHERE item_number = ?
+        `).bind(is_discontinued ? 1 : 0, targetItemNumber).run();
 
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
       // 8. Update Item Number / SKU Identifier API
       if (pathname === '/api/update-identifier' && request.method === 'POST') {
-        const { id, item_number, sku } = await request.json();
-        if (!id) {
-          return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
+        const { id, item_number, current_item_number, sku } = await request.json();
+
+        let targetItemNumber = current_item_number || item_number;
+        if (!targetItemNumber && id) {
+          if (id.startsWith('temp_')) {
+            targetItemNumber = id.replace('temp_', '');
+          } else {
+            const loc = await env.DB.prepare('SELECT item_number FROM product_locations WHERE id = ?').bind(id).first();
+            targetItemNumber = loc?.item_number;
+          }
         }
 
-        const existing = await env.DB.prepare('SELECT item_number, sku FROM products WHERE id = ?').bind(id).first();
+        if (!targetItemNumber) {
+          return new Response(JSON.stringify({ error: 'Missing target item_number' }), { status: 400, headers: corsHeaders });
+        }
+
+        const existing = await env.DB.prepare('SELECT item_number, sku FROM global_products WHERE item_number = ?').bind(targetItemNumber).first();
         if (!existing) {
-          return new Response(JSON.stringify({ error: 'Product not found' }), { status: 404, headers: corsHeaders });
+          return new Response(JSON.stringify({ error: 'Product not found in global catalog' }), { status: 404, headers: corsHeaders });
         }
 
         let updateFields = [];
         let bindParams = [];
-
-        if (item_number !== undefined) {
-          const isCurrentlyEmpty = !existing.item_number || String(existing.item_number).trim() === '';
-          if (isCurrentlyEmpty) {
-            updateFields.push('item_number = ?');
-            bindParams.push(item_number.trim());
-          } else {
-            return new Response(JSON.stringify({ error: 'Item number is already set and cannot be edited.' }), { status: 400, headers: corsHeaders });
-          }
-        }
 
         if (sku !== undefined) {
           updateFields.push('sku = ?');
@@ -268,9 +328,9 @@ export default {
         }
 
         updateFields.push("updated_at = datetime('now')");
-        bindParams.push(id);
+        bindParams.push(targetItemNumber);
 
-        const query = `UPDATE products SET ${updateFields.join(', ')} WHERE id = ?`;
+        const query = `UPDATE global_products SET ${updateFields.join(', ')} WHERE item_number = ?`;
         await env.DB.prepare(query).bind(...bindParams).run();
 
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
@@ -304,19 +364,43 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify([]), { headers: corsHeaders });
     }
 
-    let dbQuery = "";
-    let bindings = [];
+    let whereSql = "";
+    let bindings = [warehouseId, warehouseId];
 
     if (searchMode === 'item_number') {
-      dbQuery = "SELECT * FROM products WHERE item_number = ? AND warehouse_id = ?";
-      bindings = [query, warehouseId];
+      whereSql = "WHERE gp.item_number = ?";
+      bindings.push(query);
     } else if (searchMode === 'sku') {
-      dbQuery = "SELECT * FROM products WHERE sku = ? AND warehouse_id = ?";
-      bindings = [query, warehouseId];
+      whereSql = "WHERE gp.sku = ?";
+      bindings.push(query);
     } else {
-      dbQuery = "SELECT * FROM products WHERE product_name LIKE ? AND warehouse_id = ?";
-      bindings = [`%${query}%`, warehouseId];
+      whereSql = "WHERE gp.product_name LIKE ?";
+      bindings.push(`%${query}%`);
     }
+
+    const dbQuery = `
+      SELECT 
+        COALESCE(loc.id, 'temp_' || gp.item_number) AS id,
+        gp.item_number,
+        gp.sku,
+        gp.product_id,
+        gp.product_name,
+        gp.category,
+        gp.category_url,
+        gp.product_url,
+        gp.is_discontinued,
+        ? AS warehouse_id,
+        COALESCE(loc.aisle, '') AS aisle,
+        COALESCE(loc.bay, '') AS bay,
+        COALESCE(loc.is_wrong, 0) AS is_wrong,
+        COALESCE(loc.updated_at, gp.updated_at) AS updated_at
+      FROM global_products gp
+      LEFT JOIN product_locations loc 
+        ON gp.item_number = loc.item_number 
+       AND loc.warehouse_id = ?
+      ${whereSql}
+      LIMIT 50
+    `;
 
     const results = await env.DB.prepare(dbQuery).bind(...bindings).all();
 
@@ -356,54 +440,54 @@ async function handleSearch(request, env, corsHeaders) {
         fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
       }
 
-if (fetchedProduct) {
-        console.log(`🎉 Live Fetch Success: Found "${fetchedProduct.product_name}". Updating or Inserting in D1...`);
-        
-        // Check if item already exists for this warehouse
-        const existing = await env.DB.prepare(
-          "SELECT id FROM products WHERE warehouse_id = ? AND item_number = ?"
+      if (fetchedProduct) {
+        console.log(`🎉 Live Fetch Success: Found "${fetchedProduct.product_name}". Updating Global & Location tables...`);
+        const now = new Date().toISOString();
+
+			// 1. Write/Update Master Universal Catalog (Omitting sku bind)
+			await env.DB.prepare(`
+			  INSERT INTO global_products (
+			    item_number, product_id, product_name, category, category_url, product_url, updated_at
+			  ) VALUES (?, ?, ?, ?, ?, ?, ?)
+			  ON CONFLICT(item_number) DO UPDATE SET
+			    product_id = COALESCE(NULLIF(excluded.product_id, ''), global_products.product_id),
+			    product_name = excluded.product_name,
+			    category = COALESCE(NULLIF(excluded.category, ''), global_products.category),
+			    category_url = COALESCE(NULLIF(excluded.category_url, ''), global_products.category_url),
+			    product_url = COALESCE(NULLIF(excluded.product_url, ''), global_products.product_url),
+			    updated_at = excluded.updated_at
+			`).bind(
+			  query,
+			  fetchedProduct.product_id || '',
+			  fetchedProduct.product_name || '',
+			  fetchedProduct.category || '',
+			  fetchedProduct.category_url || '',
+			  fetchedProduct.product_url || '',
+			  now
+			).run();
+
+        // 2. Ensure Location Entry Exists
+        const existingLoc = await env.DB.prepare(
+          "SELECT id FROM product_locations WHERE warehouse_id = ? AND item_number = ?"
         ).bind(warehouseId, query).first();
 
-        const targetId = existing?.id || ((typeof crypto !== 'undefined' && crypto.randomUUID) 
+        const locId = existingLoc?.id || ((typeof crypto !== 'undefined' && crypto.randomUUID) 
           ? crypto.randomUUID() 
           : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`);
 
-        const now = new Date().toISOString();
+        await env.DB.prepare(`
+          INSERT INTO product_locations (id, warehouse_id, item_number, updated_at)
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(warehouse_id, item_number) DO UPDATE SET
+            updated_at = excluded.updated_at
+        `).bind(locId, warehouseId, query, now).run();
 
-        if (existing) {
-          // Update existing duplicate/older record instead of creating a new one
-          await env.DB.prepare(`
-            UPDATE products 
-            SET product_name = ?, product_id = ?, category = ?, product_url = ?, updated_at = ?
-            WHERE id = ?
-          `).bind(
-            fetchedProduct.product_name || '',
-            fetchedProduct.product_id || '',
-            fetchedProduct.category || '',
-            fetchedProduct.product_url || '',
-            now,
-            targetId
-          ).run();
-          console.log(`🔄 Updated existing D1 record with ID: ${targetId}`);
-        } else {
-          // Insert new record if it truly doesn't exist yet
-          await env.DB.prepare(`
-            INSERT INTO products (id, item_number, product_id, product_name, category, product_url, warehouse_id, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            targetId,
-            query,
-            fetchedProduct.product_id || '',
-            fetchedProduct.product_name || '',
-            fetchedProduct.category || '',
-            fetchedProduct.product_url || '',
-            warehouseId,
-            now
-          ).run();
-          console.log(`💾 Saved new item to D1 with ID: ${targetId}`);
-        }
+        fetchedProduct.id = locId;
+        fetchedProduct.warehouse_id = warehouseId;
+        fetchedProduct.aisle = '';
+        fetchedProduct.bay = '';
+        fetchedProduct.is_wrong = 0;
 
-        fetchedProduct.id = targetId;
         return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
       } else {
         console.log(`❌ All Fallbacks Exhausted: Item "${query}" not found on Costco.com or Sameday.`);
@@ -425,7 +509,6 @@ if (fetchedProduct) {
 // --- FALLBACK 1: Main Costco.com HTML/Metadata Scraper ---
 async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
-
   const cleanWhsId = String(warehouseId).replace(/-wh$/i, '').trim();
 
   const whsCookieValue = JSON.stringify({
@@ -483,9 +566,7 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
         } else if (productData.category) {
           extractedCategory = typeof productData.category === 'string' ? productData.category : productData.category.name;
         }
-      } catch (e) {
-        // Continue if JSON parsing fails
-      }
+      } catch (e) {}
     }
 
     if (!extractedCategory || !productTitle) {
@@ -519,9 +600,7 @@ async function fetchCostcoItemDetails(itemNumber, warehouseId) {
               }
             }
           }
-        } catch (parseErr) {
-          // Skip malformed script blocks
-        }
+        } catch (parseErr) {}
       }
     }
 
@@ -577,7 +656,6 @@ function extractCategoryFromItem(item) {
 
   const parts = [];
 
-  // 1. Direct Breadcrumb Arrays
   if (Array.isArray(item.breadcrumbs) && item.breadcrumbs.length > 0) {
     const crumbs = item.breadcrumbs
       .map(b => typeof b === 'string' ? b : (b.name || b.label || b.text || b.title))
@@ -586,7 +664,6 @@ function extractCategoryFromItem(item) {
     if (crumbs.length > 0) return crumbs.join(' > ');
   }
 
-  // 2. Department & Category Objects or String Properties
   const dept = item.departmentName || item.department_name || item.department?.name || (typeof item.department === 'string' ? item.department : '');
   const aisle = item.aisleName || item.aisle_name || item.aisle?.name || (typeof item.aisle === 'string' ? item.aisle : '');
   const cat = item.categoryName || item.category_name || item.category?.name || (typeof item.category === 'string' ? item.category : '');
@@ -605,7 +682,6 @@ function extractCategoryFromItem(item) {
     return cleanParts.join(' > ');
   }
 
-  // 3. Keyword-Based Category Fallback from Product Title
   const title = (item.name || item.title || '').toLowerCase();
   if (title.includes('mango') || title.includes('berry') || title.includes('strawberries') || title.includes('cherries') || title.includes('fruit')) {
     return 'Frozen Foods > Frozen Fruit';
@@ -644,7 +720,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
 
-    // 📡 Network Response Interceptor for Search & PDP GraphQL Queries
     page.on('response', async (response) => {
       const url = response.url();
       if (url.includes('graphql') || url.includes('v3') || url.includes('items')) {
@@ -653,7 +728,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
           if (contentType.includes('application/json')) {
             const json = await response.json();
             
-            // Search or Item Detail payload parsing
             const items = json?.data?.search?.products || 
                           json?.data?.items || 
                           json?.data?.itemDetails ||
@@ -684,14 +758,12 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       }
     });
 
-    // Set ZIP cookies upfront
     await page.setCookie(
       { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
       { name: 'instacart_async_service_address', value: JSON.stringify({ postal_code: cleanZip }), domain: '.costco.com', path: '/' },
       { name: 'viewed_guest_landing', value: 'true', domain: '.costco.com', path: '/' }
     );
 
-    // Step 1: Open Landing Page & Guest Gate
     console.log(`🌐 [Puppeteer Step 1] Opening Landing Page: ${landingUrl}`);
     try {
       await page.goto(landingUrl, { waitUntil: 'domcontentloaded', timeout: 12000 });
@@ -706,7 +778,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       }
     } catch (btnErr) {}
 
-    // Step 2: Search URL
     console.log(`🌐 [Puppeteer Step 2] Navigating to Search URL: ${searchUrl}`);
     try {
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
@@ -714,7 +785,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Step 3: Extract Product Details
     let productTitle = interceptedProduct?.title;
     let productId = interceptedProduct?.id;
     let productSlug = interceptedProduct?.slug;
@@ -787,7 +857,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
       const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
 
-      // STEP 4: Trigger Product Card Click to force GraphQL item details query
       if (!productCategory && productId) {
         console.log(`🌐 [Puppeteer Step 4] Clicking product card to trigger ItemDetails GraphQL query...`);
         try {
@@ -846,7 +915,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
   return null;
 }
 
-// HTML Session Page Fallback
+// --- FALLBACK 3: HTML Session Page Fallback (No Puppeteer Browser Required) ---
 async function fetchSamedayPageFallback(itemNumber, warehouseId, zipCode) {
   try {
     const searchUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;

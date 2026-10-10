@@ -122,7 +122,10 @@ function saveNote(id, noteText) {
 
 function toggleFavorite(product, starElement) {
   let favorites = getFavorites();
-  const existingIndex = favorites.findIndex(item => item.id === product.id);
+  const productItemNumber = String(product.item_number || '').trim();
+
+  // Find index matching universal item_number
+  const existingIndex = favorites.findIndex(item => String(item.item_number).trim() === productItemNumber);
 
   if (existingIndex > -1) {
     favorites.splice(existingIndex, 1);
@@ -130,8 +133,8 @@ function toggleFavorite(product, starElement) {
   } else {
     favorites.push({
       id: product.id,
+      item_number: productItemNumber,
       sku: product.sku || '',
-      item_number: product.item_number || '',
       product_name: product.product_name,
       warehouse_id: product.warehouse_id,
       product_url: product.product_url,
@@ -244,12 +247,18 @@ async function saveLocation(id) {
 
   const finalIsWrong = (itemInBrowse && itemInBrowse.is_wrong === 1 && !clearFlag) ? 1 : 0;
 
+  // Derive item_number and warehouse_id
+  const itemNumber = itemInBrowse?.item_number || (String(id).startsWith('temp_') ? id.replace('temp_', '') : '');
+  const warehouseId = itemInBrowse?.warehouse_id || selectedWarehouseId; // adjust 'selectedWarehouseId' to match your global warehouse variable name
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/update-location`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: id,
+        warehouse_id: warehouseId,
+        item_number: itemNumber,
         aisle: newAisle,
         bay: newBay,
         is_wrong: finalIsWrong
@@ -257,13 +266,20 @@ async function saveLocation(id) {
     });
 
     if (response.ok) {
+      const data = await response.json();
       const currentIsoTime = new Date().toISOString();
+
       if (itemInBrowse) {
+        // If the worker returned a newly generated location ID (replacing a temp_ ID), update it in memory
+        if (data.id) {
+          itemInBrowse.id = data.id;
+        }
         itemInBrowse.aisle = newAisle;
         itemInBrowse.bay = newBay;
         itemInBrowse.is_wrong = finalIsWrong;
         itemInBrowse.updated_at = currentIsoTime;
       }
+
       renderLocationDisplay(id, newAisle, newBay, finalIsWrong, currentIsoTime);
     } else {
       alert('Failed to update product location in database.');
@@ -371,10 +387,10 @@ function renderResultsUI(results) {
   }
 
   const favorites = getFavorites();
-  const favoriteIds = new Set(favorites.map(f => f.id));
+  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = results.map(prod => {
-    const isFav = favoriteIds.has(prod.id);
+    const isFav = favoriteItemNumbers.has(prod.id);
     const identifierText = getIdentifierDisplay(prod);
     const favClass = isFav ? 'fav-btn active' : 'fav-btn';
     const aisle = prod.aisle || '';
@@ -449,7 +465,9 @@ function renderFavoritesUI() {
   }
 
   container.innerHTML = favorites.map((prod, index) => {
-    const prodNote = notes[prod.id] || '';
+    // Key notes off item_number for consistency
+    const noteKey = prod.item_number || prod.id;
+    const prodNote = notes[noteKey] || '';
     const identifierText = getIdentifierDisplay(prod);
     const isFirst = index === 0;
     const isLast = index === favorites.length - 1;
@@ -469,7 +487,7 @@ function renderFavoritesUI() {
               class="note-input" 
               placeholder="Add note (e.g. check endcap)" 
               value="${prodNote.replace(/"/g, '&quot;')}"
-              onchange="saveNote('${prod.id}', this.value)"
+              onchange="saveNote('${noteKey}', this.value)"
             />
           </div>
         </div>
@@ -570,10 +588,10 @@ function renderBrowsePage() {
   if (!container) return;
 
   const favorites = getFavorites();
-  const favoriteIds = new Set(favorites.map(f => f.id));
+  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = browseData.map(prod => {
-    const isFav = favoriteIds.has(prod.id);
+    const isFav = favoriteItemNumbers.has(prod.id);
     const identifierText = getIdentifierDisplay(prod);
     const favClass = isFav ? 'fav-btn active' : 'fav-btn';
     const aisle = prod.aisle || '';
@@ -653,7 +671,7 @@ function renderBrowseByCategoryPage() {
   });
 
   const favorites = getFavorites();
-  const favoriteIds = new Set(favorites.map(f => f.id));
+  const favoriteItemNumbers = new Set(favorites.map(f => f.id));
 
   container.innerHTML = sortedCategories.map(catKey => {
     const catItems = categoryGroups[catKey];
@@ -665,7 +683,7 @@ function renderBrowseByCategoryPage() {
         </h2>
         <div class="aisle-group-body">
           ${catItems.map(prod => {
-            const isFav = favoriteIds.has(prod.id);
+            const isFav = favoriteItemNumbers.has(prod.id);
             const identifierText = getIdentifierDisplay(prod);
             const favClass = isFav ? 'fav-btn active' : 'fav-btn';
             const aisle = prod.aisle || '';
@@ -742,7 +760,7 @@ function renderBrowseByAislePage() {
   });
 
   const favorites = getFavorites();
-  const favoriteIds = new Set(favorites.map(f => f.id));
+  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = sortedAisles.map(aisleKey => {
     const aisleItems = aisleGroups[aisleKey];
@@ -775,7 +793,7 @@ function renderBrowseByAislePage() {
             return `
               <div class="bay-subgroup">
                 <h3 class="bay-group-header">${subHeadingText}</h3>${items.map(prod => {
-                  const isFav = favoriteIds.has(prod.id);
+                  const isFav = favoriteItemNumbers.has(prod.id);
                   const identifierText = getIdentifierDisplay(prod);
                   const favClass = isFav ? 'fav-btn active' : 'fav-btn';
                   const aisle = prod.aisle || '';
@@ -884,7 +902,7 @@ function renderBrowseByDatePage() {
   const activeGroups = groupOrder.filter(key => dateGroups[key] && dateGroups[key].length > 0);
 
   const favorites = getFavorites();
-  const favoriteIds = new Set(favorites.map(f => f.id));
+  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = activeGroups.map(groupKey => {
     const items = dateGroups[groupKey];
@@ -896,7 +914,7 @@ function renderBrowseByDatePage() {
         </h2>
         <div class="aisle-group-body">
           ${items.map(prod => {
-            const isFav = favoriteIds.has(prod.id);
+            const isFav = favoriteItemNumbers.has(prod.id);
             const identifierText = getIdentifierDisplay(prod);
             const favClass = isFav ? 'fav-btn active' : 'fav-btn';
             const aisle = prod.aisle || '';

@@ -1,0 +1,11 @@
+Search by Name
+curl "https://warehouse-item-finder.pant.workers.dev/api/serach?q=mango&mode=name&warehouse=1738"
+
+Browse
+curl "https://warehouse-item-finder.pant.workers.dev/api/browse?warehouse=1738&page=1&limit=5"
+
+Update an Aisle and Bay
+curl -X POST "https://warehouse-item-finder.pant.workers.dev/api/update-location" -H "Content-Type: application/json" -d "{\"warehouse_id\": \"1738\", \"item_number\": \"1669785\", \"aisle\": \"120\", \"bay\": \"4\", \"is_wrong\": 0}"
+
+test result of update
+npx wrangler d1 execute product-inventory --remote --command="SELECT * FROM product_locations WHERE warehouse_id='1738' AND item_number='1669785';"
