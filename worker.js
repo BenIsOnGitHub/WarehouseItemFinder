@@ -73,7 +73,6 @@ export default {
           const countStmt = await env.DB.prepare(countQuery).bind(...bindParams).first();
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
-          // Clean ORDER BY expressions WITHOUT duplicate 'ORDER BY' keywords
           let orderByClause = 'gp.product_name ASC';
           if (sort === 'sku') {
             orderByClause = `
@@ -264,7 +263,7 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-// 8. Update Item Number / SKU Identifier API
+      // 8. Update Item Number / SKU Identifier API
       if (pathname === '/api/update-identifier' && request.method === 'POST') {
         const { id, item_number, sku } = await request.json();
         if (!id) {
@@ -313,6 +312,14 @@ export default {
 
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
+
+      return new Response(JSON.stringify({ error: 'Endpoint not found' }), { status: 404, headers: corsHeaders });
+
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), { status: 500, headers: corsHeaders });
+    }
+  }
+};
 
 // ----------------------------------------------------
 // HELPER FUNCTIONS
@@ -370,7 +377,6 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
-    // Live Fallback on D1 Miss
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
       let fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
@@ -387,7 +393,6 @@ async function handleSearch(request, env, corsHeaders) {
       }
 
       if (fetchedProduct) {
-        // Upsert into global_products
         await env.DB.prepare(`
           INSERT INTO global_products (item_number, product_name, category, product_url, updated_at)
           VALUES (?, ?, ?, ?, datetime('now'))
