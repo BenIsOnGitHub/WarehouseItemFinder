@@ -1008,13 +1008,28 @@ async function promptEditSku(productId) {
   const manualBtn = document.getElementById('skuManualBtn');
 
   if (!modal) {
-    // Fallback if modal HTML isn't present
     const choice = confirm("Choose SKU entry method:\n\n[OK] = Camera\n[Cancel] = Manual");
     if (choice) {
-      startCameraBarcodeScanner(async (code) => { if (code) await updateProductIdentifier(productId, { sku: code }); });
+      startCameraBarcodeScanner(async (code) => {
+        if (code) {
+          const cleanCode = code.trim();
+          if (!/^\d{8,10}$/.test(cleanCode)) {
+            alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+            return;
+          }
+          await updateProductIdentifier(productId, { sku: cleanCode });
+        }
+      });
     } else {
-      const sku = prompt("Enter SKU manually:");
-      if (sku && sku.trim()) await updateProductIdentifier(productId, { sku: sku.trim() });
+      const sku = prompt("Enter SKU manually (8-10 digits):");
+      if (sku && sku.trim()) {
+        const cleanSku = sku.trim();
+        if (!/^\d{8,10}$/.test(cleanSku)) {
+          alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+          return;
+        }
+        await updateProductIdentifier(productId, { sku: cleanSku });
+      }
     }
     return;
   }
@@ -1032,17 +1047,29 @@ async function promptEditSku(productId) {
       cleanup();
       startCameraBarcodeScanner(async (scannedBarcode) => {
         if (scannedBarcode) {
-          await updateProductIdentifier(productId, { sku: scannedBarcode });
+          const cleanCode = scannedBarcode.trim();
+          if (!/^\d{8,10}$/.test(cleanCode)) {
+            alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+            resolve();
+            return;
+          }
+          await updateProductIdentifier(productId, { sku: cleanCode });
         }
+        resolve();
       });
-      resolve();
     };
 
     manualBtn.onclick = async () => {
       cleanup();
-      const newSku = prompt("Enter SKU manually:");
+      const newSku = prompt("Enter SKU manually (8-10 digits):");
       if (newSku && newSku.trim()) {
-        await updateProductIdentifier(productId, { sku: newSku.trim() });
+        const cleanSku = newSku.trim();
+        if (!/^\d{8,10}$/.test(cleanSku)) {
+          alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+          resolve();
+          return;
+        }
+        await updateProductIdentifier(productId, { sku: cleanSku });
       }
       resolve();
     };
@@ -1124,7 +1151,28 @@ async function updateProductIdentifier(productId, updates) {
     const data = await res.json();
     if (res.ok && data.success) {
       alert("Updated successfully!");
-      if (typeof performSearch === 'function') performSearch();
+
+      // Update local browseData array if present
+      const item = browseData.find(p => p.id === productId);
+      if (item) {
+        if (updates.item_number !== undefined) item.item_number = updates.item_number;
+        if (updates.sku !== undefined) item.sku = updates.sku;
+      }
+
+      // Refresh whichever view is currently active
+      const activeView = document.querySelector('.page-view.active');
+      if (activeView) {
+        if (activeView.id === 'browse-view') {
+          startBrowse(currentBrowsePageNum);
+        } else if (activeView.id === 'favorites-view') {
+          renderFavoritesUI();
+        } else {
+          const searchInput = document.getElementById('search-input');
+          if (searchInput && searchInput.value.trim()) {
+            performSearch();
+          }
+        }
+      }
     } else {
       alert("Error: " + (data.error || "Failed to update identifier"));
     }
