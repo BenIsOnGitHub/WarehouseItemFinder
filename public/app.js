@@ -414,7 +414,7 @@ function renderResultsUI(results) {
         <div class="product-info">
           <div class="product-title">${escapeHtml(prod.product_name)}</div>
           <div class="product-details">
-            ${identifierText}<br>
+            ${identifierText}
             <span id="loc-edit-${prod.id}">
               <span class="${badgeClass}" onclick="openLocationEditor('${prod.id}', '${safeAisle}', '${safeBay}', ${isWrong})">
                 ${locationStr} &#9998;
