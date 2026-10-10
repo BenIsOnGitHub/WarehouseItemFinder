@@ -123,24 +123,36 @@ function saveNote(id, noteText) {
 function toggleFavorite(prodOrId, starElement) {
   let favorites = getFavorites();
 
-  // Find product object by ID from active browse or search results
+  // 1. Resolve product object if passed string ID or item_number
   let product = typeof prodOrId === 'object' ? prodOrId : null;
 
   if (!product) {
-    const targetId = String(prodOrId);
-    product = browseData.find(p => String(p.id) === targetId || String(p.item_number) === targetId) ||
-              (window._lastSearchResults || []).find(p => String(p.id) === targetId || String(p.item_number) === targetId);
+    const targetKey = String(prodOrId).trim();
+    
+    // Check active browse list, search results, OR existing favorites list
+    product = browseData.find(p => String(p.id) === targetKey || String(p.item_number) === targetKey) ||
+              (window._lastSearchResults || []).find(p => String(p.id) === targetKey || String(p.item_number) === targetKey) ||
+              favorites.find(p => String(p.id) === targetKey || String(p.item_number) === targetKey);
   }
 
   if (!product) return;
 
   const productItemNumber = String(product.item_number || '').trim();
-  const existingIndex = favorites.findIndex(item => String(item.item_number).trim() === productItemNumber);
+
+  // 2. Match by item_number (fallback to ID if item_number is missing)
+  const existingIndex = favorites.findIndex(item => {
+    if (productItemNumber && String(item.item_number).trim()) {
+      return String(item.item_number).trim() === productItemNumber;
+    }
+    return String(item.id) === String(product.id);
+  });
 
   if (existingIndex > -1) {
+    // Remove from favorites
     favorites.splice(existingIndex, 1);
     if (starElement) starElement.classList.remove('active');
   } else {
+    // Add to favorites
     favorites.push({
       id: product.id,
       item_number: productItemNumber,
@@ -156,6 +168,7 @@ function toggleFavorite(prodOrId, starElement) {
 
   saveFavorites(favorites);
 
+  // 3. Re-render favorites tab if currently viewing it
   const favView = document.getElementById('favorites-view');
   if (favView && favView.classList.contains('active')) {
     renderFavoritesUI();
