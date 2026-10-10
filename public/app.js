@@ -1391,7 +1391,7 @@ function renderProductCard(prod, options = {}) {
   // 3. Location & Badge
   const locContainer = clone.querySelector('.loc-edit-container');
   locContainer.id = `loc-edit-${prod.id}`;
-  renderLocationDisplayInto(locContainer, prod);
+  renderLocationDisplay(uniqueId, prod.aisle, prod.bay, prod.is_wrong ? 1 : 0);
 
   // 4. Time ago tag
   const timeText = formatTimeAgo(prod.updated_at);
