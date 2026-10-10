@@ -41,10 +41,8 @@ function getIdentifierDisplay(prod) {
   const skuText = hasSku ? `SKU: ${escapeHtml(prod.sku)} &#9998;` : 'SKU: Unknown &#9998;';
 
   return `
-    <div class="product-identifiers" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-      <span class="${itemBadgeClass}" role="button" onclick="promptEditItemNumber('${prod.id}')" title="Click to update item number">
+    <div class="product-identifiers">
         ${itemText}
-      </span> 
       <span class="${skuBadgeClass}" role="button" onclick="promptEditSku('${prod.id}')" title="Click to update SKU">
         ${skuText}
       </span>
