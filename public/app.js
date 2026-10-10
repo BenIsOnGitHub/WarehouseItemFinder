@@ -1400,7 +1400,7 @@ async function startCameraBarcodeScanner(onScanned) {
 
 async function updateProductIdentifier(productId, updates) {
   try {
-    const res = await fetch('/api/update-identifier', {
+    const res = await fetch(`${API_BASE_URL}/api/update-identifier`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: productId, ...updates })

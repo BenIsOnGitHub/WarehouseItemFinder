@@ -264,14 +264,20 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-      // 8. Update Item Number / SKU Identifier API
+// 8. Update Item Number / SKU Identifier API
       if (pathname === '/api/update-identifier' && request.method === 'POST') {
         const { id, item_number, sku } = await request.json();
         if (!id) {
           return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
         }
 
-        const targetItemNumber = id.startsWith('temp_') ? id.replace('temp_', '') : id;
+        let targetItemNumber = '';
+        if (id.startsWith('temp_')) {
+          targetItemNumber = id.replace('temp_', '');
+        } else {
+          const locRecord = await env.DB.prepare('SELECT item_number FROM product_locations WHERE id = ?').bind(id).first();
+          targetItemNumber = locRecord ? locRecord.item_number : id;
+        }
 
         const existing = await env.DB.prepare('SELECT item_number, sku FROM global_products WHERE item_number = ?').bind(targetItemNumber).first();
         if (!existing) {
@@ -307,14 +313,6 @@ export default {
 
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
-
-      return new Response(JSON.stringify({ error: 'Endpoint not found' }), { status: 404, headers: corsHeaders });
-
-    } catch (err) {
-      return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), { status: 500, headers: corsHeaders });
-    }
-  }
-};
 
 // ----------------------------------------------------
 // HELPER FUNCTIONS
