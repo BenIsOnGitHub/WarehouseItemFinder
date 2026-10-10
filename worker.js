@@ -65,7 +65,7 @@ export default {
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
           // SQL Order By Logic
-          let orderByClause = "ORDER BY gp.product_name ASC";
+          let orderByClause = 'gp.product_name ASC'; // Default fallback for 'name'
           if (sort === 'sku') {
   				// Pushes empty/NULL SKUs to the bottom so valid SKUs rank first
 				  orderByClause = `
@@ -100,13 +100,27 @@ export default {
             orderByClause = `ORDER BY loc.updated_at DESC`;
           }
 
-          const selectQuery = `
-            SELECT id, product_id, item_number, product_name, category, category_url, warehouse_id, product_url, aisle, bay, is_wrong, is_discontinued, updated_at
-            FROM products
-            ${whereClause}
-            ${orderByClause}
-            LIMIT ? OFFSET ?
-          `;
+						const selectQuery = `
+						  SELECT 
+						    COALESCE(loc.id, 'temp_' || gp.item_number) AS id,
+						    gp.item_number,
+						    gp.sku,
+						    gp.product_name,
+						    gp.category,
+						    gp.product_url,
+						    loc.warehouse_id,
+						    loc.aisle,
+						    loc.bay,
+						    loc.is_wrong,
+						    loc.updated_at
+						  FROM global_products gp
+						  LEFT JOIN product_locations loc 
+						    ON gp.item_number = loc.item_number 
+						   AND loc.warehouse_id = ?
+						  ${whereClause}
+						  ORDER BY ${orderByClause}
+						  LIMIT ? OFFSET ?
+						`;
 
           const { results } = await env.DB.prepare(selectQuery)
             .bind(...bindParams, limit, offset)
