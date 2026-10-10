@@ -12,9 +12,7 @@ function getStoredWarehouseId() {
   }
 }
 
-// Global variable definition:
 let CURRENT_WAREHOUSE = getStoredWarehouseId();
-
 const FAVORITES_KEY = 'product_favorites';
 const NOTES_KEY = 'product_notes';
 
@@ -26,7 +24,6 @@ let totalBrowsePages = 1;
 const ITEMS_PER_PAGE = 20;
 let showReportedIncorrectOnly = false;
 
-// Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(console.error);
@@ -37,7 +34,6 @@ function getIdentifierDisplay(prod) {
   const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
   const hasSku = prod.sku && String(prod.sku).trim() !== '';
 
-  // Rule 0: Both missing
   if (!hasItemNumber && !hasSku) {
     return `
       <div class="product-identifiers">
@@ -51,12 +47,10 @@ function getIdentifierDisplay(prod) {
     `;
   }
 
-  // Item text format
   const itemText = hasItemNumber 
     ? `Item: ${escapeHtml(prod.item_number)}`
     : `<span class="loc-badge unassigned" role="button" onclick="promptEditItemNumber('${prod.id}')">Item: Unknown ✎</span>`;
 
-  // Rule 1: SKU always visible
   const skuText = hasSku
     ? `SKU: ${escapeHtml(prod.sku)}`
     : `<span class="loc-badge unassigned" role="button" onclick="promptEditSku('${prod.id}')">SKU: Unknown ✎</span>`;
@@ -123,13 +117,10 @@ function saveNote(id, noteText) {
 function toggleFavorite(prodOrId, starElement) {
   let favorites = getFavorites();
 
-  // 1. Resolve product object if passed string ID or item_number
   let product = typeof prodOrId === 'object' ? prodOrId : null;
 
   if (!product) {
     const targetKey = String(prodOrId).trim();
-    
-    // Check active browse list, search results, OR existing favorites list
     product = browseData.find(p => String(p.id) === targetKey || String(p.item_number) === targetKey) ||
               (window._lastSearchResults || []).find(p => String(p.id) === targetKey || String(p.item_number) === targetKey) ||
               favorites.find(p => String(p.id) === targetKey || String(p.item_number) === targetKey);
@@ -139,7 +130,6 @@ function toggleFavorite(prodOrId, starElement) {
 
   const productItemNumber = String(product.item_number || '').trim();
 
-  // 2. Match by item_number (fallback to ID if item_number is missing)
   const existingIndex = favorites.findIndex(item => {
     if (productItemNumber && String(item.item_number).trim()) {
       return String(item.item_number).trim() === productItemNumber;
@@ -148,11 +138,9 @@ function toggleFavorite(prodOrId, starElement) {
   });
 
   if (existingIndex > -1) {
-    // Remove from favorites
     favorites.splice(existingIndex, 1);
     if (starElement) starElement.classList.remove('active');
   } else {
-    // Add to favorites
     favorites.push({
       id: product.id,
       item_number: productItemNumber,
@@ -168,7 +156,6 @@ function toggleFavorite(prodOrId, starElement) {
 
   saveFavorites(favorites);
 
-  // 3. Re-render favorites tab if currently viewing it
   const favView = document.getElementById('favorites-view');
   if (favView && favView.classList.contains('active')) {
     renderFavoritesUI();
@@ -188,7 +175,7 @@ function moveFavorite(index, direction) {
 }
 
 // ==========================================
-// INTERACTIVE LOCATION UPDATE (D1 API)
+// INTERACTIVE LOCATION UPDATE
 // ==========================================
 function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
   const container = document.getElementById(`loc-edit-${id}`);
@@ -244,7 +231,6 @@ async function saveLocation(id) {
   const newAisle = aisleInput ? aisleInput.value.trim() : '';
   const newBay = bayInput ? bayInput.value.trim() : '';
 
-  // Validate Aisle range (100-199 or 300-399) if an aisle is provided
   if (newAisle !== '') {
     const aisleNum = parseInt(newAisle, 10);
     const isValid = (aisleNum >= 100 && aisleNum <= 199) || (aisleNum >= 300 && aisleNum <= 399);
@@ -270,9 +256,8 @@ async function saveLocation(id) {
 
   const finalIsWrong = (itemInBrowse && itemInBrowse.is_wrong === 1 && !clearFlag) ? 1 : 0;
 
-  // Derive item_number and warehouse_id
   const itemNumber = itemInBrowse?.item_number || (String(id).startsWith('temp_') ? id.replace('temp_', '') : '');
-  const warehouseId = itemInBrowse?.warehouse_id || selectedWarehouseId; // adjust 'selectedWarehouseId' to match your global warehouse variable name
+  const warehouseId = itemInBrowse?.warehouse_id || CURRENT_WAREHOUSE;
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/update-location`, {
@@ -293,7 +278,6 @@ async function saveLocation(id) {
       const currentIsoTime = new Date().toISOString();
 
       if (itemInBrowse) {
-        // If the worker returned a newly generated location ID (replacing a temp_ ID), update it in memory
         if (data.id) {
           itemInBrowse.id = data.id;
         }
@@ -371,31 +355,8 @@ function renderLocationDisplay(id, aisle, bay, isWrong = 0) {
 }
 
 // ==========================================
-// SEARCH LOGIC (D1 API CALL)
+// SEARCH LOGIC
 // ==========================================
-/* let searchDebounceTimer = null;
-
-  function handleSearchInput(e) {
-  const query = e.target.value;
-  clearTimeout(searchDebounceTimer);
-
-  if (!query.trim()) {
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('count').textContent = '';
-    return;
-  }
-
-  searchDebounceTimer = setTimeout(async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}&warehouse=${CURRENT_WAREHOUSE}&show_discontinued=${showDiscontinuedItems}`);
-      const results = await res.json();
-      renderResultsUI(results);
-    } catch (err) {
-      console.error('Search query failed:', err);
-    }
-  }, 200);
-} */
-
 function renderResultsUI(results) {
   const container = document.getElementById('results');
   const countEl = document.getElementById('count');
@@ -491,7 +452,6 @@ function renderFavoritesUI() {
   }
 
   container.innerHTML = favorites.map((prod, index) => {
-    // Key notes off item_number for consistency
     const noteKey = prod.item_number || prod.id;
     const prodNote = notes[noteKey] || '';
     const identifierText = getIdentifierDisplay(prod);
@@ -527,7 +487,7 @@ function renderFavoritesUI() {
 // ==========================================
 // BROWSE PRODUCTS & PAGINATION
 // ==========================================
-let currentBrowseMode = 'name'; // Default: 'name' | Alternative: 'aisle'
+let currentBrowseMode = 'name';
 
 function setBrowseMode(mode) {
   currentBrowseMode = mode;
@@ -548,19 +508,10 @@ async function startBrowse(page = 1) {
 
   let url = `${API_BASE_URL}/api/browse?warehouse=${warehouseId}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}`;
 
-  // Pass reported incorrect flag to API
-  if (showReportedIncorrectOnly) {
-    url += `&show_incorrect=true`;
-  }
-  if (showDiscontinuedItems) {
-    url += `&show_discontinued=true`;
-  }
-  if (selectedCategory) {
-    url += `&category=${encodeURIComponent(selectedCategory)}`;
-  }
-  if (selectedAisle) {
-    url += `&aisle=${encodeURIComponent(selectedAisle)}`;
-  }
+  if (showReportedIncorrectOnly) url += `&show_incorrect=true`;
+  if (showDiscontinuedItems) url += `&show_discontinued=true`;
+  if (selectedCategory) url += `&category=${encodeURIComponent(selectedCategory)}`;
+  if (selectedAisle) url += `&aisle=${encodeURIComponent(selectedAisle)}`;
 
   try {
     const res = await fetch(url);
@@ -570,9 +521,8 @@ async function startBrowse(page = 1) {
     currentBrowsePageNum = data.page || page;
     totalBrowsePages = data.totalPages || 1;
 
-		renderActiveFilterChips();
+    renderActiveFilterChips();
 
-    // Render based on active mode
     if (currentBrowseMode === 'aisle') {
       renderBrowseByAislePage();
     } else if (currentBrowseMode === 'category') {
@@ -618,7 +568,8 @@ function renderBrowsePage() {
   const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = browseData.map(prod => {
-    const isFav = favoriteItemNumbers.has(prod.id);
+    const prodItemNumber = String(prod.item_number || '').trim();
+    const isFav = favoriteItemNumbers.has(prodItemNumber);
     const identifierText = getIdentifierDisplay(prod);
     const favClass = isFav ? 'fav-btn active' : 'fav-btn';
     const aisle = prod.aisle || '';
@@ -655,7 +606,7 @@ function renderBrowsePage() {
     return `
       <div class="browse-product-row">
         <div class="browse-product-details">
-          <div class="browse-product-title"><strong>${prod.product_name}</strong></div>
+          <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
           <div class="product-details">
             ${identifierText} | 
             <span id="loc-edit-${prod.id}">
@@ -667,7 +618,7 @@ function renderBrowsePage() {
             ${timeAgoHtml}
           </div>
         </div>
-        <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+        <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
       </div>
     `;
   }).join('');
@@ -683,7 +634,6 @@ function renderBrowseByCategoryPage() {
     return;
   }
 
-  // Group items by category
   const categoryGroups = {};
   browseData.forEach(prod => {
     const catKey = (prod.category && prod.category.trim()) ? prod.category.trim() : 'Uncategorized';
@@ -698,7 +648,7 @@ function renderBrowseByCategoryPage() {
   });
 
   const favorites = getFavorites();
-  const favoriteItemNumbers = new Set(favorites.map(f => f.id));
+  const favoriteItemNumbers = new Set(favorites.map(f => String(f.item_number).trim()));
 
   container.innerHTML = sortedCategories.map(catKey => {
     const catItems = categoryGroups[catKey];
@@ -710,7 +660,8 @@ function renderBrowseByCategoryPage() {
         </h2>
         <div class="aisle-group-body">
           ${catItems.map(prod => {
-            const isFav = favoriteItemNumbers.has(prod.id);
+            const prodItemNumber = String(prod.item_number || '').trim();
+            const isFav = favoriteItemNumbers.has(prodItemNumber);
             const identifierText = getIdentifierDisplay(prod);
             const favClass = isFav ? 'fav-btn active' : 'fav-btn';
             const aisle = prod.aisle || '';
@@ -753,7 +704,7 @@ function renderBrowseByCategoryPage() {
                     </span>
                   </div>
                 </div>
-                <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+                <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
               </div>
             `;
           }).join('')}
@@ -820,7 +771,8 @@ function renderBrowseByAislePage() {
             return `
               <div class="bay-subgroup">
                 <h3 class="bay-group-header">${subHeadingText}</h3>${items.map(prod => {
-                  const isFav = favoriteItemNumbers.has(prod.id);
+                  const prodItemNumber = String(prod.item_number || '').trim();
+                  const isFav = favoriteItemNumbers.has(prodItemNumber);
                   const identifierText = getIdentifierDisplay(prod);
                   const favClass = isFav ? 'fav-btn active' : 'fav-btn';
                   const aisle = prod.aisle || '';
@@ -852,7 +804,7 @@ function renderBrowseByAislePage() {
                   return `
                     <div class="browse-product-row aisle-item-row">
                       <div class="browse-product-details">
-                        <div class="browse-product-title"><strong>${prod.product_name}</strong></div>
+                        <div class="browse-product-title"><strong>${escapeHtml(prod.product_name)}</strong></div>
                         <div class="product-details">
                           ${identifierText} | 
                           <span id="loc-edit-${prod.id}">
@@ -863,7 +815,7 @@ function renderBrowseByAislePage() {
                           </span>
                         </div>
                       </div>
-                      <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+                      <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
                     </div>
                   `;
                 }).join('')}
@@ -879,8 +831,6 @@ function renderBrowseByAislePage() {
 function getDateGroupLabel(dateStr) {
   if (!dateStr) return 'Unknown Date';
 
-  // 1. Sanitize ISO string: truncate sub-millisecond digits (>3 decimal places) 
-  // e.g. .142774+00:00 -> .142+00:00 so JS Date can parse it properly
   let cleanStr = dateStr.replace(/(\.\d{3})\d+/, '$1');
   if (!cleanStr.endsWith('Z') && !cleanStr.includes('+')) {
     cleanStr += 'Z';
@@ -890,15 +840,13 @@ function getDateGroupLabel(dateStr) {
   if (isNaN(itemDate.getTime())) return 'Unknown Date';
 
   const now = new Date();
-  
-  // Normalize to start of day for accurate calendar comparison
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfItemDate = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
 
   const diffMs = startOfToday - startOfItemDate;
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays <= 0) return 'Today'; // Handles future UTC offset timezones
+  if (diffDays <= 0) return 'Today';
   if (diffDays === 1) return 'Yesterday';
   if (diffDays <= 7) return 'This Week';
   if (diffDays <= 30) return 'This Month';
@@ -916,7 +864,6 @@ function renderBrowseByDatePage() {
     return;
   }
 
-  // Group items by time bucket
   const dateGroups = {};
   browseData.forEach(prod => {
     const groupKey = getDateGroupLabel(prod.updated_at);
@@ -924,7 +871,6 @@ function renderBrowseByDatePage() {
     dateGroups[groupKey].push(prod);
   });
 
-  // Explicit order ensuring Unknown Date is at the very end
   const groupOrder = ['Today', 'Yesterday', 'This Week', 'This Month', 'Earlier', 'Unknown Date'];
   const activeGroups = groupOrder.filter(key => dateGroups[key] && dateGroups[key].length > 0);
 
@@ -941,7 +887,8 @@ function renderBrowseByDatePage() {
         </h2>
         <div class="aisle-group-body">
           ${items.map(prod => {
-            const isFav = favoriteItemNumbers.has(prod.id);
+            const prodItemNumber = String(prod.item_number || '').trim();
+            const isFav = favoriteItemNumbers.has(prodItemNumber);
             const identifierText = getIdentifierDisplay(prod);
             const favClass = isFav ? 'fav-btn active' : 'fav-btn';
             const aisle = prod.aisle || '';
@@ -990,7 +937,7 @@ function renderBrowseByDatePage() {
                     ${timeAgoHtml}
                   </div>
                 </div>
-                <button class="${favClass}" onclick='toggleFavorite(${JSON.stringify(prod)}, this)'>&#9733;</button>
+                <button class="${favClass}" onclick="toggleFavorite('${prod.id}', this)">&#9733;</button>
               </div>
             `;
           }).join('')}
@@ -1036,14 +983,12 @@ async function loadWarehouses() {
 }
 
 function onWarehouseChange(newWarehouseId) {
-  // Extract plain string ID if an object is passed
   const warehouseId = (typeof newWarehouseId === 'object' && newWarehouseId !== null)
     ? (newWarehouseId.warehouse_id || newWarehouseId.id)
     : newWarehouseId;
 
   CURRENT_WAREHOUSE = String(warehouseId);
 
-  // Store in localStorage
   if (typeof newWarehouseId === 'object' && newWarehouseId !== null) {
     localStorage.setItem('selected_warehouse', JSON.stringify(newWarehouseId));
   } else if (!localStorage.getItem('selected_warehouse')) {
@@ -1100,7 +1045,7 @@ function toggleShowDiscontinued(checkbox) {
   } else {
     const searchBox = document.getElementById('search-input');
     if (searchBox && searchBox.value.trim()) {
-      performSearch(); // Re-runs search with mode & loading spinner
+      performSearch();
     }
   }
 }
@@ -1137,7 +1082,6 @@ function toggleFilterDrawer(open) {
   const backdrop = document.getElementById('filterDrawerBackdrop');
   
   if (open) {
-    // Populate categories & aisles whenever opening the drawer
     populateCategoryDropdown();
     populateAisleDropdown();
 
@@ -1156,11 +1100,10 @@ function onBrowseSortChange(sortValue) {
     currentBrowseMode = value;
   }
 
-  // Handle dropdown visibility / updates based on mode
   if (currentBrowseMode === 'aisle') {
     populateAisleDropdown();
   } else if (currentBrowseMode === 'category') {
-    populateCategoryDropdown(); // Populates distinct categories dropdown if present
+    populateCategoryDropdown();
   }
 
   startBrowse(1);
@@ -1264,7 +1207,7 @@ async function performSearch() {
     const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
     if (response.ok) {
       const data = await response.json();
-      window._lastSearchResults = data; // Cache active search results in memory
+      window._lastSearchResults = data;
       renderResultsUI(data);
     } else {
       alert('Search request failed.');
@@ -1284,7 +1227,6 @@ document.addEventListener('DOMContentLoaded', () => {
   populateCategoryDropdown();
   startBrowse(1);
 
-// Initialize search input mode and event listeners
   initSearchModeToggle();
   initVoiceSearch();
 
@@ -1292,12 +1234,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchBtn = document.getElementById('search-btn');
   const radioButtons = document.querySelectorAll('input[name="searchMode"]');
 
-  // Trigger search on button click
   if (searchBtn) {
     searchBtn.addEventListener('click', performSearch);
   }
 
-  // Trigger search on Enter key press
   if (searchInput) {
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -1307,7 +1247,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Dynamic placeholder text depending on selected radio mode
   radioButtons.forEach(radio => {
     radio.addEventListener('change', (e) => {
       const mode = e.target.value;
@@ -1321,7 +1260,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Navigation menu dropdown setup
   const menuToggle = document.getElementById('menuToggle');
   const navDropdown = document.getElementById('navDropdown');
   if (menuToggle && navDropdown) {
@@ -1338,7 +1276,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Rule 3: Allow editing item_number ONLY when it's unknown/blank
 async function promptEditItemNumber(productId) {
   const newItemNumber = prompt("Enter Item Number:");
   if (!newItemNumber || !newItemNumber.trim()) return;
@@ -1346,17 +1283,14 @@ async function promptEditItemNumber(productId) {
   await updateProductIdentifier(productId, { item_number: newItemNumber.trim() });
 }
 
-// Rule 2: Allow typing manually OR scanning barcode via camera when SKU is missing
 async function promptEditSku(productId) {
   const choice = confirm("Press 'OK' to type a SKU manually, or 'Cancel' to open the camera scanner.");
 
   if (choice) {
-    // Manual Input
     const newSku = prompt("Enter SKU manually:");
     if (!newSku || !newSku.trim()) return;
     await updateProductIdentifier(productId, { sku: newSku.trim() });
   } else {
-    // Phone Camera Barcode Scanner
     startCameraBarcodeScanner(async (scannedBarcode) => {
       if (scannedBarcode) {
         await updateProductIdentifier(productId, { sku: scannedBarcode });
@@ -1365,16 +1299,13 @@ async function promptEditSku(productId) {
   }
 }
 
-// Native HTML5 Camera Barcode Scanner implementation
 async function startCameraBarcodeScanner(onScanned) {
   if (!('BarcodeDetector' in window)) {
-    // Fallback if BarcodeDetector API isn't supported natively on device
     const manualFallback = prompt("Camera scanning not natively supported on this browser. Enter SKU manually:");
     if (manualFallback) onScanned(manualFallback.trim());
     return;
   }
 
-  // Create video overlay modal
   const video = document.createElement('video');
   video.style.position = 'fixed';
   video.style.top = '0';
@@ -1432,7 +1363,6 @@ async function startCameraBarcodeScanner(onScanned) {
   }
 }
 
-// API Call to update database
 async function updateProductIdentifier(productId, updates) {
   try {
     const res = await fetch('/api/update-identifier', {
@@ -1444,7 +1374,6 @@ async function updateProductIdentifier(productId, updates) {
     const data = await res.json();
     if (res.ok && data.success) {
       alert("Updated successfully!");
-      // Refresh current search or browse list
       if (typeof performSearch === 'function') performSearch();
     } else {
       alert("Error: " + (data.error || "Failed to update identifier"));
@@ -1465,7 +1394,6 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// app.js
 function initSearchModeToggle() {
   const searchInput = document.getElementById('search-input');
   const radioButtons = document.querySelectorAll('input[name="searchMode"]');
@@ -1478,36 +1406,30 @@ function initSearchModeToggle() {
       searchInput.placeholder = 'Scan price tag or enter item #...';
       searchInput.setAttribute('inputmode', 'numeric');
       searchInput.setAttribute('pattern', '[0-9]*');
-      // Show barcode button for scanning 1D shelf tag barcodes
       if (barcodeBtn) barcodeBtn.style.display = 'inline-flex';
       searchInput.classList.add('has-double-icon');
     } else if (mode === 'product_name') {
       searchInput.placeholder = 'Search by product title...';
       searchInput.setAttribute('inputmode', 'text');
       searchInput.removeAttribute('pattern');
-      // Hide barcode button for text searches
       if (barcodeBtn) barcodeBtn.style.display = 'none';
       searchInput.classList.remove('has-double-icon');
     } else if (mode === 'sku') {
       searchInput.placeholder = 'Scan or enter SKU barcode...';
       searchInput.setAttribute('inputmode', 'numeric');
       searchInput.setAttribute('pattern', '[0-9]*');
-      // Show barcode button for product packaging barcodes
       if (barcodeBtn) barcodeBtn.style.display = 'inline-flex';
       searchInput.classList.add('has-double-icon');
     }
   }
 
-  // Set initial state on load
   const checkedRadio = document.querySelector('input[name="searchMode"]:checked');
   if (checkedRadio) updateInputMode(checkedRadio.value);
 
-  // Listen for radio mode changes
   radioButtons.forEach(radio => {
     radio.addEventListener('change', (e) => updateInputMode(e.target.value));
   });
 
-  // Attach camera scanner to barcode button click
   if (barcodeBtn) {
     barcodeBtn.addEventListener('click', () => {
       if (typeof startCameraBarcodeScanner === 'function') {
@@ -1522,10 +1444,9 @@ function initSearchModeToggle() {
   }
 }
 
-// --- PRODUCT SEARCH INTERACTION CONTROLS ---
 function disableProductSearch(placeholderText = "Select a warehouse first...") {
-  const productInput = document.getElementById('search-input'); // Adjust ID to match your HTML
-  const productButton = document.getElementById('search-btn'); // Adjust ID to match your HTML
+  const productInput = document.getElementById('search-input');
+  const productButton = document.getElementById('search-btn');
 
   if (productInput) {
     productInput.disabled = true;
@@ -1542,8 +1463,8 @@ function disableProductSearch(placeholderText = "Select a warehouse first...") {
 }
 
 function enableProductSearch() {
-  const productInput = document.getElementById('search-input'); // Adjust ID to match your HTML
-  const productButton = document.getElementById('search-btn'); // Adjust ID to match your HTML
+  const productInput = document.getElementById('search-input');
+  const productButton = document.getElementById('search-btn');
 
   if (productInput) {
     productInput.disabled = false;
@@ -1568,7 +1489,7 @@ function initVoiceSearch() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    micBtn.style.display = 'none'; // Hide if browser doesn't support Web Speech API
+    micBtn.style.display = 'none';
     return;
   }
 
@@ -1580,7 +1501,7 @@ function initVoiceSearch() {
   micBtn.addEventListener('click', () => {
     try {
       recognition.start();
-      micBtn.classList.add('listening'); // Add CSS styling class while listening
+      micBtn.classList.add('listening');
     } catch (err) {
       console.error('Speech recognition already started or failed:', err);
     }
@@ -1591,7 +1512,6 @@ function initVoiceSearch() {
     searchInput.value = transcript;
     micBtn.classList.remove('listening');
     
-    // Automatically trigger product search
     if (typeof performSearch === 'function') {
       performSearch();
     }
@@ -1611,7 +1531,6 @@ async function populateCategoryDropdown() {
   const categorySelect = document.getElementById('filterCategorySelect');
   if (!categorySelect) return;
 
-  // 1. Remember what the user currently has selected
   const currentlySelected = categorySelect.value || '';
 
   try {
@@ -1628,7 +1547,6 @@ async function populateCategoryDropdown() {
         option.value = cleanCat;
         option.textContent = cleanCat;
 
-        // 2. Preserve selection if it matches
         if (cleanCat === currentlySelected) {
           option.selected = true;
         }
@@ -1637,7 +1555,6 @@ async function populateCategoryDropdown() {
       });
     }
 
-    // 3. Fallback restore in case element value didn't latch
     if (currentlySelected) {
       categorySelect.value = currentlySelected;
     }
@@ -1702,7 +1619,6 @@ function renderActiveFilterChips() {
     </span>
   `).join('');
 
-  // Store actions on window object for inline onclick binding
   window._activeChipHandlers = chips.map(c => c.clear);
 }
 
