@@ -65,25 +65,39 @@ export default {
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
           // SQL Order By Logic
-          let orderByClause = "ORDER BY product_name ASC";
-          if (sort === 'aisle') {
+          let orderByClause = "ORDER BY gp.product_name ASC";
+          if (sort === 'sku') {
+  				// Pushes empty/NULL SKUs to the bottom so valid SKUs rank first
+				  orderByClause = `
+				    CASE 
+				      WHEN gp.sku IS NULL OR TRIM(gp.sku) = '' THEN 1 
+				      ELSE 0 
+				    END ASC, 
+				    gp.sku ASC, 
+				    gp.product_name ASC
+				  `;
+          } else if (sort === 'aisle') {
             orderByClause = `
               ORDER BY 
-                CAST(aisle AS INTEGER) ASC, 
-                CAST(bay AS INTEGER) ASC, 
+                CAST(loc.aisle AS INTEGER) ASC, 
+                CAST(loc.bay AS INTEGER) ASC, 
                 product_name ASC
             `;
           } else if (sort === 'category') {
             orderByClause = `
               ORDER BY 
-                CASE WHEN category IS NULL OR TRIM(category) = '' THEN 1 ELSE 0 END,
-                category ASC,
-                product_name ASC
+                CASE WHEN gp.category IS NULL OR TRIM(category) = '' THEN 1 ELSE 0 END,
+                gp.category ASC,
+                gp.product_name ASC
             `;
           } else if (sort === 'item_number') {
-            orderByClause = `ORDER BY CAST(item_number AS INTEGER) ASC, item_number ASC`;
-          } else if (sort === 'updated_at' || sort === 'updated') {
-            orderByClause = `ORDER BY updated_at DESC`;
+				  orderByClause = `
+				    ORDER BY 
+				      CASE WHEN gp.item_number GLOB '[0-9]*' THEN CAST(gp.item_number AS INTEGER) ELSE 999999999 END ASC,
+				      gp.item_number ASC
+				  `;
+          } else if (sort === 'updated_at') {
+            orderByClause = `ORDER BY loc.updated_at DESC`;
           }
 
           const selectQuery = `
