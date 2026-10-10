@@ -95,8 +95,8 @@
         &#127908;
       </button>
     </div>
-    <button id="search-btn" class="btn btn-primary" type="button">Search</button><br>
-    Note: First-time searches for a product may take time to load
+    <button id="search-btn" class="btn btn-primary" type="button">Search</button>
+    Note: First-time searches for a product may take time to load<br>
   </div>
 </div>
     
@@ -116,8 +116,8 @@
 
 		<!-- Sort & Filter Control Bar -->
     <div class="browse-controls-bar">
-        <label for="browseSortSelect" style="font-weight: 600; font-size: 14px; color: #555;">Sort By</label>
-        <select id="browseSortSelect" onchange="onBrowseSortChange(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer;">
+        <label class="browse-sort-select-label" for="browseSortSelect">Sort By</label>
+        <select class="browse-sort-select" id="browseSortSelect" onchange="onBrowseSortChange(this.value)">
           <option value="name">Name</option>
           <option value="category">Category</option>
           <option value="aisle">Aisle</option>
@@ -126,7 +126,7 @@
           <option value="updated_at">Date Updated</option>
         </select>
 
-      <button id="openFilterBtn" class="toggle-btn" onclick="toggleFilterDrawer(true)" style="padding: 6px 14px; cursor: pointer;">
+      <button id="openFilterBtn" class="toggle-btn" onclick="toggleFilterDrawer(true)">
         Filter &#9881;
       </button>
     </div>

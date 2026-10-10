@@ -178,6 +178,21 @@ header {
 	justify-content: space-between;
 	gap: 10px;
 }
+
+.browse-sort-select-label {
+	font-weight: 600;
+	font-size: 14px;
+	color: #555;
+}
+	
+.browse-sort-select {
+	padding: 6px 10px; 
+	font-size: 14px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	background-color: #fff;
+	cursor: pointer;
+}
 	
 .browse-cat-btn {
   background-color: #ffffff;
@@ -219,6 +234,7 @@ header {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+	border: 1px solid #ccc;
 }
 
 .toggle-btn.active {
