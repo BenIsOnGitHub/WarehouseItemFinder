@@ -227,10 +227,18 @@
     <div class="product-info">
       <div class="product-title"><strong></strong></div>
       <div class="product-identifiers-row"></div>
+      
+      <!-- Location row structured natively in HTML -->
       <div class="product-location-row">
-        <span class="loc-edit-container"></span>
+        <span class="loc-edit-container" id="">
+          <span class="loc-badge" role="button">
+            <span class="loc-text"></span> ✎
+          </span>
+          <button class="flag-incorrect-btn" style="display:none;"></button>
+        </span>
         <span class="updated-time-tag"></span>
       </div>
+
       <div class="product-link-row" style="display:none;">
         <a href="" target="_blank" class="external-product-link">View on Retailer Website</a>
       </div>

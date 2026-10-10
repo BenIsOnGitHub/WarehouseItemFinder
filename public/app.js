@@ -1383,15 +1383,48 @@ function renderProductCard(prod, options = {}) {
   const clone = template.content.cloneNode(true);
 
   // 1. Title
-  clone.querySelector('.product-title').textContent = prod.product_name || '';
+  clone.querySelector('.product-title strong').textContent = prod.product_name || '';
 
   // 2. Identifiers
   clone.querySelector('.product-identifiers-row').innerHTML = getIdentifierDisplay(prod);
 
-  // 3. Location & Badge
+  // 3. Location & Badge (Pure DOM manipulation, zero HTML strings)
   const locContainer = clone.querySelector('.loc-edit-container');
   locContainer.id = `loc-edit-${prod.id}`;
-  renderLocationDisplay(prod.id, prod.aisle, prod.bay, prod.is_wrong ? 1 : 0);
+
+  const aisle = prod.aisle || '';
+  const bay = prod.bay || '';
+  const isWrong = prod.is_wrong ? 1 : 0;
+
+  const badgeEl = locContainer.querySelector('.loc-badge');
+  const textEl = locContainer.querySelector('.loc-text');
+  const incorrectBtn = locContainer.querySelector('.flag-incorrect-btn');
+
+  const locationStr = aisle ? `Aisle ${aisle}${bay ? ' - Bay ' + bay : ''}` : 'Location unassigned';
+  textEl.textContent = locationStr;
+  
+  badgeEl.className = aisle ? 'loc-badge assigned' : 'loc-badge unassigned';
+  
+  const safeAisle = String(aisle).replace(/'/g, "\\'");
+  const safeBay = String(bay).replace(/'/g, "\\'");
+  badgeEl.onclick = () => openLocationEditor(prod.id, safeAisle, safeBay, isWrong);
+
+  if (aisle) {
+    incorrectBtn.style.display = 'inline-block';
+    if (isWrong) {
+      incorrectBtn.textContent = 'Reported as incorrect';
+      incorrectBtn.className = 'flag-incorrect-btn reported';
+      incorrectBtn.disabled = true;
+      incorrectBtn.onclick = null;
+    } else {
+      incorrectBtn.textContent = 'Report as incorrect';
+      incorrectBtn.className = 'flag-incorrect-btn';
+      incorrectBtn.disabled = false;
+      incorrectBtn.onclick = () => flagLocationIncorrect(prod.id);
+    }
+  } else {
+    incorrectBtn.style.display = 'none';
+  }
 
   // 4. Time ago tag
   const timeText = formatTimeAgo(prod.updated_at);
@@ -1411,7 +1444,7 @@ function renderProductCard(prod, options = {}) {
   if (isFav) favBtn.classList.add('active');
   
   const targetKey = prod.item_number || prod.id;
-  favBtn.onclick = (e) => toggleFavorite(targetKey, favBtn);
+  favBtn.onclick = () => toggleFavorite(targetKey, favBtn);
 
   return clone;
 }
