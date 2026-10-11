@@ -1020,6 +1020,7 @@ header {
   text-align: center; 
   max-width: 300px; 
   width: 100%;
+  position: relative;
 }
 
 .custom-modal-p {
@@ -1031,6 +1032,8 @@ header {
   display: flex; 
   gap: 10px; 
   justify-content: center;
+  flex-direction: column;
+  width: 100%;
 }
 
 .custom-modal-button {

@@ -1014,6 +1014,7 @@ async function promptEditSku(productId) {
   const modal = document.getElementById('skuChoiceModal');
   const cameraBtn = document.getElementById('skuCameraBtn');
   const manualBtn = document.getElementById('skuManualBtn');
+  const closeBtn = document.getElementById('skuCloseBtn');
 
   if (!modal) {
     const choice = confirm("Choose SKU entry method:\n\n[OK] = Camera\n[Cancel] = Manual");
@@ -1081,6 +1082,13 @@ async function promptEditSku(productId) {
       }
       resolve();
     };
+    
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        cleanup();
+        resolve();
+      };
+    } 
   });
 }
 
