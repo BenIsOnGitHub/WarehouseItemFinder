@@ -17,11 +17,9 @@
 <!-- App Navigation Bar -->
 <header class="app-header">
   <div class="header-left">
-    <!-- Icon on the far left -->
     <img src="images/icon-192-square.png" alt="Logo" class="header-logo" />
-    
     <div class="header-title-container">
-      <!-- Clickable Warehouse Selector Text -->
+      <h1 id="page-title" class="app-title">Search</h1>
       <button type="button" id="warehouse-selector-btn" class="warehouse-selector-btn">
         <span id="active-warehouse-text">Set Warehouse</span>
       </button>
@@ -171,7 +169,8 @@
   <section id="donation-view" class="page-view">
   	<h1>Donate</h1>
   	<div>
-  		<a href="https://venmo.com" target="_blank" rel="noopener noreferrer">
+  	<!--	<a href="https://venmo.com/PantSoftware" target="_blank" rel="noopener noreferrer"> -->
+  		<a href=venmo://paycharge?txn=pay&recipients=PantSoftware">
   			<img src="/images/venmo.webp" width="200">
   		</a>
   	</div>
@@ -261,6 +260,22 @@
     </div>
   </div>
 </div>
+
+<!-- App Footer Bar -->
+<footer class="app-footer">
+  <button class="footer-nav-btn" onclick="showFavoritesView()" title="My Favorites">
+    <span class="footer-icon">&#9733;</span>
+    <span class="footer-label">Favorites</span>
+  </button>
+  <button class="footer-nav-btn" onclick="switchView('search-view'); resetSearchView();" title="Search">
+    <span class="footer-icon">&#128269;</span>
+    <span class="footer-label">Search</span>
+  </button>
+  <button class="footer-nav-btn" onclick="switchView('browse-view'); startBrowse(1);" title="Browse">
+    <span class="footer-icon">&#128452;</span>
+    <span class="footer-label">Browse</span>
+  </button>
+</footer>
 
 </body>
 </html>

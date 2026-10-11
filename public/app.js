@@ -728,6 +728,15 @@ function switchView(viewId) {
 
   const navDropdown = document.getElementById('navDropdown');
   if (navDropdown) navDropdown.classList.remove('active');
+
+  // Update header title dynamically
+  const pageTitleEl = document.getElementById('page-title');
+  if (pageTitleEl) {
+    if (viewId === 'search-view') pageTitleEl.textContent = 'Search';
+    else if (viewId === 'browse-view') pageTitleEl.textContent = 'Browse';
+    else if (viewId === 'favorites-view') pageTitleEl.textContent = 'Favorites';
+    else if (viewId === 'donation-view') pageTitleEl.textContent = 'Donate';
+  }
 }
 
 function showFavoritesView() {

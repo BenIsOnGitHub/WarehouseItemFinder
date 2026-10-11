@@ -1176,3 +1176,46 @@ border: 1px solid #ccc;
 .custom-modal-button {
 	padding: 10px 15px;
 }
+
+/* App Footer Bar */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  z-index: 1000;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.footer-nav-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  color: #555555;
+  font-size: 11px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.footer-icon {
+  font-size: 20px;
+}
+
+.footer-nav-btn:hover {
+  color: #0157A0;
+}
+
+/* Add bottom padding to container so content isn't hidden behind the fixed footer */
+.container {
+  padding-bottom: 70px;
+}
