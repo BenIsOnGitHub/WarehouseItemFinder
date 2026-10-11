@@ -16,8 +16,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-	background-color: #005DAA; /* 0 93 170 RGB */
-/* red is #E31837 RGB: 227, 24, 55  */
+	background-color: #0157A0;
   color: white;
   padding: 10px 16px;
   position: relative;
@@ -858,7 +857,7 @@ header {
 .app-header {
   display: flex;
   align-items: center;
-  background-color: #0060a9;
+  background-color: #0157A0;
   color: #ffffff;
   padding: 10px 16px;
 }
