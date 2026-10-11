@@ -116,16 +116,40 @@ header {
   transition: background-color 0.15s ease;
 }
 
-.loc-badge.unassigned {
-  color: #dc3545;
-  background-color: #f8ebd7;
-  border: 1px solid #f5c6cb;
-  cursor: pointer; /* Ensures hover feedback for clickable unknown fields */
+.loc-badge.assigned,
+.loc-badge.unassigned,
+.flag-incorrect-btn {
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.85em;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+.flag-incorrect-btn {
+  background: #e9ecef;
+  color: #6c757d;
+  border: 1px solid #ced4da;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.flag-incorrect-btn.reported {
+  background: #f8d7da;
+  color: #842029;
+  border-color: #f5c2c7;
+  cursor: not-allowed;
+}
+
+.loc-badge.unassigned {
+  color: #dc3545;
+  background-color: #f8ebd7;
+  border: 1px solid #f5c6cb;
+  cursor: pointer; /* Ensures hover feedback for clickable unknown fields */
+  border-radius: 4px;
   font-weight: 500;
 }
 
@@ -133,11 +157,7 @@ header {
   color: #007bff;
   background-color: #e7f0ff;
   border: 1px solid #b8daff;
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 0.85em;
 }
 
 .loc-badge:hover {
