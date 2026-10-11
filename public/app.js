@@ -169,8 +169,11 @@ function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
   const container = document.getElementById(`loc-edit-${id}`);
   if (!container) return;
 
-  const safeAisle = String(currentAisle).replace(/'/g, "\\'");
-  const safeBay = String(currentBay).replace(/'/g, "\\'");
+  const validAisle = (!currentAisle || currentAisle === 'undefined') ? '' : currentAisle;
+  const validBay = (!currentBay || currentBay === 'undefined') ? '' : currentBay;
+
+  const safeAisle = String(validAisle).replace(/'/g, "\\'");
+  const safeBay = String(validBay).replace(/'/g, "\\'");
 
   const bayOptions = [
     ...Array.from({ length: 10 }, (_, i) => String(i + 1)),
@@ -182,7 +185,7 @@ function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
     <select id="bay-input-${id}" class="loc-edit-input bay-input">
       <option value="">Bay</option>
       ${bayOptions.map(opt => `
-        <option value="${opt}" ${String(currentBay) === opt ? 'selected' : ''}>
+        <option value="${opt}" ${String(validBay) === opt ? 'selected' : ''}>
           ${opt}
         </option>
       `).join('')}
@@ -191,7 +194,7 @@ function openLocationEditor(id, currentAisle, currentBay, isWrong = 0) {
 
   container.innerHTML = `
     <div class="loc-edit-form">
-      <input type="number" id="aisle-input-${id}" class="loc-edit-input aisle-input" placeholder="Aisle" value="${currentAisle || ''}">
+      <input type="number" id="aisle-input-${id}" class="loc-edit-input aisle-input" placeholder="Aisle" value="${validAisle}">
       ${baySelectHtml}
       <button class="help-icon-btn" onclick="openHelpModal()" type="button" title="Where do I find the Bay number?">?</button>
       <button class="btn btn-save" onclick="saveLocation('${id}')">Save</button>
@@ -303,9 +306,15 @@ async function flagLocationIncorrect(id) {
     });
 
     if (response.ok) {
-      const itemInBrowse = browseData.find(p => p.id === id);
-      if (itemInBrowse) itemInBrowse.is_wrong = 1;
-      renderLocationDisplay(id, itemInBrowse?.aisle, itemInBrowse?.bay, 1);
+      // Look up item in browseData or search results so we don't lose its aisle/bay info
+      const item = (browseData || []).find(p => p.id === id) ||
+                   (window._lastSearchResults || []).find(p => p.id === id);
+      if (item) {
+        item.is_wrong = 1;
+      }
+      const aisle = item ? item.aisle : '';
+      const bay = item ? item.bay : '';
+      renderLocationDisplay(id, aisle, bay, 1);
       alert('Thank you! Location reported as incorrect.');
     } else {
       alert('Failed to report incorrect location.');
