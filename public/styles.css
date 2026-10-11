@@ -16,8 +16,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-/*  background-color: #0060a9; */ /* Costco Blue */
-  background-color: #013687;
+	background-color: #0060a9;
+/*  background-color: #013687; */
   color: white;
   padding: 10px 16px;
   position: relative;
