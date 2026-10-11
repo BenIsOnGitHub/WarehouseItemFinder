@@ -428,11 +428,10 @@ header {
 }
 
 .product-info {
-/*  flex-grow: 1; */
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px; /* Clean spacing between your new lines */
+  gap: 6px;
 }
 
 .product-title {
@@ -446,7 +445,6 @@ header {
   color: #666;
 }
 
-.product-identifiers-row,
 .product-location-row,
 .product-link-row {
   display: flex;
@@ -454,6 +452,11 @@ header {
   flex-wrap: wrap;
   gap: 6px;
   font-size: 0.9rem;
+}
+
+.product-item-row {
+  font-size: 0.9rem;
+  color: #555;
 }
 
 .updated-time-tag {

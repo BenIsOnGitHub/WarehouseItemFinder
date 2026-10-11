@@ -30,6 +30,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+/*
 function getIdentifierDisplay(prod) {
   const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
   const hasSku = prod.sku && String(prod.sku).trim() !== '';
@@ -49,6 +50,7 @@ function getIdentifierDisplay(prod) {
     </div>
   `;
 }
+*/
 
 function formatTimeAgo(dateStr) {
   if (!dateStr) return '';
@@ -1439,10 +1441,20 @@ function renderProductCard(prod, options = {}) {
   // 1. Title
   clone.querySelector('.product-title strong').textContent = prod.product_name || '';
 
-  // 2. Identifiers
-  clone.querySelector('.product-identifiers-row').innerHTML = getIdentifierDisplay(prod);
+  // 2. Item Number (Plain static text on its own line)
+  const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
+  const itemRow = clone.querySelector('.product-item-row');
+  itemRow.textContent = hasItemNumber ? `Item: ${prod.item_number}` : 'Item number: Unknown';
 
-  // 3. Location & Badge (Pure DOM manipulation, zero HTML strings)
+  // 3. SKU (Interactive badge on its own line)
+  const hasSku = prod.sku && String(prod.sku).trim() !== '';
+  const skuBadge = clone.querySelector('.sku-badge');
+  skuBadge.className = hasSku ? 'sku-badge loc-badge assigned' : 'sku-badge loc-badge unassigned';
+  skuBadge.innerHTML = hasSku ? `SKU: ${escapeHtml(prod.sku)} &#9998;` : 'SKU: Unknown &#9998;';
+  skuBadge.onclick = () => promptEditSku(prod.id);
+  skuBadge.title = "Click to update SKU";
+
+  // 4. Location & Badge
   const locContainer = clone.querySelector('.loc-edit-container');
   locContainer.id = `loc-edit-${prod.id}`;
 
@@ -1480,18 +1492,18 @@ function renderProductCard(prod, options = {}) {
     incorrectBtn.style.display = 'none';
   }
 
-  // 4. Time ago tag
+  // 5. Time ago tag
   const timeText = formatTimeAgo(prod.updated_at);
   clone.querySelector('.updated-time-tag').textContent = timeText ? `(${timeText})` : '';
 
-  // 5. Retailer link
+  // 6. Retailer link
   if (prod.product_url) {
     const linkRow = clone.querySelector('.product-link-row');
     linkRow.style.display = 'block';
     linkRow.querySelector('a').href = prod.product_url;
   }
 
-  // 6. Favorite button state
+  // 7. Favorite button state
   const favBtn = clone.querySelector('.fav-btn');
   const favorites = getFavorites();
   const isFav = favorites.some(f => String(f.item_number).trim() === String(prod.item_number).trim());
