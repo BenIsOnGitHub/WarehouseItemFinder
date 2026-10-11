@@ -116,9 +116,11 @@ header {
 .product-item-row {
   color: #555;
   font-weight: 500;
+  border: 1px solid #f4f4f7;
 }
 
 /* Interactive Badges (SKU & Location) & Incorrect Button */
+.product-item-row,
 .loc-badge,
 .flag-incorrect-btn {
   display: inline-flex;
