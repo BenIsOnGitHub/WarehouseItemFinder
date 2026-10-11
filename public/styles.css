@@ -367,8 +367,7 @@ header {
   padding: 2px 6px;
   font-size: 11px;
   cursor: pointer;
-  margin-left: 6px;
-  height: 24px;
+  margin-left: 6px;;
 }
 
 .flag-incorrect-btn.reported {
@@ -382,7 +381,6 @@ header {
   padding: 2px 6px;
   font-size: 11px;
   margin-left: 6px;
-  height: 24px;
 }
 
 /* Location Inline Inputs & Buttons */
