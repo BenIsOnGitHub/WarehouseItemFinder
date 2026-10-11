@@ -355,6 +355,12 @@ header {
   color: #842029;
   border-color: #f5c2c7;
   cursor: not-allowed;
+  /* trying to match location button */
+  border: 1px;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  margin-left: 6px;
 }
 
 /* Location Inline Inputs & Buttons */

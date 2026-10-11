@@ -88,7 +88,7 @@ async function initWarehouseSelection() {
         return; // EXIT EARLY — DO NOT SHOW POPOVER!
       }
     } catch (e) {
-      console.error("❌ Invalid stored warehouse JSON, clearing...", e);
+      
       localStorage.removeItem('selected_warehouse');
     }
   }
@@ -138,7 +138,7 @@ async function fetchWarehouses() {
     cachedWarehouses = Array.isArray(data) ? data : (data.warehouses || []);
     return cachedWarehouses;
   } catch (err) {
-    console.error("Failed to fetch warehouse list:", err);
+    
     return [];
   }
 }
@@ -227,7 +227,6 @@ async function showLocalMatches(term) {
 
 // --- SORT ALL WAREHOUSES BY DISTANCE & SHOW TOP RESULTS IN DROPDOWN ---
 async function showWarehousesByDistance(userLat, userLng) {
-  console.log(`📐 [DEBUG] Sorting warehouses by distance to lat: ${userLat}, lng: ${userLng}`);
 
   const warehouses = await fetchWarehouses();
   const resultsContainer = getOrCreateResultsContainer();
@@ -329,38 +328,34 @@ async function handleWarehouseSearch(searchInput) {
 
 // --- GEOCODING LOOKUP WITH ZIP FALLBACK ---
 async function geocodeSearchQuery(query) {
-  console.log('🔍 [DEBUG] Starting geocodeSearchQuery for query:', query);
 
   // 1. Check 5-digit ZIP via Zippopotam
   if (/^\d{5}$/.test(query)) {
     try {
-      console.log('📍 [DEBUG] Query recognized as 5-digit ZIP code. Querying Zippopotam API...');
       const zipRes = await fetch(`https://api.zippopotam.us/us/${query}`);
       if (zipRes.ok) {
         const zipData = await zipRes.json();
         if (zipData.places && zipData.places.length > 0) {
           const lat = parseFloat(zipData.places[0].latitude);
           const lng = parseFloat(zipData.places[0].longitude);
-          console.log(`✅ [DEBUG] Zippopotam succeeded! Resolved ${query} to lat: ${lat}, lng: ${lng}`);
           return { lat, lng };
         }
       }
-      console.warn('⚠️ [DEBUG] Zippopotam response was not ok or contained no places.');
+      
     } catch (e) {
-      console.error('❌ [DEBUG] Zippopotam fetch failed:', e);
     }
   }
 
   // 2. OpenStreetMap Nominatim Fallback
   try {
-    console.log('🌐 [DEBUG] Querying Nominatim OpenStreetMap API for query:', query);
+    
     const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
     const response = await fetch(url, {
       headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
     });
 
     if (!response.ok) {
-      console.error('❌ [DEBUG] Nominatim HTTP error:', response.status);
+      
       return null;
     }
 
@@ -368,14 +363,14 @@ async function geocodeSearchQuery(query) {
     if (results && results.length > 0) {
       const lat = parseFloat(results[0].lat);
       const lng = parseFloat(results[0].lon);
-      console.log(`✅ [DEBUG] Nominatim succeeded! Resolved "${query}" to lat: ${lat}, lng: ${lng}`);
+     
       return { lat, lng };
     } else {
-      console.warn('⚠️ [DEBUG] Nominatim returned 0 matching results for query:', query);
+     
     }
     return null;
   } catch (err) {
-    console.error('❌ [DEBUG] Nominatim geocode exception:', err);
+   
     return null;
   }
 }
