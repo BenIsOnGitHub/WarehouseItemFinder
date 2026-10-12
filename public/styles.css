@@ -995,6 +995,17 @@ header {
   overflow-y: auto;
 }
 
+.filter-is-wrong-checkbox {
+	width: 18px; 
+	height: 18px; 
+	cursor: pointer;
+}
+
+.filter-is-wrong-checkbox-label {
+	font-size: 14px; 
+	cursor: pointer;
+}
+
 .filter-footer {
   padding: 16px; 
   border-top: 1px solid #eee; 
