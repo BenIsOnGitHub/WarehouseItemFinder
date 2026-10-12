@@ -780,6 +780,13 @@ header {
   background-color: #0157A0;
   color: #ffffff;
   padding: 10px 16px;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .header-left {
@@ -1079,5 +1086,6 @@ header {
 }
 
 .container {
+	padding-top: 70px;
   padding-bottom: 70px;
 }
