@@ -958,6 +958,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearchModeToggle();
   initVoiceSearch();
 
+	if (CURRENT_WAREHOUSE) {
+		updateWarehouseMappedCount(CURRENT_WAREHOUSE);
+	}
+
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
   const radioButtons = document.querySelectorAll('input[name="searchMode"]');
