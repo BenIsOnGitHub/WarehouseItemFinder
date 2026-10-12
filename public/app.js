@@ -706,6 +706,7 @@ function onWarehouseChange(newWarehouseId) {
     : newWarehouseId;
 
   CURRENT_WAREHOUSE = String(warehouseId);
+  updateWarehouseMappedCount(CURRENT_WAREHOUSE);
 
   if (typeof newWarehouseId === 'object' && newWarehouseId !== null) {
     localStorage.setItem('selected_warehouse', JSON.stringify(newWarehouseId));

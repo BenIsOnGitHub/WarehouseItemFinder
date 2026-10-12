@@ -483,3 +483,27 @@ function getOrCreateResultsContainer() {
   }
   return container;
 }
+
+async function updateWarehouseMappedCount(warehouseId) {
+  const countSpan = document.getElementById('active-warehouse-mapped-count');
+  if (!countSpan) return;
+
+  if (!warehouseId) {
+    countSpan.textContent = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/mapped-count?warehouse=${warehouseId}`);
+    if (res.ok) {
+      const data = await res.json();
+      const x = data.count || 0;
+      countSpan.textContent = ` (${x}/4,000-ish mapped)`;
+    } else {
+      countSpan.textContent = '';
+    }
+  } catch (err) {
+    console.error('Failed to fetch mapped count:', err);
+    countSpan.textContent = '';
+  }
+}

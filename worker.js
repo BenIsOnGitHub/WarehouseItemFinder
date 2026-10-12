@@ -176,6 +176,21 @@ export default {
         return new Response(JSON.stringify(categories), { headers: corsHeaders });
       }
 
+// 3c. Mapped Count API
+      if (pathname === '/api/mapped-count') {
+        const warehouseId = url.searchParams.get('warehouse');
+        const countStmt = await env.DB.prepare(`
+          SELECT COUNT(*) AS count 
+          FROM product_locations 
+          WHERE warehouse_id = ? 
+            AND aisle IS NOT NULL 
+            AND TRIM(aisle) != ''
+        `).bind(warehouseId).first();
+
+        const count = countStmt ? Number(countStmt.count || 0) : 0;
+        return new Response(JSON.stringify({ count }), { headers: corsHeaders });
+      }
+
       // 4. Update Location API
       if (pathname === '/api/update-location' && request.method === 'POST') {
         const body = await request.json();
