@@ -202,29 +202,22 @@ CATEGORY_KEYWORDS = [
   "https://www.costco.com/youth-clothing.html"
 ]
 
-
 OUTPUT_CSV_FILE = "warehouse_products.csv"
 NAMESPACE_COSTCO = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
-
 
 def clean_product_name(title: str) -> str:
     if not title:
         return ""
     return " ".join(title.strip().split()).lower()
 
-
 def generate_uuid(warehouse_id: str, product_name: str) -> str:
     clean_title = clean_product_name(product_name)
     seed = f"{warehouse_id}:{clean_title}"
     return str(uuid.uuid5(NAMESPACE_COSTCO, seed))
 
-
 def extract_category_name(category_url: str, product_entry: dict = None) -> str:
-    """Extracts human-readable category string from product metadata or URL slug."""
     if product_entry and isinstance(product_entry, dict):
         product = product_entry.get("product", {})
-        
-        # 1. Check GRS Breadcrumb List
         breadcrumbs = product.get("breadcrumbs") or product_entry.get("breadcrumbs", [])
         if isinstance(breadcrumbs, list) and breadcrumbs:
             crumbs = [
@@ -235,7 +228,6 @@ def extract_category_name(category_url: str, product_entry: dict = None) -> str:
             if crumbs:
                 return " > ".join(crumbs)
 
-        # 2. Check Product Categories / Taxonomy attributes
         attributes = product.get("attributes", {})
         for cat_key in ["category", "category_name", "department", "department_name"]:
             if cat_key in attributes:
@@ -243,7 +235,6 @@ def extract_category_name(category_url: str, product_entry: dict = None) -> str:
                 if val:
                     return str(val).strip()
 
-    # 3. Fallback: Parse URL Slug (e.g. 'frozen-treat-ice-cream-makers.html' -> 'Frozen Treat Ice Cream Makers')
     if category_url:
         path = urllib.parse.urlparse(category_url).path.rstrip('/')
         slug = path.split('/')[-1].replace('.html', '')
@@ -253,9 +244,7 @@ def extract_category_name(category_url: str, product_entry: dict = None) -> str:
 
     return "Uncategorized"
 
-
 def extract_warehouse_products(data, active_warehouse_id, category_url):
-    """Parses Costco GRS API payload using active warehouse ID."""
     items = []
     if not isinstance(data, dict):
         return items
@@ -291,7 +280,6 @@ def extract_warehouse_products(data, active_warehouse_id, category_url):
         product_id = ""
         item_number = ""
 
-        # Any ID longer than 7 digits or > 9,999,999 is classified as product_id
         if raw_id and (len(raw_id) > 7 or (raw_id.isdigit() and int(raw_id) > 9999999)):
             product_id = raw_id
         else:
@@ -347,9 +335,7 @@ def extract_warehouse_products(data, active_warehouse_id, category_url):
 
     return items
 
-
 async def extract_warehouse_id_from_cookie(context) -> str:
-    """Parses WAREHOUSEDELIVERY_WHS cookie for nearestWarehouse catalog ID."""
     cookies = await context.cookies()
     for cookie in cookies:
         if cookie["name"] == "WAREHOUSEDELIVERY_WHS":
@@ -369,7 +355,6 @@ async def extract_warehouse_id_from_cookie(context) -> str:
                     return match.group(1)
 
     return None
-
 
 async def main():
     seen_identifiers = set()
@@ -435,65 +420,4 @@ async def main():
                 current_category_url = keyword
                 print(f"\n" + "=" * 60)
                 print(f"Starting Category: {keyword.upper()}")
-                print("=" * 60)
-
-                current_page = 1
-                MAX_SAFETY_PAGES = 5
-
-                while current_page <= MAX_SAFETY_PAGES:
-                    target_url = f"{keyword}?refinement=buyInWarehouse%3Dtrue&currentPage={current_page}"
-                    print(f"\n[Page {current_page}] Navigating: {target_url}")
-
-                    intercepted_responses.clear()
-
-                    try:
-                        await page.bring_to_front()
-                        await page.goto(target_url, wait_until="domcontentloaded", timeout=30000)
-
-                        await asyncio.sleep(1.5)
-                        await page.evaluate("""() => {
-                            window.focus();
-                            window.scrollTo(0, document.body.scrollHeight / 2);
-                        }""")
-                        await asyncio.sleep(1.5)
-                        await page.evaluate("""() => {
-                            window.scrollTo(0, document.body.scrollHeight);
-                        }""")
-                        await asyncio.sleep(2.0)
-
-                    except Exception as e:
-                        print(f"  [!] Navigation warning: {e}")
-
-                    added_count = 0
-                    scrape_time = datetime.now(timezone.utc).isoformat()
-
-                    for data in intercepted_responses:
-                        extracted = extract_warehouse_products(data, active_warehouse_id, current_category_url)
-
-                        for item in extracted:
-                            title_key = clean_product_name(item["title"])
-                            dedup_key = f"{active_warehouse_id}:{title_key}"
-
-                            if dedup_key not in seen_identifiers:
-                                seen_identifiers.add(dedup_key)
-                                record_id = generate_uuid(active_warehouse_id, item["title"])
-
-                                writer.writerow([
-                                    record_id, active_warehouse_id, item["product_id"], item["item_number"],
-                                    item["title"], item["category"], item["category_url"], item["url"], 
-                                    "", "", 0, 0, scrape_time
-                                ])
-                                csv_file.flush()
-                                added_count += 1
-
-                    if added_count > 0:
-                        print(f"      [GRS API Capture] Saved {added_count} products (Total recorded: {len(seen_identifiers)}).")
-
-                    current_page += 1
-                    await asyncio.sleep(random.uniform(1.5, 2.5))
-
-        await context.close()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+                print("=" *
