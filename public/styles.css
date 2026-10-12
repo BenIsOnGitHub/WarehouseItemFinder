@@ -828,6 +828,17 @@ header {
   transition: color 0.2s ease;
 }
 
+.warehouse-stat {
+	background: none;
+  border: none;
+  color: #e0e6ed;
+  font-size: 13px;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
 .warehouse-selector-btn:hover {
   color: #ffffff;
 }
