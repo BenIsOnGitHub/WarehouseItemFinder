@@ -415,7 +415,7 @@ function renderFavoritesUI() {
 // ==========================================
 // BROWSE PRODUCTS & PAGINATION
 // ==========================================
-let currentBrowseMode = 'name';
+let currentBrowseMode = document.getElementById('browseSortSelect')?.value || 'aisle';
 
 function setBrowseMode(mode) {
   currentBrowseMode = mode;
