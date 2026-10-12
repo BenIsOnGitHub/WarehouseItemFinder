@@ -935,75 +935,54 @@ header {
   cursor: pointer;
 }
 
-.filter-category-select-outer {
-  padding: 16px; 
-  flex: 1; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 16px; 
-  overflow-y: auto;
-}
-
-.filter-category-select-inner {
-  display: block; 
-  font-weight: 600; 
-  font-size: 13px; 
-  margin-bottom: 6px; 
-  color: #444;
-}
-
-.filter-category-select {
-  width: 100%; 
-  padding: 8px; 
-  border-radius: 6px; 
-  border: 1px solid #ccc;
-}
-
+.filter-category-select-outer,
 .filter-aisle-select-outer {
   padding: 16px; 
-  flex: 1; 
   display: flex; 
   flex-direction: column; 
-  gap: 16px; 
-  overflow-y: auto;
+  gap: 8px;
 }
 
+.filter-category-select-inner,
 .filter-aisle-select-inner {
   display: block; 
   font-weight: 600; 
   font-size: 13px; 
-  margin-bottom: 6px; 
   color: #444;
 }
 
+.filter-category-select,
 .filter-aisle-select {
-  width: 100%; 
-  padding: 8px; 
+  width: 100%;
+  height: 40px;
+  padding: 8px 12px;
   border-radius: 6px; 
   border: 1px solid #ccc;
+  background-color: #ffffff;
+  font-size: 14px;
+  box-sizing; border-box;
 }
 
 .filter-is-wrong {
   display: flex; 
-  align-items: center; 
-/*  gap: 8px; */ 
-  margin-top: 8px;
+  align-items: center;
+  gap: 10px;
   padding: 16px; 
-  flex: 1; 
-  flex-direction: column; 
-  gap: 16px; 
-  overflow-y: auto;
+  margin-top: 4px;
 }
 
 .filter-is-wrong-checkbox {
 	width: 18px; 
 	height: 18px; 
 	cursor: pointer;
+	flex-shrink: 0;
 }
 
 .filter-is-wrong-checkbox-label {
-	font-size: 14px; 
+	font-size: 14px;
 	cursor: pointer;
+	color: #333;
+  line-height: 1.3;
 }
 
 .filter-footer {
