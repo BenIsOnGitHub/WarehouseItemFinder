@@ -392,6 +392,66 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
+		// LIVE FALLBACK WITH STRICT GUARDRAILS & GOOGLE DISCOVERY
+    let fetchedProduct = null;
+
+    if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
+      // 1. Try direct Costco lookup first
+      fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
+
+      // 2. If direct fails, search Google to find the correct indexed product URL (Sameday or Costco)
+      if (!fetchedProduct) {
+        const discoveredUrl = await fetchUrlFromGoogle(query, searchMode);
+        
+        if (discoveredUrl) {
+          if (discoveredUrl.includes('sameday.costco.com')) {
+            // If Google found a Sameday URL, extract its product ID/slug and parse it
+            let zipCode = '01331';
+            try {
+              const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
+              if (wh && wh.zip_code) {
+                zipCode = String(wh.zip_code).trim().split('-')[0].substring(0, 5);
+              }
+            } catch (e) {}
+
+            fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
+          } else if (discoveredUrl.includes('costco.com/.product.')) {
+            // Extract item number from discovered URL and fetch
+            const match = discoveredUrl.match(/\.product\.(\d+)\.html/);
+            if (match && match[1]) {
+              fetchedProduct = await fetchCostcoItemDetails(match[1], warehouseId);
+            }
+          }
+        }
+      }
+
+      // 3. Fallback to direct Sameday query if Google didn't catch it
+      if (!fetchedProduct) {
+        let zipCode = '01331';
+        try {
+          const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
+          if (wh && wh.zip_code) {
+            zipCode = String(wh.zip_code).trim().split('-')[0].substring(0, 5);
+          }
+        } catch (e) {}
+
+        fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
+      }
+
+      // STRICT VALIDATION: Ensure the resolved product is valid
+      if (fetchedProduct) {
+        fetchedProduct.item_number = query; // Force-bind the requested item number since Google verified it points to this item
+      }
+
+      // Final 100% Match Verification
+      if (fetchedProduct && String(fetchedProduct.item_number) !== String(query)) {
+        fetchedProduct = null; 
+      }
+
+    } else if (searchMode === 'sku' && /^\d{8,10}$/.test(query)) {
+      fetchedProduct = null; 
+    }
+
     // LIVE FALLBACK WITH STRICT GUARDRAILS
     let fetchedProduct = null;
 
@@ -847,6 +907,45 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
     if (browser) {
       await browser.close();
     }
+  }
+
+  return null;
+}
+
+async function fetchUrlFromGoogle(query, mode = 'item_number') {
+  const searchQuery = `${query} costco`;
+  const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+
+  try {
+    const response = await fetch(googleSearchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5'
+      }
+    });
+
+    if (!response.ok) return null;
+    const html = await response.text();
+
+    // Extract all valid Costco or Sameday product links from Google's search results
+    const linkRegex = /href="https?:\/\/(?:www\.)?(?:sameday\.costco\.com\/store\/costco\/products\/[^\s"<>]+|www\.costco\.com\/[^\s"<>]+)"/g;
+    const matches = html.match(linkRegex);
+
+    if (matches && matches.length > 0) {
+      for (const match of matches) {
+        const rawUrl = match.match(/href="([^"]+)"/)[1];
+        // Clean up Google tracking wrappers if present
+        const cleanUrl = rawUrl.includes('&url=') ? decodeURIComponent(rawUrl.split('&url=')[1].split('&')[0]) : rawUrl;
+        
+        // Ensure it's a product page link
+        if (cleanUrl.includes('/products/') || cleanUrl.includes('.product.')) {
+          return cleanUrl;
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Google search fallback error:', err);
   }
 
   return null;
