@@ -392,7 +392,7 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
-		// LIVE FALLBACK WITH STRICT GUARDRAILS & GOOGLE DISCOVERY
+    // LIVE FALLBACK WITH STRICT GUARDRAILS & GOOGLE DISCOVERY
     let fetchedProduct = null;
 
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
@@ -405,7 +405,6 @@ async function handleSearch(request, env, corsHeaders) {
         
         if (discoveredUrl) {
           if (discoveredUrl.includes('sameday.costco.com')) {
-            // If Google found a Sameday URL, extract its product ID/slug and parse it
             let zipCode = '01331';
             try {
               const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
@@ -416,7 +415,6 @@ async function handleSearch(request, env, corsHeaders) {
 
             fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
           } else if (discoveredUrl.includes('costco.com/.product.')) {
-            // Extract item number from discovered URL and fetch
             const match = discoveredUrl.match(/\.product\.(\d+)\.html/);
             if (match && match[1]) {
               fetchedProduct = await fetchCostcoItemDetails(match[1], warehouseId);
@@ -440,51 +438,10 @@ async function handleSearch(request, env, corsHeaders) {
 
       // STRICT VALIDATION: Ensure the resolved product is valid
       if (fetchedProduct) {
-        fetchedProduct.item_number = query; // Force-bind the requested item number since Google verified it points to this item
+        fetchedProduct.item_number = query; 
       }
 
       // Final 100% Match Verification
-      if (fetchedProduct && String(fetchedProduct.item_number) !== String(query)) {
-        fetchedProduct = null; 
-      }
-
-    } else if (searchMode === 'sku' && /^\d{8,10}$/.test(query)) {
-      fetchedProduct = null; 
-    }
-
-    // LIVE FALLBACK WITH STRICT GUARDRAILS
-    let fetchedProduct = null;
-
-    if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
-      // 1. Try direct Costco lookup first
-      fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
-
-      // 2. If Costco fails, try Sameday as a secondary fallback
-      if (!fetchedProduct) {
-        let zipCode = '01331';
-        try {
-          const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
-          if (wh && wh.zip_code) {
-            zipCode = String(wh.zip_code).trim().split('-')[0].substring(0, 5);
-          }
-        } catch (e) {}
-
-        const samedayProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
-        
-        // STRICT VALIDATION: Only accept Sameday's product if its returned ID/URL 
-        // explicitly contains the item number, OR if we explicitly assign/verify it.
-        if (samedayProduct) {
-          const returnedId = String(samedayProduct.id || '').replace('temp_', '');
-          const returnedUrl = String(samedayProduct.product_url || '');
-
-          if (returnedId === query || returnedUrl.includes(query) || samedayProduct.product_name) {
-            samedayProduct.item_number = query;
-            fetchedProduct = samedayProduct;
-          }
-        }
-      }
-
-      // Final 100% Match Verification: Absolute assurance that nothing mismatched gets through
       if (fetchedProduct && String(fetchedProduct.item_number) !== String(query)) {
         fetchedProduct = null; 
       }
