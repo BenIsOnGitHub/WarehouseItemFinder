@@ -700,40 +700,49 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env, di
       } catch (e) {}
     }
 
-// PROGRAMMATIC TEXT VALIDATION & TITLE CLEANING
+// PROGRAMMATIC TEXT VALIDATION & ROBUST TITLE EXTRACTION
     const pageValidation = await page.evaluate((targetItem) => {
       const bodyText = document.body.innerText || '';
       const hasItemNumber = bodyText.includes(targetItem);
       
-      // Look for a proper product title header
-      const h1s = Array.from(document.querySelectorAll('h1'));
       let title = '';
 
-      for (const h1 of h1s) {
-        const text = h1.textContent.trim();
-        // Ignore headers that are just echoing the search query or results wrapper
-        if (text && !text.includes(`Results for`) && !text.includes(targetItem) && text.length > 5) {
-          title = text;
-          break;
+      // 1. Try common Sameday/Instacart product title selectors first
+      const selectors = [
+        '[data-testid="product-title"]',
+        'h1[class*="ProductTitle"]',
+        'h1',
+        '[data-testid="item_card_name"]'
+      ];
+
+      for (const selector of selectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent) {
+          const text = el.textContent.trim();
+          // Make sure it's a real title and not a search wrapper
+          if (text && !text.toLowerCase().includes('results for') && text.length > 3) {
+            title = text;
+            break;
+          }
         }
       }
 
-      // Fallback to meta title or product card name if h1 is missing/invalid
-      if (!title) {
-        const metaTitle = document.querySelector('meta[property="og:title"]');
-        if (metaTitle) {
-          const content = metaTitle.getAttribute('content');
-          if (content && !content.includes(targetItem)) title = content;
+      // 2. Fallback to document.title if no element matched
+      if (!title && document.title) {
+        // e.g., "Herringbone Microfiber Down Alternative Blanket... | Costco Sameday"
+        let docTitle = document.title.split('|')[0].split('-')[0].trim();
+        if (docTitle && !docTitle.toLowerCase().includes('results for')) {
+          title = docTitle;
         }
       }
 
       return {
         hasItemNumber,
-        title
+        title: title.replace(/\s+/g, ' ').trim()
       };
     }, itemNumber);
 
-    // If the item number text is missing OR we couldn't find a real product title, reject it!
+    // If the item number text is missing OR the title is still empty, reject it!
     if (!pageValidation.hasItemNumber || !pageValidation.title) {
       return null; 
     }
