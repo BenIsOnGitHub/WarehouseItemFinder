@@ -700,13 +700,32 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env, di
       } catch (e) {}
     }
 
-    // PROGRAMMATIC TEXT VALIDATION: Verify the page text actually contains the item number
+// PROGRAMMATIC TEXT VALIDATION & TITLE CLEANING
     const pageValidation = await page.evaluate((targetItem) => {
       const bodyText = document.body.innerText || '';
       const hasItemNumber = bodyText.includes(targetItem);
       
-      const titleEl = document.querySelector('h1') || document.querySelector('[data-testid="item_card_name"]');
-      const title = titleEl ? titleEl.textContent.trim() : '';
+      // Look for a proper product title header
+      const h1s = Array.from(document.querySelectorAll('h1'));
+      let title = '';
+
+      for (const h1 of h1s) {
+        const text = h1.textContent.trim();
+        // Ignore headers that are just echoing the search query or results wrapper
+        if (text && !text.includes(`Results for`) && !text.includes(targetItem) && text.length > 5) {
+          title = text;
+          break;
+        }
+      }
+
+      // Fallback to meta title or product card name if h1 is missing/invalid
+      if (!title) {
+        const metaTitle = document.querySelector('meta[property="og:title"]');
+        if (metaTitle) {
+          const content = metaTitle.getAttribute('content');
+          if (content && !content.includes(targetItem)) title = content;
+        }
+      }
 
       return {
         hasItemNumber,
@@ -714,7 +733,7 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env, di
       };
     }, itemNumber);
 
-    // If the item number text is missing from the page, reject it instantly!
+    // If the item number text is missing OR we couldn't find a real product title, reject it!
     if (!pageValidation.hasItemNumber || !pageValidation.title) {
       return null; 
     }
