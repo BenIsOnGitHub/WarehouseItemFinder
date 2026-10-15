@@ -392,8 +392,11 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
+    // LIVE FALLBACK WITH STRICT GUARDRAILS
+    let fetchedProduct = null;
+
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
-      let fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
+      fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
       if (!fetchedProduct) {
         let zipCode = '01331';
@@ -404,27 +407,46 @@ async function handleSearch(request, env, corsHeaders) {
           }
         } catch (e) {}
 
-        fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
+        const samedayProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
+        
+        // Strict Item Number Validation
+        if (samedayProduct && (String(samedayProduct.item_number) === String(query) || String(samedayProduct.id).includes(query))) {
+          fetchedProduct = samedayProduct;
+        }
       }
 
-      if (fetchedProduct) {
-        await env.DB.prepare(`
-          INSERT INTO global_products (item_number, product_name, category, product_url, updated_at)
-          VALUES (?, ?, ?, ?, datetime('now'))
-          ON CONFLICT(item_number) DO UPDATE SET
-            product_name = excluded.product_name,
-            category = excluded.category,
-            product_url = excluded.product_url
-        `).bind(
-          query,
-          fetchedProduct.product_name || '',
-          fetchedProduct.category || '',
-          fetchedProduct.product_url || ''
-        ).run();
-
-        fetchedProduct.id = `temp_${query}`;
-        return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
+      // Final 100% Match Verification for Item Number
+      if (fetchedProduct && String(fetchedProduct.item_number) !== String(query)) {
+        fetchedProduct = null; 
       }
+
+    } else if (searchMode === 'sku' && /^\d{8,10}$/.test(query)) {
+      // If you implement a live SKU lookup function in the future, 
+      // place it here and enforce that fetchedProduct.sku === query.
+      // For now, if it's not in the DB, SKU search won't guess incorrectly.
+      fetchedProduct = null; 
+    }
+
+    // Save to database only if a valid, strictly matched product was found
+    if (fetchedProduct) {
+      const targetItemNum = fetchedProduct.item_number || query;
+
+      await env.DB.prepare(`
+        INSERT INTO global_products (item_number, product_name, category, product_url, updated_at)
+        VALUES (?, ?, ?, ?, datetime('now'))
+        ON CONFLICT(item_number) DO UPDATE SET
+          product_name = excluded.product_name,
+          category = excluded.category,
+          product_url = excluded.product_url
+      `).bind(
+        targetItemNum,
+        fetchedProduct.product_name || '',
+        fetchedProduct.category || '',
+        fetchedProduct.product_url || ''
+      ).run();
+
+      fetchedProduct.id = `temp_${targetItemNum}`;
+      return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
     }
 
     return new Response(JSON.stringify([]), { headers: corsHeaders });
