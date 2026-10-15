@@ -392,34 +392,19 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
-    // LIVE FALLBACK WITH PROGRAMMATIC TEXT VALIDATION & GOOGLE DISCOVERY
+// LIVE FALLBACK WITH WAREHOUSE RUNNER
     let fetchedProduct = null;
 
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
       // 1. Try direct Costco lookup first
       fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
-      // 2. If direct fails, check Google for an indexed Sameday or Costco URL
-      let discoveredUrl = null;
+      // 2. If Costco direct fails, fall back to WarehouseRunner
       if (!fetchedProduct) {
-        discoveredUrl = await fetchUrlFromGoogle(query, searchMode);
+        fetchedProduct = await fetchFromWarehouseRunner(query, warehouseId, env);
       }
 
-      // 3. Invoke Sameday scraper (passing the discovered URL if Google found one)
-      if (!fetchedProduct) {
-        let zipCode = '01331';
-        try {
-          const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
-          if (wh && wh.zip_code) {
-            zipCode = String(wh.zip_code).trim().split('-')[0].substring(0, 5);
-          }
-        } catch (e) {}
-
-        const targetSamedayUrl = (discoveredUrl && discoveredUrl.includes('sameday.costco.com')) ? discoveredUrl : null;
-        fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env, targetSamedayUrl);
-      }
-
-      // Final 100% Match Verification
+      // Final 100% Match Verification: Ensure the item number matches precisely
       if (fetchedProduct && String(fetchedProduct.item_number) !== String(query)) {
         fetchedProduct = null; 
       }
@@ -809,6 +794,75 @@ async function fetchUrlFromGoogle(query, mode = 'item_number') {
     }
   } catch (err) {
     console.error('Google search fallback error:', err);
+  }
+
+  return null;
+}
+
+async function fetchFromWarehouseRunner(itemNumber, warehouseId, env) {
+  // Directly target the predictable product page URL
+  const targetUrl = `https://app.warehouserunner.com/costco/${encodeURIComponent(itemNumber)}`;
+  let browser = null;
+
+  try {
+    browser = await puppeteer.launch(env.MYBROWSER);
+    const page = await browser.newPage();
+
+    await page.setViewport({ width: 1280, height: 800 });
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+    );
+
+    try {
+      await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    } catch (e) {}
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // PROGRAMMATIC TEXT VALIDATION: Verify the page text contains your exact item number
+    const pageValidation = await page.evaluate((targetItem) => {
+      const bodyText = document.body.innerText || '';
+      const hasItemNumber = bodyText.includes(targetItem);
+      
+      // Extract the product title
+      const h1El = document.querySelector('h1');
+      let title = h1El ? h1El.textContent.trim() : '';
+
+      if (!title && document.title) {
+        title = document.title.split('|')[0].split('-')[0].trim();
+      }
+
+      return {
+        hasItemNumber,
+        title: title.replace(/\s+/g, ' ').trim()
+      };
+    }, itemNumber);
+
+    // If the item number is missing from the page or title is empty, reject it
+    if (!pageValidation.hasItemNumber || !pageValidation.title) {
+      return null;
+    }
+
+    return {
+      id: `temp_${itemNumber}`,
+      item_number: itemNumber,
+      product_id: '',
+      product_name: pageValidation.title,
+      category: 'Uncategorized',
+      product_url: page.url(),
+      warehouse_id: warehouseId,
+      aisle: '',
+      bay: '',
+      is_wrong: 0,
+      is_discontinued: 0
+    };
+
+  } catch (err) {
+    console.error(`💥 [WarehouseRunner Puppeteer Exception]:`, err);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 
   return null;
