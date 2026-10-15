@@ -892,11 +892,11 @@ async function fetchUrlFromGoogle(query, mode = 'item_number') {
     if (matches && matches.length > 0) {
       for (const match of matches) {
         const rawUrl = match.match(/href="([^"]+)"/)[1];
-        // Clean up Google tracking wrappers if present
         const cleanUrl = rawUrl.includes('&url=') ? decodeURIComponent(rawUrl.split('&url=')[1].split('&')[0]) : rawUrl;
         
-        // Ensure it's a product page link
-        if (cleanUrl.includes('/products/') || cleanUrl.includes('.product.')) {
+        // STRICT CHECK: Only accept the URL if it explicitly contains our searched item number 
+        // or a matching product segment in the URL path. If it's a generic landing page, skip it!
+        if (cleanUrl.includes(query) || cleanUrl.includes('.product.' + query)) {
           return cleanUrl;
         }
       }
