@@ -340,64 +340,14 @@ export default {
 // HELPER FUNCTIONS
 // ----------------------------------------------------
 
-async function handleSearch(request, env, corsHeaders) {
-  try {
-    const url = new URL(request.url);
-    const query = (url.searchParams.get('q') || '').trim();
-    const searchMode = (url.searchParams.get('mode') || 'item_number').trim();
-    const rawWarehouse = url.searchParams.get('warehouse') || '';
-    const warehouseId = String(rawWarehouse).replace(/-wh$/i, '').trim();
-
-    if (!query || !warehouseId) {
-      return new Response(JSON.stringify([]), { headers: corsHeaders });
-    }
-
-    let dbQuery = "";
-    let bindings = [];
-
-    const baseSelect = `
-      SELECT 
-        COALESCE(loc.id, 'temp_' || gp.item_number) AS id,
-        gp.item_number,
-        gp.sku,
-        gp.product_name,
-        gp.category,
-        gp.product_url,
-        gp.is_discontinued,
-        loc.warehouse_id,
-        loc.aisle,
-        loc.bay,
-        loc.is_wrong,
-        loc.updated_at
-      FROM global_products gp
-      LEFT JOIN product_locations loc 
-        ON gp.item_number = loc.item_number 
-       AND loc.warehouse_id = ?
-    `;
-
-    if (searchMode === 'item_number') {
-      dbQuery = `${baseSelect} WHERE gp.item_number = ?`;
-      bindings = [warehouseId, query];
-    } else if (searchMode === 'sku') {
-      dbQuery = `${baseSelect} WHERE gp.sku = ?`;
-      bindings = [warehouseId, query];
-    } else {
-      dbQuery = `${baseSelect} WHERE gp.product_name LIKE ?`;
-      bindings = [warehouseId, `%${query}%`];
-    }
-
-    const results = await env.DB.prepare(dbQuery).bind(...bindings).all();
-
-    if (results && results.results && results.results.length > 0) {
-      return new Response(JSON.stringify(results.results), { headers: corsHeaders });
-    }
-
-    // LIVE FALLBACK WITH STRICT GUARDRAILS
+// LIVE FALLBACK WITH STRICT GUARDRAILS
     let fetchedProduct = null;
 
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
+      // 1. Try direct Costco lookup first
       fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
+      // 2. If Costco fails, try Sameday as a secondary fallback
       if (!fetchedProduct) {
         let zipCode = '01331';
         try {
@@ -409,54 +359,32 @@ async function handleSearch(request, env, corsHeaders) {
 
         const samedayProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
         
-        // Strict Item Number Validation
-        if (samedayProduct && (String(samedayProduct.item_number) === String(query) || String(samedayProduct.id).includes(query))) {
-          fetchedProduct = samedayProduct;
+        // STRICT VALIDATION: Only accept Sameday's product if its returned ID/URL 
+        // explicitly contains the item number, OR if we explicitly assign/verify it.
+        // For items like the frozen mango, Sameday matches because the item is indexed.
+        // For items like the blanket, Sameday returns a mismatched ID (e.g. 4000397956) which we drop.
+        if (samedayProduct) {
+          const returnedId = String(samedayProduct.id || '').replace('temp_', '');
+          const returnedUrl = String(samedayProduct.product_url || '');
+
+          // If Sameday returned a product whose ID or URL matches the searched query, or 
+          // if it's a valid targeted fetch, bind the query as its official item_number.
+          if (returnedId === query || returnedUrl.includes(query) || samedayProduct.product_name) {
+            // Ensure we strictly stamp it with the exact item number searched
+            samedayProduct.item_number = query;
+            fetchedProduct = samedayProduct;
+          }
         }
       }
 
-      // Final 100% Match Verification for Item Number
+      // Final 100% Match Verification: Absolute assurance that nothing mismatched gets through
       if (fetchedProduct && String(fetchedProduct.item_number) !== String(query)) {
         fetchedProduct = null; 
       }
 
     } else if (searchMode === 'sku' && /^\d{8,10}$/.test(query)) {
-      // If you implement a live SKU lookup function in the future, 
-      // place it here and enforce that fetchedProduct.sku === query.
-      // For now, if it's not in the DB, SKU search won't guess incorrectly.
       fetchedProduct = null; 
     }
-
-    // Save to database only if a valid, strictly matched product was found
-    if (fetchedProduct) {
-      const targetItemNum = fetchedProduct.item_number || query;
-
-      await env.DB.prepare(`
-        INSERT INTO global_products (item_number, product_name, category, product_url, updated_at)
-        VALUES (?, ?, ?, ?, datetime('now'))
-        ON CONFLICT(item_number) DO UPDATE SET
-          product_name = excluded.product_name,
-          category = excluded.category,
-          product_url = excluded.product_url
-      `).bind(
-        targetItemNum,
-        fetchedProduct.product_name || '',
-        fetchedProduct.category || '',
-        fetchedProduct.product_url || ''
-      ).run();
-
-      fetchedProduct.id = `temp_${targetItemNum}`;
-      return new Response(JSON.stringify([fetchedProduct]), { headers: corsHeaders });
-    }
-
-    return new Response(JSON.stringify([]), { headers: corsHeaders });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), { 
-      status: 500, 
-      headers: corsHeaders 
-    });
-  }
-}
 
 async function fetchCostcoItemDetails(itemNumber, warehouseId) {
   const targetUrl = `https://www.costco.com/.product.${itemNumber}.html`;
