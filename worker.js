@@ -392,38 +392,20 @@ async function handleSearch(request, env, corsHeaders) {
       return new Response(JSON.stringify(results.results), { headers: corsHeaders });
     }
 
-    // LIVE FALLBACK WITH STRICT GUARDRAILS & GOOGLE DISCOVERY
+    // LIVE FALLBACK WITH PROGRAMMATIC TEXT VALIDATION & GOOGLE DISCOVERY
     let fetchedProduct = null;
 
     if (searchMode === 'item_number' && /^\d{5,7}$/.test(query)) {
       // 1. Try direct Costco lookup first
       fetchedProduct = await fetchCostcoItemDetails(query, warehouseId);
 
-      // 2. If direct fails, search Google to find the correct indexed product URL (Sameday or Costco)
+      // 2. If direct fails, check Google for an indexed Sameday or Costco URL
+      let discoveredUrl = null;
       if (!fetchedProduct) {
-        const discoveredUrl = await fetchUrlFromGoogle(query, searchMode);
-        
-        if (discoveredUrl) {
-          if (discoveredUrl.includes('sameday.costco.com')) {
-            let zipCode = '01331';
-            try {
-              const wh = await env.DB.prepare("SELECT zip_code FROM warehouses WHERE warehouse_id = ?").bind(warehouseId).first();
-              if (wh && wh.zip_code) {
-                zipCode = String(wh.zip_code).trim().split('-')[0].substring(0, 5);
-              }
-            } catch (e) {}
-
-            fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
-          } else if (discoveredUrl.includes('costco.com/.product.')) {
-            const match = discoveredUrl.match(/\.product\.(\d+)\.html/);
-            if (match && match[1]) {
-              fetchedProduct = await fetchCostcoItemDetails(match[1], warehouseId);
-            }
-          }
-        }
+        discoveredUrl = await fetchUrlFromGoogle(query, searchMode);
       }
 
-      // 3. Fallback to direct Sameday query if Google didn't catch it
+      // 3. Invoke Sameday scraper (passing the discovered URL if Google found one)
       if (!fetchedProduct) {
         let zipCode = '01331';
         try {
@@ -433,12 +415,8 @@ async function handleSearch(request, env, corsHeaders) {
           }
         } catch (e) {}
 
-        fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env);
-      }
-
-      // STRICT VALIDATION: Ensure the resolved product is valid
-      if (fetchedProduct) {
-        fetchedProduct.item_number = query; 
+        const targetSamedayUrl = (discoveredUrl && discoveredUrl.includes('sameday.costco.com')) ? discoveredUrl : null;
+        fetchedProduct = await fetchFromSamedayGraphQL(query, warehouseId, zipCode, env, targetSamedayUrl);
       }
 
       // Final 100% Match Verification
@@ -449,7 +427,6 @@ async function handleSearch(request, env, corsHeaders) {
     } else if (searchMode === 'sku' && /^\d{8,10}$/.test(query)) {
       fetchedProduct = null; 
     }
-
     // Save to database only if a valid, strictly matched product was found
     if (fetchedProduct) {
       const targetItemNum = fetchedProduct.item_number || query;
@@ -671,13 +648,12 @@ function extractCategoryFromItem(item) {
   return '';
 }
 
-async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
+async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env, directUrl = null) {
   const cleanZip = String(zipCode).split('-')[0].trim().substring(0, 5);
   const landingUrl = 'https://sameday.costco.com/';
-  const searchUrl = `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
+  const searchUrl = directUrl || `https://sameday.costco.com/store/costco/s?k=${encodeURIComponent(itemNumber)}`;
 
   let browser = null;
-  let interceptedProduct = null;
 
   try {
     browser = await puppeteer.launch(env.MYBROWSER);
@@ -687,41 +663,6 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
     );
-
-    page.on('response', async (response) => {
-      const url = response.url();
-      if (url.includes('graphql') || url.includes('v3') || url.includes('items')) {
-        try {
-          const contentType = response.headers()['content-type'] || '';
-          if (contentType.includes('application/json')) {
-            const json = await response.json();
-            
-            const items = json?.data?.search?.products || 
-                          json?.data?.items || 
-                          json?.data?.itemDetails ||
-                          json?.items || 
-                          json?.products || [];
-
-            const productData = Array.isArray(items) ? items[0] : (json?.data?.product || json?.data?.item || null);
-
-            if (productData) {
-              const title = (productData.name || productData.title || '').replace(/\s+/g, ' ').trim();
-
-              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-                const category = extractCategoryFromItem(productData);
-
-                interceptedProduct = {
-                  title: title,
-                  id: productData.id || productData.itemId || productData.product_id || productData.productId,
-                  slug: productData.slug || '',
-                  category: category || interceptedProduct?.category || ''
-                };
-              }
-            }
-          }
-        } catch (e) {}
-      }
-    });
 
     await page.setCookie(
       { name: 'warehouse_zip', value: cleanZip, domain: '.costco.com', path: '/' },
@@ -741,122 +682,59 @@ async function fetchFromSamedayGraphQL(itemNumber, warehouseId, zipCode, env) {
       }
     } catch (btnErr) {}
 
+    // Navigate to either the Google-discovered product page or the Sameday search page
     try {
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
     } catch (e) {}
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    let productTitle = interceptedProduct?.title;
-    let productId = interceptedProduct?.id;
-    let productSlug = interceptedProduct?.slug;
-    let productCategory = interceptedProduct?.category;
-
-    if (!productTitle) {
-      const fallbackData = await page.evaluate(() => {
-        function sanitizeProductName(rawText) {
-          if (!rawText) return '';
-          return rawText.replace(/\s+/g, ' ').trim();
-        }
-
-        const script = document.getElementById('__NEXT_DATA__');
-        if (script && script.textContent) {
-          try {
-            const parsed = JSON.parse(script.textContent);
-            const pageProps = parsed?.props?.pageProps;
-            const initialData = pageProps?.initialData;
-            const searchContainer = initialData?.search || pageProps?.fallbackData || initialData;
-            const items = searchContainer?.products || searchContainer?.items || searchContainer?.modules?.[0]?.data?.products || [];
-
-            if (items.length > 0) {
-              const first = items[0];
-              const title = sanitizeProductName(first.name || first.title);
-
-              if (title && !['departments', 'categories', 'cart'].includes(title.toLowerCase())) {
-                return {
-                  title: title,
-                  id: first.id || first.itemId || first.product_id || first.productId,
-                  slug: first.slug || ''
-                };
-              }
-            }
-          } catch (e) {}
-        }
-
-        const titleEl = document.querySelector('[data-testid="item_card_name"]') ||
-                        document.querySelector('h3[class*="ItemCardName"]') ||
-                        document.querySelector('a[href*="/products/"] h3') ||
-                        document.querySelector('a[href*="/products/"] [class*="title"]');
-
-        if (titleEl) {
-          const rawTitle = titleEl.textContent ? titleEl.textContent.trim() : '';
-          const cleanTitle = sanitizeProductName(rawTitle);
-
-          if (cleanTitle.length > 3) {
-            const parentLink = titleEl.closest('a[href*="/products/"]');
-            const href = parentLink ? parentLink.getAttribute('href') : '';
-            const match = href.match(/\/products\/(\d+)(?:-(.+))?/);
-
-            return {
-              title: cleanTitle,
-              id: match ? match[1] : '',
-              slug: match ? match[2] : ''
-            };
-          }
-        }
-
-        return null;
-      });
-
-      if (fallbackData) {
-        productTitle = fallbackData.title;
-        productId = fallbackData.id;
-        productSlug = fallbackData.slug;
-      }
+    // If we used the search page instead of a direct URL, click the first product card
+    if (!directUrl) {
+      try {
+        await page.evaluate(() => {
+          const firstCard = document.querySelector('a[href*="/products/"]');
+          if (firstCard) firstCard.click();
+        });
+        await new Promise(resolve => setTimeout(resolve, 3500));
+      } catch (e) {}
     }
 
-    if (productTitle) {
-      const fullPath = productSlug ? `${productId}-${productSlug}` : String(productId || '');
-      const productUrl = productId ? `https://sameday.costco.com/store/costco/products/${fullPath}` : searchUrl;
-
-      if (!productCategory && productId) {
-        try {
-          const productClicked = await page.evaluate((pid) => {
-            const card = document.querySelector(`a[href*="${pid}"]`) || 
-                         document.querySelector('[data-testid="item_card_name"]') ||
-                         document.querySelector('a[href*="/products/"]');
-            if (card) {
-              card.click();
-              return true;
-            }
-            return false;
-          }, productId);
-
-          if (productClicked) {
-            await new Promise(resolve => setTimeout(resolve, 3500));
-            if (interceptedProduct?.category) {
-              productCategory = interceptedProduct.category;
-            }
-          }
-        } catch (pdpErr) {}
-      }
-
-      const finalCategory = productCategory || 'Uncategorized';
+    // PROGRAMMATIC TEXT VALIDATION: Verify the page text actually contains the item number
+    const pageValidation = await page.evaluate((targetItem) => {
+      const bodyText = document.body.innerText || '';
+      const hasItemNumber = bodyText.includes(targetItem);
+      
+      const titleEl = document.querySelector('h1') || document.querySelector('[data-testid="item_card_name"]');
+      const title = titleEl ? titleEl.textContent.trim() : '';
 
       return {
-        id: `temp_${itemNumber}`,
-        item_number: itemNumber,
-        product_id: productId || '',
-        product_name: productTitle,
-        category: finalCategory,
-        product_url: productUrl,
-        warehouse_id: warehouseId,
-        aisle: '',
-        bay: '',
-        is_wrong: 0,
-        is_discontinued: 0
+        hasItemNumber,
+        title
       };
+    }, itemNumber);
+
+    // If the item number text is missing from the page, reject it instantly!
+    if (!pageValidation.hasItemNumber || !pageValidation.title) {
+      return null; 
     }
+
+    const productUrl = page.url();
+    const finalCategory = 'Uncategorized';
+
+    return {
+      id: `temp_${itemNumber}`,
+      item_number: itemNumber,
+      product_id: '',
+      product_name: pageValidation.title,
+      category: finalCategory,
+      product_url: productUrl,
+      warehouse_id: warehouseId,
+      aisle: '',
+      bay: '',
+      is_wrong: 0,
+      is_discontinued: 0
+    };
 
   } catch (err) {
     console.error(`💥 [Puppeteer Exception]:`, err);
