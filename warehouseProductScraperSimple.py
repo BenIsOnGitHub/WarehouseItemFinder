@@ -280,6 +280,7 @@ def extract_warehouse_products(data, active_warehouse_id, category_url):
         product_id = ""
         item_number = ""
 
+        # Updated length check to support 1-digit item numbers (up to 7 digits)
         if raw_id and (len(raw_id) > 7 or (raw_id.isdigit() and int(raw_id) > 9999999)):
             product_id = raw_id
         else:
@@ -308,7 +309,8 @@ def extract_warehouse_products(data, active_warehouse_id, category_url):
         if not item_number:
             primary_img = attributes.get("primary_image", {}).get("text", [""])[0]
             if primary_img:
-                img_match = re.search(r'/as/(?<!\d)(\d{3,7})-[^/]+$', primary_img)
+                # Updated regex to match 1 to 7 digits in image paths
+                img_match = re.search(r'/as/(?<!\d)(\d{1,7})-[^/]+$', primary_img)
                 if img_match:
                     item_number = img_match.group(1)
 
@@ -420,4 +422,57 @@ async def main():
                 current_category_url = keyword
                 print(f"\n" + "=" * 60)
                 print(f"Starting Category: {keyword.upper()}")
-                print("=" *
+                print("=" * 60)
+
+                intercepted_responses.clear()
+                try:
+                    await page.goto(keyword, wait_until="domcontentloaded")
+                    await asyncio.sleep(random.uniform(2.5, 4.0))
+
+                    # Scroll down to trigger lazy loading of items
+                    for _ in range(3):
+                        await page.mouse.wheel(0, 1000)
+                        await asyncio.sleep(1.0)
+
+                except Exception as e:
+                    print(f"[!] Error navigating to {keyword}: {e}")
+                    continue
+
+                extracted_items = []
+                for resp_data in intercepted_responses:
+                    extracted_items.extend(extract_warehouse_products(resp_data, active_warehouse_id, keyword))
+
+                new_count = 0
+                for item in extracted_items:
+                    item_num = item["item_number"]
+                    title = item["title"]
+
+                    identifier = item_num if item_num else clean_product_name(title)
+                    if not identifier or identifier in seen_identifiers:
+                        continue
+                    seen_identifiers.add(identifier)
+
+                    row_uuid = generate_uuid(active_warehouse_id, title)
+                    now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+                    writer.writerow([
+                        row_uuid,
+                        active_warehouse_id,
+                        item["product_id"],
+                        item_num,
+                        title,
+                        item["category"],
+                        item["category_url"],
+                        item["url"],
+                        "", "", "False", "False", now_utc
+                    ])
+                    new_count += 1
+
+                csv_file.flush()
+                print(f"[+] Found {new_count} new unique items in this category.")
+
+        print(f"\n[+] Scraping complete! All results saved to {OUTPUT_CSV_FILE}")
+        await context.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())

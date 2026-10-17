@@ -800,7 +800,6 @@ async function fetchUrlFromGoogle(query, mode = 'item_number') {
 }
 
 async function fetchFromWarehouseRunner(itemNumber, warehouseId, env) {
-  // Directly target the predictable product page URL
   const targetUrl = `https://app.warehouserunner.com/costco/${encodeURIComponent(itemNumber)}`;
   let browser = null;
 
@@ -819,22 +818,42 @@ async function fetchFromWarehouseRunner(itemNumber, warehouseId, env) {
 
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // PROGRAMMATIC TEXT VALIDATION: Verify the page text contains your exact item number
+    // EXTRACT AND VALIDATE VIA JSON-LD AND PAGE TEXT
     const pageValidation = await page.evaluate((targetItem) => {
       const bodyText = document.body.innerText || '';
       const hasItemNumber = bodyText.includes(targetItem);
       
-      // Extract the product title
-      const h1El = document.querySelector('h1');
-      let title = h1El ? h1El.textContent.trim() : '';
+      let title = '';
+      let category = 'Uncategorized';
 
-      if (!title && document.title) {
-        title = document.title.split('|')[0].split('-')[0].trim();
+      // Parse JSON-LD structured data blocks
+      const scriptBlocks = document.querySelectorAll('script[type="application/ld+json"]');
+      for (const block of scriptBlocks) {
+        try {
+          const json = JSON.parse(block.textContent);
+          const items = Array.isArray(json) ? json : [json];
+          
+          for (const item of items) {
+            if (item && item['@type'] === 'Product' && item.name) {
+              title = item.name;
+              if (typeof item.category === 'string') {
+                category = item.category;
+              }
+            }
+          }
+        } catch (err) {}
+      }
+
+      // Fallback to h1 if JSON-LD wasn't found
+      if (!title) {
+        const h1El = document.querySelector('h1');
+        if (h1El) title = h1El.textContent.trim();
       }
 
       return {
         hasItemNumber,
-        title: title.replace(/\s+/g, ' ').trim()
+        title: title.replace(/\s+/g, ' ').trim(),
+        category
       };
     }, itemNumber);
 
@@ -848,7 +867,7 @@ async function fetchFromWarehouseRunner(itemNumber, warehouseId, env) {
       item_number: itemNumber,
       product_id: '',
       product_name: pageValidation.title,
-      category: 'Uncategorized',
+      category: pageValidation.category || 'Uncategorized',
       product_url: page.url(),
       warehouse_id: warehouseId,
       aisle: '',

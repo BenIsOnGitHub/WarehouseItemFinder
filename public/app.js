@@ -983,7 +983,7 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', (e) => {
       const mode = e.target.value;
       if (mode === 'item_number') {
-        searchInput.placeholder = 'Enter 3-7 digit item number...';
+        searchInput.placeholder = 'Enter 1-7 digit item number...';
       } else if (mode === 'product_name') {
         searchInput.placeholder = 'Search by product title...';
       } else if (mode === 'sku') {
