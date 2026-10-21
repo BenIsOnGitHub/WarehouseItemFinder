@@ -1027,19 +1027,19 @@ async function promptEditSku(productId) {
       startCameraBarcodeScanner(async (code) => {
         if (code) {
           const cleanCode = code.trim();
-          if (!/^\d{8,10}$/.test(cleanCode)) {
-            alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+          if (!/^\d{12}$/.test(cleanCode)) {
+            alert("Invalid SKU.");
             return;
           }
           await updateProductIdentifier(productId, { sku: cleanCode });
         }
       });
     } else {
-      const sku = prompt("Enter SKU manually (8-10 digits):");
+      const sku = prompt("Enter SKU manually (12 digits):");
       if (sku && sku.trim()) {
         const cleanSku = sku.trim();
-        if (!/^\d{8,10}$/.test(cleanSku)) {
-          alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+        if (!/^\d{12}$/.test(cleanSku)) {
+          alert("Invalid SKU.");
           return;
         }
         await updateProductIdentifier(productId, { sku: cleanSku });
@@ -1062,8 +1062,8 @@ async function promptEditSku(productId) {
       startCameraBarcodeScanner(async (scannedBarcode) => {
         if (scannedBarcode) {
           const cleanCode = scannedBarcode.trim();
-          if (!/^\d{8,10}$/.test(cleanCode)) {
-            alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+          if (!/^\d{12}$/.test(cleanCode)) {
+            alert("Invalid SKU.");
             resolve();
             return;
           }
@@ -1075,11 +1075,11 @@ async function promptEditSku(productId) {
 
     manualBtn.onclick = async () => {
       cleanup();
-      const newSku = prompt("Enter SKU manually (8-10 digits):");
+      const newSku = prompt("Enter SKU manually (12 digits):");
       if (newSku && newSku.trim()) {
         const cleanSku = newSku.trim();
-        if (!/^\d{8,10}$/.test(cleanSku)) {
-          alert("Invalid SKU. SKU must be 8-10 numeric digits with no letters.");
+        if (!/^\d{12}$/.test(cleanSku)) {
+          alert("Invalid SKU. SKU must be 12 numeric digits.");
           resolve();
           return;
         }

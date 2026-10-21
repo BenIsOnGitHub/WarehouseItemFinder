@@ -409,7 +409,7 @@ async function handleSearch(request, env, corsHeaders) {
         fetchedProduct = null; 
       }
 
-    } else if (searchMode === 'sku' && /^\d{8,10}$/.test(query)) {
+    } else if (searchMode === 'sku' && /^\d{12}$/.test(query)) {
       fetchedProduct = null; 
     }
     // Save to database only if a valid, strictly matched product was found
