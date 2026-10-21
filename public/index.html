@@ -65,7 +65,7 @@
       <input type="radio" name="searchMode" value="item_number"> Item #
     </label>
     <label class="radio-label">
-      <input type="radio" name="searchMode" value="sku"> SKU
+      <input type="radio" name="searchMode" value="sku"> UPC
     </label>
   </div>
 
@@ -84,7 +84,7 @@
       id="barcodeBtn" 
       type="button" 
       title="Scan SKU barcode" 
-      aria-label="Scan SKU barcode"
+      aria-label="Scan UPC barcode"
       style="display: none;"
     >
       &#128247; <!-- Camera icon / Barcode emoji -->
@@ -119,7 +119,7 @@
           <option value="name">Name</option>
           <option value="category">Category</option>
           <option value="item_number">Item Number</option>
-          <option value="sku">SKU</option>
+          <option value="sku">UPC</option>
           <option value="updated_at">Date Updated</option>
         </select>
 
@@ -255,7 +255,7 @@
 <div id="skuChoiceModal" class="custom-modal-backdrop">
   <div class="custom-modal-content">
   	<button class="modal-close-btn" id="skuCloseBtn" type="button">&times;</button>
-    <p class="custom-modal-p">Choose SKU entry method:</p>
+    <p class="custom-modal-p">Choose UPC entry method:</p>
     <div class="custom-modal-div">
       <button class="custom-modal-button" id="skuCameraBtn" class="btn btn-primary">Camera</button>
       <button class="custom-modal-button" id="skuManualBtn" class="btn btn-secondary">Manual</button>
