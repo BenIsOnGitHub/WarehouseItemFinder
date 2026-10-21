@@ -30,28 +30,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-/*
-function getIdentifierDisplay(prod) {
-  const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
-  const hasSku = prod.sku && String(prod.sku).trim() !== '';
-
-  const itemBadgeClass = hasItemNumber ? 'loc-badge assigned' : 'loc-badge unassigned';
-  const itemText = hasItemNumber ? `Item: ${escapeHtml(prod.item_number)}` : 'Item number: Unknown';
-
-  const skuBadgeClass = hasSku ? 'loc-badge assigned' : 'loc-badge unassigned';
-  const skuText = hasSku ? `SKU: ${escapeHtml(prod.sku)} &#9998;` : 'SKU: Unknown &#9998;';
-
-  return `
-    <div class="product-identifiers">
-        ${itemText}
-      <span class="${skuBadgeClass}" role="button" onclick="promptEditSku('${prod.id}')" title="Click to update SKU">
-        ${skuText}
-      </span>
-    </div>
-  `;
-}
-*/
-
 function formatTimeAgo(dateStr) {
   if (!dateStr) return '';
   
@@ -987,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (mode === 'product_name') {
         searchInput.placeholder = 'Search by product title...';
       } else if (mode === 'sku') {
-        searchInput.placeholder = 'Scan or enter SKU barcode...';
+        searchInput.placeholder = 'Scan or enter UPC barcode...';
       }
     });
   });
@@ -1022,24 +1000,24 @@ async function promptEditSku(productId) {
   const closeBtn = document.getElementById('skuCloseBtn');
 
   if (!modal) {
-    const choice = confirm("Choose SKU entry method:\n\n[OK] = Camera\n[Cancel] = Manual");
+    const choice = confirm("Choose UPC entry method:\n\n[OK] = Camera\n[Cancel] = Manual");
     if (choice) {
       startCameraBarcodeScanner(async (code) => {
         if (code) {
           const cleanCode = code.trim();
           if (!/^\d{12}$/.test(cleanCode)) {
-            alert("Invalid SKU.");
+            alert("Invalid UPC.");
             return;
           }
           await updateProductIdentifier(productId, { sku: cleanCode });
         }
       });
     } else {
-      const sku = prompt("Enter SKU manually (12 digits):");
+      const sku = prompt("Enter UPC manually (12 digits):");
       if (sku && sku.trim()) {
         const cleanSku = sku.trim();
         if (!/^\d{12}$/.test(cleanSku)) {
-          alert("Invalid SKU.");
+          alert("Invalid UPC.");
           return;
         }
         await updateProductIdentifier(productId, { sku: cleanSku });
@@ -1063,7 +1041,7 @@ async function promptEditSku(productId) {
         if (scannedBarcode) {
           const cleanCode = scannedBarcode.trim();
           if (!/^\d{12}$/.test(cleanCode)) {
-            alert("Invalid SKU.");
+            alert("Invalid UPC.");
             resolve();
             return;
           }
@@ -1075,11 +1053,11 @@ async function promptEditSku(productId) {
 
     manualBtn.onclick = async () => {
       cleanup();
-      const newSku = prompt("Enter SKU manually (12 digits):");
+      const newSku = prompt("Enter UPC manually (12 digits):");
       if (newSku && newSku.trim()) {
         const cleanSku = newSku.trim();
         if (!/^\d{12}$/.test(cleanSku)) {
-          alert("Invalid SKU. SKU must be 12 numeric digits.");
+          alert("Invalid UPC. UPC must be 12 numeric digits.");
           resolve();
           return;
         }
@@ -1099,7 +1077,7 @@ async function promptEditSku(productId) {
 
 async function startCameraBarcodeScanner(onScanned) {
   if (!('BarcodeDetector' in window)) {
-    const manualFallback = prompt("Camera scanning not natively supported on this browser. Enter SKU manually:");
+    const manualFallback = prompt("Camera scanning not natively supported on this browser. Enter UPC manually:");
     if (manualFallback) onScanned(manualFallback.trim());
     return;
   }
@@ -1234,7 +1212,7 @@ function initSearchModeToggle() {
       if (barcodeBtn) barcodeBtn.style.display = 'none';
       searchInput.classList.remove('has-double-icon');
     } else if (mode === 'sku') {
-      searchInput.placeholder = 'Scan or enter SKU barcode...';
+      searchInput.placeholder = 'Scan or enter UPC barcode...';
       searchInput.setAttribute('inputmode', 'numeric');
       searchInput.setAttribute('pattern', '[0-9]*');
       if (barcodeBtn) barcodeBtn.style.display = 'inline-flex';
@@ -1463,9 +1441,9 @@ function renderProductCard(prod, options = {}) {
   const hasSku = prod.sku && String(prod.sku).trim() !== '';
   const skuBadge = clone.querySelector('.sku-badge');
   skuBadge.className = hasSku ? 'sku-badge loc-badge assigned' : 'sku-badge loc-badge unassigned';
-  skuBadge.innerHTML = hasSku ? `SKU: ${escapeHtml(prod.sku)} &#9998;` : 'SKU: Unknown &#9998;';
+  skuBadge.innerHTML = hasSku ? `UPC: ${escapeHtml(prod.sku)} &#9998;` : 'UPC: Unknown &#9998;';
   skuBadge.onclick = () => promptEditSku(prod.id);
-  skuBadge.title = "Click to update SKU";
+  skuBadge.title = "Click to update UPC";
 
   // 4. Location & Badge
   const locContainer = clone.querySelector('.loc-edit-container');
