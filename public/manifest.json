@@ -1,6 +1,6 @@
 {
-  "name": "Warehouse Product Finder",
-  "short_name": "Warehouse Products",
+  "name": "Warehouse Navigator",
+  "short_name": "Warehouse Navigator",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
