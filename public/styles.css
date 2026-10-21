@@ -161,20 +161,43 @@ header {
   filter: brightness(0.95);
 }
 
-/* Flag Incorrect Button Styling & States */
+/* Flag Incorrect Button Icon Styling & States */
 .flag-incorrect-btn {
-  background: #e9ecef;
-  color: #6c757d;
-  border: 1px solid #ced4da;
+  background: transparent;
+  color: #9ca3af; /* Neutral grey default */
+  border: 1px solid transparent;
   cursor: pointer;
   margin-left: 6px;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  vertical-align: middle;
+}
+
+.flag-incorrect-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #4b5563;
+}
+
+.flag-incorrect-btn .flag-icon {
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+/* Active / Reported state: Red flag with soft fill */
+.flag-incorrect-btn.active .flag-icon,
+.flag-incorrect-btn.reported .flag-icon {
+  color: #ef4444;
+  fill: rgba(239, 68, 68, 0.15);
 }
 
 .flag-incorrect-btn.reported {
-  background: #f8d7da;
-  color: #842029;
-  border-color: #f5c2c7;
   cursor: not-allowed;
+  background: transparent;
+  border-color: transparent;
 }
 
 /* Favorites Star Button */

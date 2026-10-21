@@ -313,10 +313,12 @@ function renderLocationDisplay(id, aisle, bay, isWrong = 0) {
 
   let incorrectBtnHTML = '';
   if (aisle) {
+    const flagSvg = `<svg class="flag-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`;
+    
     if (isWrong) {
-      incorrectBtnHTML = `<button class="flag-incorrect-btn reported" disabled>Reported as incorrect</button>`;
+      incorrectBtnHTML = `<button class="flag-incorrect-btn reported active" disabled title="Reported as incorrect">${flagSvg}</button>`;
     } else {
-      incorrectBtnHTML = `<button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${id}')">Report as incorrect</button>`;
+      incorrectBtnHTML = `<button class="flag-incorrect-btn" onclick="flagLocationIncorrect('${id}')" title="Report as incorrect">${flagSvg}</button>`;
     }
   }
 
@@ -1466,18 +1468,21 @@ function renderProductCard(prod, options = {}) {
   const safeBay = String(bay).replace(/'/g, "\\'");
   badgeEl.onclick = () => openLocationEditor(prod.id, safeAisle, safeBay, isWrong);
 
-  if (aisle) {
-    incorrectBtn.style.display = 'inline-block';
+if (aisle) {
+    incorrectBtn.style.display = 'inline-flex';
+    const flagSvg = `<svg class="flag-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`;
+    incorrectBtn.innerHTML = flagSvg;
+
     if (isWrong) {
-      incorrectBtn.textContent = 'Reported as incorrect';
-      incorrectBtn.className = 'flag-incorrect-btn reported';
+      incorrectBtn.className = 'flag-incorrect-btn reported active';
       incorrectBtn.disabled = true;
       incorrectBtn.onclick = null;
+      incorrectBtn.title = "Reported as incorrect";
     } else {
-      incorrectBtn.textContent = 'Report as incorrect';
       incorrectBtn.className = 'flag-incorrect-btn';
       incorrectBtn.disabled = false;
       incorrectBtn.onclick = () => flagLocationIncorrect(prod.id);
+      incorrectBtn.title = "Report as incorrect";
     }
   } else {
     incorrectBtn.style.display = 'none';
