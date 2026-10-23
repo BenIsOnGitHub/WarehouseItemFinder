@@ -335,7 +335,7 @@ async function geocodeSearchQuery(query) {
   // Read active country from the header dropdown (defaults to 'us')
   const countryDropdown = document.getElementById('country-selector');
   const selectedCountry = countryDropdown ? countryDropdown.value : 'us';
-
+console.log('Dropdown element:', countryDropdown, 'Current value:', selectedCountry);
   // 1. Check US ZIP if US is selected
   if (selectedCountry === 'us' && /^\d{5}$/.test(cleanQuery)) {
     try {
