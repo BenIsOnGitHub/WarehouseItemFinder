@@ -331,43 +331,27 @@ async function handleWarehouseSearch(searchInput) {
 // --- GEOCODING LOOKUP WITH ZIP FALLBACK ---
 async function geocodeSearchQuery(query) {
   const cleanQuery = query.trim();
-console.log('Geocoding query:', cleanQuery);
+  
+  // Read active country from the header dropdown (defaults to 'us')
+  const countryDropdown = document.getElementById('country-selector');
+  const selectedCountry = countryDropdown ? countryDropdown.value : 'us';
 
-  // 1. Check US 5-digit ZIP via Zippopotam
-  if (/^\d{5}$/.test(cleanQuery)) {
+  // 1. Check US ZIP if US is selected
+  if (selectedCountry === 'us' && /^\d{5}$/.test(cleanQuery)) {
     try {
       const zipRes = await fetch(`https://api.zippopotam.us/us/${cleanQuery}`);
       if (zipRes.ok) {
         const zipData = await zipRes.json();
         if (zipData.places && zipData.places.length > 0) {
-          return { 
-            lat: parseFloat(zipData.places[0].latitude), 
-            lng: parseFloat(zipData.places[0].longitude) 
-          };
+          return { lat: parseFloat(zipData.places[0].latitude), lng: parseFloat(zipData.places[0].longitude) };
         }
       }
     } catch (e) {}
   }
 
-  // 2. Check Canadian Postal Code format via Zippopotam (safely caught if 404)
-  if (/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i.test(cleanQuery)) {
-    try {
-      const caRes = await fetch(`https://api.zippopotam.us/ca/${cleanQuery.toUpperCase()}`);
-      if (caRes.ok) {
-        const caData = await caRes.json();
-        if (caData.places && caData.places.length > 0) {
-          return { 
-            lat: parseFloat(caData.places[0].latitude), 
-            lng: parseFloat(caData.places[0].longitude) 
-          };
-        }
-      }
-    } catch (e) {}
-  }
-
-  // 3. OpenStreetMap Nominatim Fallback (Handles Canadian postal codes, cities, and US queries seamlessly)
+  // 2. OpenStreetMap Nominatim restricted strictly to the chosen country code ('us' or 'ca')
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=${selectedCountry}&q=${encodeURIComponent(cleanQuery)}`;
     const response = await fetch(url, {
       headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
     });
@@ -376,13 +360,11 @@ console.log('Geocoding query:', cleanQuery);
 
     const results = await response.json();
     if (results && results.length > 0) {
-    	console.log('Geocode found coords:', results[0].lat, results[0].lon);
       return { 
         lat: parseFloat(results[0].lat), 
         lng: parseFloat(results[0].lon) 
       };
     }
-    console.log('Geocode returned no results.');
     return null;
   } catch (err) {
     return null;
