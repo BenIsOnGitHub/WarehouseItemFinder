@@ -332,11 +332,10 @@ async function handleWarehouseSearch(searchInput) {
 async function geocodeSearchQuery(query) {
   const cleanQuery = query.trim();
   
-  // Read active country from the header dropdown (defaults to 'us')
   const countryDropdown = document.getElementById('country-selector');
   const selectedCountry = countryDropdown ? countryDropdown.value : 'us';
-console.log('Dropdown element:', countryDropdown, 'Current value:', selectedCountry);
-  // 1. Check US ZIP if US is selected
+
+  // 1. Check US ZIP via Zippopotam if US is selected
   if (selectedCountry === 'us' && /^\d{5}$/.test(cleanQuery)) {
     try {
       const zipRes = await fetch(`https://api.zippopotam.us/us/${cleanQuery}`);
@@ -349,9 +348,23 @@ console.log('Dropdown element:', countryDropdown, 'Current value:', selectedCoun
     } catch (e) {}
   }
 
-  // 2. OpenStreetMap Nominatim restricted strictly to the chosen country code ('us' or 'ca')
+  // 2. Determine URL: Use structured 'postalcode' parameter for Canadian postal codes, 
+  // or standard free-form 'q' parameter for cities, states, and general text searches.
+  let url = '';
+  const isCanadianPostal = /^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i.test(cleanQuery);
+
+  if (selectedCountry === 'ca' && isCanadianPostal) {
+    // Use Nominatim's dedicated structured postal code endpoint
+    url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&postalcode=${encodeURIComponent(cleanQuery)}`;
+  } else {
+    // Standard free-form search for text/cities/US ZIPs
+    url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=${selectedCountry}&q=${encodeURIComponent(cleanQuery)}`;
+  }
+
+  console.log('Fetching Nominatim URL:', url);
+
+  // 3. Execute request
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=${selectedCountry}&q=${encodeURIComponent(cleanQuery)}`;
     const response = await fetch(url, {
       headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
     });
@@ -359,6 +372,8 @@ console.log('Dropdown element:', countryDropdown, 'Current value:', selectedCoun
     if (!response.ok) return null;
 
     const results = await response.json();
+    console.log('Nominatim results:', results);
+
     if (results && results.length > 0) {
       return { 
         lat: parseFloat(results[0].lat), 
