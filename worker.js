@@ -74,13 +74,13 @@ export default {
           const total = countStmt ? Number(countStmt.total || countStmt['COUNT(*)'] || 0) : 0;
 
           let orderByClause = 'gp.product_name ASC';
-          if (sort === 'sku') {
+          if (sort === 'upc') {
             orderByClause = `
               CASE 
-                WHEN gp.sku IS NULL OR TRIM(gp.sku) = '' THEN 1 
+                WHEN gp.upc IS NULL OR TRIM(gp.upc) = '' THEN 1 
                 ELSE 0 
               END ASC, 
-              gp.sku ASC, 
+              gp.upc ASC, 
               gp.product_name ASC
             `;
           } else if (sort === 'aisle') {
@@ -108,10 +108,11 @@ export default {
             SELECT 
               COALESCE(loc.id, 'temp_' || gp.item_number) AS id,
               gp.item_number,
-              gp.sku,
+              gp.upc,
               gp.product_name,
               gp.category,
               gp.product_url,
+              gp.country,
               loc.warehouse_id,
               loc.aisle,
               loc.bay,
@@ -278,9 +279,9 @@ export default {
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
-      // 8. Update Item Number / SKU Identifier API
+      // 8. Update Item Number / UPC Identifier API
       if (pathname === '/api/update-identifier' && request.method === 'POST') {
-        const { id, item_number, sku } = await request.json();
+        const { id, item_number, upc } = await request.json();
         if (!id) {
           return new Response(JSON.stringify({ error: 'Missing product ID' }), { status: 400, headers: corsHeaders });
         }
@@ -293,7 +294,7 @@ export default {
           targetItemNumber = locRecord ? locRecord.item_number : id;
         }
 
-        const existing = await env.DB.prepare('SELECT item_number, sku FROM global_products WHERE item_number = ?').bind(targetItemNumber).first();
+        const existing = await env.DB.prepare('SELECT item_number, upc FROM global_products WHERE item_number = ?').bind(targetItemNumber).first();
         if (!existing) {
           return new Response(JSON.stringify({ error: 'Product not found' }), { status: 404, headers: corsHeaders });
         }
@@ -311,9 +312,9 @@ export default {
           }
         }
 
-        if (sku !== undefined) {
-          updateFields.push('sku = ?');
-          bindParams.push(sku.trim());
+        if (upc !== undefined) {
+          updateFields.push('upc = ?');
+          bindParams.push(upc.trim());
         }
 
         if (updateFields.length === 0) {
@@ -359,7 +360,7 @@ async function handleSearch(request, env, corsHeaders) {
       SELECT 
         COALESCE(loc.id, 'temp_' || gp.item_number) AS id,
         gp.item_number,
-        gp.sku,
+        gp.upc,
         gp.product_name,
         gp.category,
         gp.product_url,
@@ -378,8 +379,8 @@ async function handleSearch(request, env, corsHeaders) {
     if (searchMode === 'item_number') {
       dbQuery = `${baseSelect} WHERE gp.item_number = ?`;
       bindings = [warehouseId, query];
-    } else if (searchMode === 'sku') {
-      dbQuery = `${baseSelect} WHERE gp.sku = ?`;
+    } else if (searchMode === 'upc') {
+      dbQuery = `${baseSelect} WHERE gp.upc = ?`;
       bindings = [warehouseId, query];
     } else {
       dbQuery = `${baseSelect} WHERE gp.product_name LIKE ?`;
@@ -409,7 +410,7 @@ async function handleSearch(request, env, corsHeaders) {
         fetchedProduct = null; 
       }
 
-    } else if (searchMode === 'sku' && /^\d{12}$/.test(query)) {
+    } else if (searchMode === 'upc' && /^\d{12,13}$/.test(query)) {
       fetchedProduct = null; 
     }
     // Save to database only if a valid, strictly matched product was found
@@ -417,12 +418,13 @@ async function handleSearch(request, env, corsHeaders) {
       const targetItemNum = fetchedProduct.item_number || query;
 
       await env.DB.prepare(`
-        INSERT INTO global_products (item_number, product_name, category, product_url, updated_at)
-        VALUES (?, ?, ?, ?, datetime('now'))
+        INSERT INTO global_products (item_number, product_name, category, product_url, country, updated_at)
+        VALUES (?, ?, ?, ?, 'United States', datetime('now'))
         ON CONFLICT(item_number) DO UPDATE SET
           product_name = excluded.product_name,
           category = excluded.category,
-          product_url = excluded.product_url
+          product_url = excluded.product_url,
+          country = COALESCE(global_products.country, 'United States')
       `).bind(
         targetItemNum,
         fetchedProduct.product_name || '',

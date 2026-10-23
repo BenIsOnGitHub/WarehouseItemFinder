@@ -112,7 +112,7 @@ function toggleFavorite(prodOrId, starElement) {
     favorites.push({
       id: product.id,
       item_number: productItemNumber,
-      sku: product.sku || '',
+      upc: product.upc || '',
       product_name: product.product_name,
       warehouse_id: product.warehouse_id,
       product_url: product.product_url,
@@ -966,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.placeholder = 'Enter 1-7 digit item number...';
       } else if (mode === 'product_name') {
         searchInput.placeholder = 'Search by product title...';
-      } else if (mode === 'sku') {
+      } else if (mode === 'upc') {
         searchInput.placeholder = 'Scan or enter UPC barcode...';
       }
     });
@@ -995,11 +995,11 @@ async function promptEditItemNumber(productId) {
   await updateProductIdentifier(productId, { item_number: newItemNumber.trim() });
 }
 
-async function promptEditSku(productId) {
-  const modal = document.getElementById('skuChoiceModal');
-  const cameraBtn = document.getElementById('skuCameraBtn');
-  const manualBtn = document.getElementById('skuManualBtn');
-  const closeBtn = document.getElementById('skuCloseBtn');
+async function promptEditUpc(productId) {
+  const modal = document.getElementById('upcChoiceModal');
+  const cameraBtn = document.getElementById('upcCameraBtn');
+  const manualBtn = document.getElementById('upcManualBtn');
+  const closeBtn = document.getElementById('upcCloseBtn');
 
   if (!modal) {
     const choice = confirm("Choose UPC entry method:\n\n[OK] = Camera\n[Cancel] = Manual");
@@ -1007,22 +1007,22 @@ async function promptEditSku(productId) {
       startCameraBarcodeScanner(async (code) => {
         if (code) {
           const cleanCode = code.trim();
-          if (!/^\d{12}$/.test(cleanCode)) {
+          if (!/^\d{12,13}$/.test(cleanCode)) {
             alert("Invalid UPC.");
             return;
           }
-          await updateProductIdentifier(productId, { sku: cleanCode });
+          await updateProductIdentifier(productId, { upc: cleanCode });
         }
       });
     } else {
-      const sku = prompt("Enter UPC manually (12 digits):");
-      if (sku && sku.trim()) {
-        const cleanSku = sku.trim();
-        if (!/^\d{12}$/.test(cleanSku)) {
+      const upc = prompt("Enter UPC manually):");
+      if (upc && upc.trim()) {
+        const cleanUpc = upc.trim();
+        if (!/^\d{12,13}$/.test(cleanUpc)) {
           alert("Invalid UPC.");
           return;
         }
-        await updateProductIdentifier(productId, { sku: cleanSku });
+        await updateProductIdentifier(productId, { upc: cleanUpc });
       }
     }
     return;
@@ -1042,12 +1042,12 @@ async function promptEditSku(productId) {
       startCameraBarcodeScanner(async (scannedBarcode) => {
         if (scannedBarcode) {
           const cleanCode = scannedBarcode.trim();
-          if (!/^\d{12}$/.test(cleanCode)) {
+          if (!/^\d{12,13}$/.test(cleanCode)) {
             alert("Invalid UPC.");
             resolve();
             return;
           }
-          await updateProductIdentifier(productId, { sku: cleanCode });
+          await updateProductIdentifier(productId, { upc: cleanCode });
         }
         resolve();
       });
@@ -1055,15 +1055,15 @@ async function promptEditSku(productId) {
 
     manualBtn.onclick = async () => {
       cleanup();
-      const newSku = prompt("Enter UPC manually (12 digits):");
-      if (newSku && newSku.trim()) {
-        const cleanSku = newSku.trim();
-        if (!/^\d{12}$/.test(cleanSku)) {
-          alert("Invalid UPC. UPC must be 12 numeric digits.");
+      const newUpc = prompt("Enter UPC manually:");
+      if (newUpc && newUpc.trim()) {
+        const cleanUpc = newUpc.trim();
+        if (!/^\d{12,13}$/.test(cleanUpc)) {
+          alert("Invalid UPC.");
           resolve();
           return;
         }
-        await updateProductIdentifier(productId, { sku: cleanSku });
+        await updateProductIdentifier(productId, { upc: cleanUpc });
       }
       resolve();
     };
@@ -1157,7 +1157,7 @@ async function updateProductIdentifier(productId, updates) {
       const item = browseData.find(p => p.id === productId);
       if (item) {
         if (updates.item_number !== undefined) item.item_number = updates.item_number;
-        if (updates.sku !== undefined) item.sku = updates.sku;
+        if (updates.upc !== undefined) item.upc = updates.upc;
       }
 
       // Refresh whichever view is currently active
@@ -1213,7 +1213,7 @@ function initSearchModeToggle() {
       searchInput.removeAttribute('pattern');
       if (barcodeBtn) barcodeBtn.style.display = 'none';
       searchInput.classList.remove('has-double-icon');
-    } else if (mode === 'sku') {
+    } else if (mode === 'upc') {
       searchInput.placeholder = 'Scan or enter UPC barcode...';
       searchInput.setAttribute('inputmode', 'numeric');
       searchInput.setAttribute('pattern', '[0-9]*');
@@ -1439,13 +1439,13 @@ function renderProductCard(prod, options = {}) {
   const itemRow = clone.querySelector('.product-item-row');
   itemRow.textContent = hasItemNumber ? `Item: ${prod.item_number}` : 'Item number: Unknown';
 
-  // 3. SKU (Interactive badge on its own line)
-  const hasSku = prod.sku && String(prod.sku).trim() !== '';
-  const skuBadge = clone.querySelector('.sku-badge');
-  skuBadge.className = hasSku ? 'sku-badge loc-badge assigned' : 'sku-badge loc-badge unassigned';
-  skuBadge.innerHTML = hasSku ? `UPC: ${escapeHtml(prod.sku)} &#9998;` : 'UPC: Unknown &#9998;';
-  skuBadge.onclick = () => promptEditSku(prod.id);
-  skuBadge.title = "Click to update UPC";
+  // 3. UPC (Interactive badge on its own line)
+  const hasUpc = prod.upc && String(prod.upc).trim() !== '';
+  const upcBadge = clone.querySelector('.upc-badge');
+  upcBadge.className = hasUpc ? 'upc-badge loc-badge assigned' : 'upc-badge loc-badge unassigned';
+  upcBadge.innerHTML = hasUpc ? `UPC: ${escapeHtml(prod.upc)} &#9998;` : 'UPC: Unknown &#9998;';
+  upcBadge.onclick = () => promptEditUpc(prod.id);
+  upcBadge.title = "Click to update UPC";
 
   // 4. Location & Badge
   const locContainer = clone.querySelector('.loc-edit-container');

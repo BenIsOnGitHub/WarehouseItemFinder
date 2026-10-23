@@ -119,7 +119,7 @@ header {
   border: 1px solid #f4f4f7;
 }
 
-/* Interactive Badges (SKU & Location) & Incorrect Button */
+/* Interactive Badges (UPC & Location) & Incorrect Button */
 .product-item-row,
 .loc-badge,
 .flag-incorrect-btn {
@@ -131,14 +131,14 @@ header {
   vertical-align: middle;
 }
 
-/* SKU Badge States */
-.sku-badge.loc-badge.unassigned {
+/* UPC Badge States */
+.upc-badge.loc-badge.unassigned {
   color: #dc3545;
   background-color: #f8ebd7;
   border: 1px solid #f5c6cb;
 }
 
-.sku-badge.loc-badge.assigned {
+.upc-badge.loc-badge.assigned {
   color: #007bff;
   background-color: #e7f0ff;
   border: 1px solid #b8daff;
