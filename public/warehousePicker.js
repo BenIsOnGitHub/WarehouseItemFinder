@@ -333,7 +333,7 @@ async function geocodeSearchQuery(query) {
   const cleanQuery = query.trim();
   
   const countryDropdown = document.getElementById('country-selector');
-  const selectedCountry = countryDropdown ? countryDropdown.value : 'us';
+  let selectedCountry = countryDropdown ? countryDropdown.value : 'us';
 
   // 1. Check US ZIP via Zippopotam if US is selected
   if (selectedCountry === 'us' && /^\d{5}$/.test(cleanQuery)) {
@@ -348,42 +348,54 @@ async function geocodeSearchQuery(query) {
     } catch (e) {}
   }
 
-  // 2. Determine URL: Use structured 'postalcode' parameter for Canadian postal codes, 
-  // or standard free-form 'q' parameter for cities, states, and general text searches.
-  let url = '';
-  const isCanadianPostal = /^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i.test(cleanQuery);
+  // 2. Build a sequence of URLs to try (With Space -> Without Space -> General Text Fallback)
+  const urlsToTry = [];
+  const isCanadianPostal = /^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i.test(cleanQuery) || /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(cleanQuery);
 
   if (selectedCountry === 'ca' && isCanadianPostal) {
-    // Use Nominatim's dedicated structured postal code endpoint
-    url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&postalcode=${encodeURIComponent(cleanQuery)}`;
+    const rawAlpha = cleanQuery.replace(/\s+/g, '').toUpperCase();
+    const withSpace = `${rawAlpha.slice(0, 3)} ${rawAlpha.slice(3)}`;
+    const withoutSpace = rawAlpha;
+
+    urlsToTry.push(
+      // Try structured postal code with space
+      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&postalcode=${encodeURIComponent(withSpace)}`,
+      // Try structured postal code without space
+      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&postalcode=${encodeURIComponent(withoutSpace)}`,
+      // Fallback to text query with space + ", Canada"
+      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&q=${encodeURIComponent(withSpace + ', Canada')}`
+    );
   } else {
-    // Standard free-form search for text/cities/US ZIPs
-    url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=${selectedCountry}&q=${encodeURIComponent(cleanQuery)}`;
+    urlsToTry.push(
+      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=${selectedCountry}&q=${encodeURIComponent(cleanQuery)}`
+    );
   }
 
-  console.log('Fetching Nominatim URL:', url);
+  // 3. Loop through the fallbacks until we get a valid match
+  for (const url of urlsToTry) {
+    console.log('Trying Nominatim URL:', url);
+    try {
+      const response = await fetch(url, {
+        headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
+      });
 
-  // 3. Execute request
-  try {
-    const response = await fetch(url, {
-      headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
-    });
+      if (!response.ok) continue;
 
-    if (!response.ok) return null;
+      const results = await response.json();
+      console.log('Nominatim results:', results);
 
-    const results = await response.json();
-    console.log('Nominatim results:', results);
-
-    if (results && results.length > 0) {
-      return { 
-        lat: parseFloat(results[0].lat), 
-        lng: parseFloat(results[0].lon) 
-      };
+      if (results && results.length > 0) {
+        return { 
+          lat: parseFloat(results[0].lat), 
+          lng: parseFloat(results[0].lon) 
+        };
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
     }
-    return null;
-  } catch (err) {
-    return null;
   }
+
+  return null;
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
