@@ -229,6 +229,7 @@ async function showLocalMatches(term) {
 async function showWarehousesByDistance(userLat, userLng) {
 
   const warehouses = await fetchWarehouses();
+  console.log('Total warehouses fetched:', warehouses.length);
   const resultsContainer = getOrCreateResultsContainer();
 
   if (!Array.isArray(warehouses) || warehouses.length === 0) {
@@ -252,6 +253,7 @@ async function showWarehousesByDistance(userLat, userLng) {
   warehousesWithDistance.sort((a, b) => a.distance - b.distance);
 
   // ✅ FIX: Pass `resultsContainer` as the 2nd parameter!
+  console.log('Sorted warehouses with distance:', warehousesWithDistance.slice(0, 5));
   renderSearchResults(warehousesWithDistance.slice(0, 10), resultsContainer, true);
 }
 
@@ -329,6 +331,7 @@ async function handleWarehouseSearch(searchInput) {
 // --- GEOCODING LOOKUP WITH ZIP FALLBACK ---
 async function geocodeSearchQuery(query) {
   const cleanQuery = query.trim();
+console.log('Geocoding query:', cleanQuery);
 
   // 1. Check US 5-digit ZIP via Zippopotam
   if (/^\d{5}$/.test(cleanQuery)) {
@@ -373,11 +376,13 @@ async function geocodeSearchQuery(query) {
 
     const results = await response.json();
     if (results && results.length > 0) {
+    	console.log('Geocode found coords:', results[0].lat, results[0].lon);
       return { 
         lat: parseFloat(results[0].lat), 
         lng: parseFloat(results[0].lon) 
       };
     }
+    console.log('Geocode returned no results.');
     return null;
   } catch (err) {
     return null;
