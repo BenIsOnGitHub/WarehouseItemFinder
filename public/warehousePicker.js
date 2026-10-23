@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const API_BASE_URL = 'https://warehouse-item-finder.pant.workers.dev';
+const API_BASE_URL = 'https://warehouse-navigator.pant.workers.dev';
 
 const geoOptions = {
   enableHighAccuracy: true,
