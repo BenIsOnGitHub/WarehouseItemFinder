@@ -346,7 +346,7 @@ async function geocodeSearchQuery(query) {
     } catch (e) {}
   }
 
-  // 2. Check Canadian Postal Code format (e.g., A1A 1A1 or A1A1A1) via Zippopotam
+  // 2. Check Canadian Postal Code format via Zippopotam (safely caught if 404)
   if (/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i.test(cleanQuery)) {
     try {
       const caRes = await fetch(`https://api.zippopotam.us/ca/${cleanQuery.toUpperCase()}`);
@@ -362,7 +362,7 @@ async function geocodeSearchQuery(query) {
     } catch (e) {}
   }
 
-  // 3. OpenStreetMap Nominatim Fallback (Removed `countrycodes=us` to support Canada & global search)
+  // 3. OpenStreetMap Nominatim Fallback (Handles Canadian postal codes, cities, and US queries seamlessly)
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}`;
     const response = await fetch(url, {
