@@ -229,7 +229,6 @@ async function showLocalMatches(term) {
 async function showWarehousesByDistance(userLat, userLng) {
 
   const warehouses = await fetchWarehouses();
-  console.log('Total warehouses fetched:', warehouses.length);
   const resultsContainer = getOrCreateResultsContainer();
 
   if (!Array.isArray(warehouses) || warehouses.length === 0) {
@@ -253,7 +252,6 @@ async function showWarehousesByDistance(userLat, userLng) {
   warehousesWithDistance.sort((a, b) => a.distance - b.distance);
 
   // ✅ FIX: Pass `resultsContainer` as the 2nd parameter!
-  console.log('Sorted warehouses with distance:', warehousesWithDistance.slice(0, 5));
   renderSearchResults(warehousesWithDistance.slice(0, 10), resultsContainer, true);
 }
 
@@ -330,72 +328,51 @@ async function handleWarehouseSearch(searchInput) {
 
 // --- GEOCODING LOOKUP WITH ZIP FALLBACK ---
 async function geocodeSearchQuery(query) {
-  const cleanQuery = query.trim();
-  
-  const countryDropdown = document.getElementById('country-selector');
-  let selectedCountry = countryDropdown ? countryDropdown.value : 'us';
 
-  // 1. Check US ZIP via Zippopotam if US is selected
-  if (selectedCountry === 'us' && /^\d{5}$/.test(cleanQuery)) {
+  // 1. Check 5-digit ZIP via Zippopotam
+  if (/^\d{5}$/.test(query)) {
     try {
-      const zipRes = await fetch(`https://api.zippopotam.us/us/${cleanQuery}`);
+      const zipRes = await fetch(`https://api.zippopotam.us/us/${query}`);
       if (zipRes.ok) {
         const zipData = await zipRes.json();
         if (zipData.places && zipData.places.length > 0) {
-          return { lat: parseFloat(zipData.places[0].latitude), lng: parseFloat(zipData.places[0].longitude) };
+          const lat = parseFloat(zipData.places[0].latitude);
+          const lng = parseFloat(zipData.places[0].longitude);
+          return { lat, lng };
         }
       }
-    } catch (e) {}
-  }
-
-  // 2. Build a sequence of URLs to try (With Space -> Without Space -> General Text Fallback)
-  const urlsToTry = [];
-  const isCanadianPostal = /^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i.test(cleanQuery) || /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(cleanQuery);
-
-  if (selectedCountry === 'ca' && isCanadianPostal) {
-    const rawAlpha = cleanQuery.replace(/\s+/g, '').toUpperCase();
-    const withSpace = `${rawAlpha.slice(0, 3)} ${rawAlpha.slice(3)}`;
-    const withoutSpace = rawAlpha;
-
-    urlsToTry.push(
-      // Try structured postal code with space
-      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&postalcode=${encodeURIComponent(withSpace)}`,
-      // Try structured postal code without space
-      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&postalcode=${encodeURIComponent(withoutSpace)}`,
-      // Fallback to text query with space + ", Canada"
-      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ca&q=${encodeURIComponent(withSpace + ', Canada')}`
-    );
-  } else {
-    urlsToTry.push(
-      `https://nominatim.openstreetmap.org/search?format=json&countrycodes=${selectedCountry}&q=${encodeURIComponent(cleanQuery)}`
-    );
-  }
-
-  // 3. Loop through the fallbacks until we get a valid match
-  for (const url of urlsToTry) {
-    console.log('Trying Nominatim URL:', url);
-    try {
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
-      });
-
-      if (!response.ok) continue;
-
-      const results = await response.json();
-      console.log('Nominatim results:', results);
-
-      if (results && results.length > 0) {
-        return { 
-          lat: parseFloat(results[0].lat), 
-          lng: parseFloat(results[0].lon) 
-        };
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
+      
+    } catch (e) {
     }
   }
 
-  return null;
+  // 2. OpenStreetMap Nominatim Fallback
+  try {
+    
+    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&q=${encodeURIComponent(query)}`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'WarehousePickerApp/1.0' }
+    });
+
+    if (!response.ok) {
+      
+      return null;
+    }
+
+    const results = await response.json();
+    if (results && results.length > 0) {
+      const lat = parseFloat(results[0].lat);
+      const lng = parseFloat(results[0].lon);
+     
+      return { lat, lng };
+    } else {
+     
+    }
+    return null;
+  } catch (err) {
+   
+    return null;
+  }
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
