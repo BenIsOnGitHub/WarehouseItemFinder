@@ -508,7 +508,11 @@ function renderBrowseByAislePage() {
     aisleGroups[aisleKey].push(prod);
   });
 
-  const sortedAisles = Object.keys(aisleGroups).sort((a, b) => {
+const sortedAisles = Object.keys(aisleGroups).sort((a, b) => {
+    // Force "Aisle Unassigned" to the bottom
+    if (a === 'Aisle Unassigned') return 1;
+    if (b === 'Aisle Unassigned') return -1;
+
     const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
     const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
     return numA - numB;
@@ -524,7 +528,11 @@ function renderBrowseByAislePage() {
       bayGroups[bayKey].push(prod);
     });
 
-    const sortedBays = Object.keys(bayGroups).sort((a, b) => {
+			const sortedBays = Object.keys(bayGroups).sort((a, b) => {
+      // Force "Bay Unassigned" to the bottom
+      if (a === 'Bay Unassigned') return 1;
+      if (b === 'Bay Unassigned') return -1;
+
       const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
       const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
       return numA - numB;
