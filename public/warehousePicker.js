@@ -103,6 +103,43 @@ async function initWarehouseSelection() {
   await fetchWarehouses();
 }
 
+function disableProductSearch(placeholderText = "Select a warehouse first...") {
+  const productInput = document.getElementById('search-input');
+  const productButton = document.getElementById('search-btn');
+
+  if (productInput) {
+    productInput.disabled = true;
+    productInput.placeholder = placeholderText;
+    productInput.style.cursor = 'not-allowed';
+    productInput.style.opacity = '0.6';
+  }
+
+  if (productButton) {
+    productButton.disabled = true;
+    productButton.style.cursor = 'not-allowed';
+    productButton.style.opacity = '0.6';
+  }
+}
+
+function enableProductSearch() {
+  const productInput = document.getElementById('search-input');
+  const productButton = document.getElementById('search-btn');
+
+  if (productInput) {
+    productInput.disabled = false;
+    productInput.placeholder = "Search items or item #...";
+    productInput.style.cursor = 'text';
+    productInput.style.opacity = '1';
+  }
+
+  if (productButton) {
+    productButton.disabled = false;
+    productButton.style.cursor = 'pointer';
+    productButton.style.opacity = '1';
+  }
+}
+
+
 // --- GEOLOCATION HANDLER ---
 async function handleLocateUser() {
   if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
