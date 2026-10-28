@@ -43,93 +43,78 @@
 	<!-- Hamburger menu -->
   <div class="nav-dropdown" id="navDropdown">
     <button onclick="switchView('search-view'); resetSearchView();">Search Products</button>
-    <button onclick="switchView('browse-view'); startBrowse(1);">Browse Products</button>
     <button onclick="showFavoritesView()">My Favorites</button> 
- <!--   <button onclick="switchView('donation-view')">Donation</button> -->
   </div>
 </header>
 
 <div class="container">
 
-  <!-- View 1: Product Search (Default) -->
+  <!-- View 1: Search & Browse Combined -->
   <section id="search-view" class="page-view active">
     
-	<div class="search-container">
-	  <!-- Radio Option Selectors -->
-	  <div class="search-mode-group">
-    
-    <label class="radio-label">
-      <input type="radio" name="searchMode" value="product_name" checked> Name
-    </label>
-    <label class="radio-label">
-      <input type="radio" name="searchMode" value="item_number"> Item #
-    </label>
-    <label class="radio-label">
-      <input type="radio" name="searchMode" value="upc"> UPC
-    </label>
-  </div>
+    <div class="search-container">
+      <!-- Radio Option Selectors -->
+      <div class="search-mode-group">
+        <label class="radio-label">
+          <input type="radio" name="searchMode" value="product_name" checked> Name
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="searchMode" value="item_number"> Item #
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="searchMode" value="upc"> UPC
+        </label>
+      </div>
 
-  <!-- View 1: Search Input & Button -->
-  <div class="search-input-group">
-    <div class="input-with-mic">
-      <input 
-        type="text" 
-        id="search-input" 
-        placeholder="Enter here ... " 
-        autocomplete="off"
-        inputmode="numeric"
-      />
-      <!-- Barcode Button (hidden by default) -->
-    <button 
-      id="barcodeBtn" 
-      type="button" 
-      title="Scan UPC barcode" 
-      aria-label="Scan UPC barcode"
-      style="display: none;"
-    >
-      &#128247; <!-- Camera icon / Barcode emoji -->
-    </button>
-      <button id="micBtn" type="button" title="Search by voice" aria-label="Search by voice">
-        &#127908;
-      </button>
+      <!-- Search Input & Button -->
+      <div class="search-input-group">
+        <div class="input-with-mic">
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Enter here ... " 
+            autocomplete="off"
+            inputmode="numeric"
+          />
+          <button 
+            id="barcodeBtn" 
+            type="button" 
+            title="Scan UPC barcode" 
+            aria-label="Scan UPC barcode"
+            style="display: none;"
+          >
+            &#128247;
+          </button>
+          <button id="micBtn" type="button" title="Search by voice" aria-label="Search by voice">
+            &#127908;
+          </button>
+        </div>
+        <button id="search-btn" class="btn btn-primary" type="button">Search</button>
+      </div>
+      <div>Note: First-time searches for a product may take time to load<br><br></div>
     </div>
-    <button id="search-btn" class="btn btn-primary" type="button">Search</button>
-    Note: First-time searches for a product may take time to load<br><br>
-  </div>
-</div>
-    
-    <!-- Install UI -->
-    <div id="installContainer" style="display:none;">
-      <button id="installBtn" style="display:none;">Install App</button>
-      <div id="installHint">To install app on iPhone, tap the share button and scroll to 'Add to Home Screen'</div>
-    </div>
-    
-    <div id="count"></div>
-    <ul id="results"></ul>
-  </section>
 
-  <!-- View 2: Browse Products -->
-  <section id="browse-view" class="page-view">
-
-		<!-- Sort & Filter Control Bar -->
+    <!-- Sort & Filter Control Bar (Incorporated underneath search bar) -->
     <div class="browse-controls-bar">
-        <label class="browse-sort-select-label" for="browseSortSelect">Sort By</label>
-        <select class="browse-sort-select" id="browseSortSelect" onchange="onBrowseSortChange(this.value)">
-          <option value="aisle">Aisle & Bay</option>
-          <option value="name">Name</option>
-          <option value="category">Category</option>
-          <option value="item_number">Item Number</option>
-          <option value="upc">UPC</option>
-          <option value="updated_at">Date Updated</option>
-        </select>
+      <label class="browse-sort-select-label" for="browseSortSelect">Sort By</label>
+      <select class="browse-sort-select" id="browseSortSelect" onchange="onBrowseSortChange(this.value)">
+        <option value="aisle">Aisle & Bay</option>
+        <option value="name">Name</option>
+        <option value="category">Category</option>
+        <option value="item_number">Item Number</option>
+        <option value="upc">UPC</option>
+        <option value="updated_at">Date Updated</option>
+      </select>
 
       <button id="openFilterBtn" class="toggle-btn" onclick="toggleFilterDrawer(true)">
         Filter &#9881;
       </button>
     </div>
 
+    <div id="activeFilterChips" class="filter-chips-container"></div>
+
+    <!-- Results / List Container with Pagination -->
     <div id="browseContent">
-      <!-- Top Pagination Block -->
       <div class="pagination-wrapper">
         <div class="pagination-controls">
           <button class="top-prev5-btn browse-cat-btn" onclick="changeBrowsePage(-5)">-5 &laquo;</button>
@@ -141,11 +126,8 @@
       
       <div class="pageIndicatorTop page-indicator-text"></div>
       
-      <div id="activeFilterChips" class="filter-chips-container"></div>
-      
       <div id="browseListContainer" class="browselistcontainer"></div>
       
-      <!-- Bottom Pagination Block -->
       <div class="pagination-wrapper">
         <div class="pageIndicatorBottom page-indicator-text"></div>
         <div class="pagination-controls">
@@ -156,9 +138,15 @@
         </div>
       </div>
     </div>
+    
+    <!-- Install UI -->
+    <div id="installContainer" style="display:none;">
+      <button id="installBtn" style="display:none;">Install App</button>
+      <div id="installHint">To install app on iPhone, tap the share button and scroll to 'Add to Home Screen'</div>
+    </div>
   </section>
   
- <!-- View 3: Favorites List -->
+  <!-- View 2: Favorites List -->
   <section id="favorites-view" class="page-view">
     <div id="favCount"></div>
     <ul id="favoritesList"></ul>
@@ -167,8 +155,7 @@
   <section id="donation-view" class="page-view">
   	<h1>Donate</h1>
   	<div>
-  	<!--	<a href="https://venmo.com/PantSoftware" target="_blank" rel="noopener noreferrer"> -->
-  		<a href=venmo://paycharge?txn=pay&recipients=PantSoftware">
+  		<a href="venmo://paycharge?txn=pay&recipients=Software">
   			<img src="/images/venmo.webp" width="200">
   		</a>
   	</div>
@@ -177,7 +164,6 @@
 
 <script src="warehousePicker.js"></script>
 <script src="app.js"></script>
-
 
   <!-- Location Help Modal -->
   <div id="helpModal" class="modal-overlay" onclick="closeHelpModal(event)">
@@ -228,13 +214,11 @@
     <div class="reorder-wrapper" style="display:none;"></div>
     <div class="product-info">
       <div class="product-title"><strong></strong></div>
-      <!-- Dedicated lines for identifiers -->
       <div class="product-item-row"></div>
       <div class="product-upc-row">
         <span class="upc-badge loc-badge" role="button"></span>
       </div>
       
-      <!-- Location row structured natively in HTML -->
       <div class="product-location-row">
         <span class="loc-edit-container" id="">
           <span class="loc-badge" role="button">
@@ -268,10 +252,6 @@
   <button class="footer-nav-btn" onclick="switchView('search-view'); resetSearchView();" title="Search">
     <span class="footer-icon">&#128269;</span>
     <span class="footer-label">Search</span>
-  </button>
-  <button class="footer-nav-btn" onclick="switchView('browse-view'); startBrowse(1);" title="Browse">
-    <span class="footer-icon">&#128452;</span>
-    <span class="footer-label">Browse</span>
   </button>
   <button class="footer-nav-btn" onclick="showFavoritesView()" title="My Favorites">
     <span class="footer-icon">&#9733;</span>

@@ -23,6 +23,7 @@ let showDiscontinuedItems = false;
 let totalBrowsePages = 1;
 const ITEMS_PER_PAGE = 20;
 let showReportedIncorrectOnly = false;
+let currentSearchQuery = '';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -90,7 +91,6 @@ function toggleFavorite(prodOrId, starElement) {
   if (!product) {
     const targetKey = String(prodOrId).trim();
     product = browseData.find(p => String(p.id) === targetKey || String(p.item_number) === targetKey) ||
-              (window._lastSearchResults || []).find(p => String(p.id) === targetKey || String(p.item_number) === targetKey) ||
               favorites.find(p => String(p.id) === targetKey || String(p.item_number) === targetKey);
   }
 
@@ -286,9 +286,7 @@ async function flagLocationIncorrect(id) {
     });
 
     if (response.ok) {
-      // Look up item in browseData or search results so we don't lose its aisle/bay info
-      const item = (browseData || []).find(p => p.id === id) ||
-                   (window._lastSearchResults || []).find(p => p.id === id);
+      const item = (browseData || []).find(p => p.id === id);
       if (item) {
         item.is_wrong = 1;
       }
@@ -334,29 +332,6 @@ function renderLocationDisplay(id, aisle, bay, isWrong = 0) {
 }
 
 // ==========================================
-// SEARCH LOGIC
-// ==========================================
-function renderResultsUI(results) {
-  const container = document.getElementById('results');
-  const countEl = document.getElementById('count');
-  if (!container) return;
-
-  if (countEl) {
-    countEl.textContent = `${results.length} item${results.length === 1 ? '' : 's'} found`;
-  }
-
-  if (results.length === 0) {
-    container.innerHTML = '<li class="no-results">No products found.</li>';
-    return;
-  }
-
-  container.innerHTML = '';
-  results.forEach(prod => {
-    container.appendChild(renderProductCard(prod));
-  });
-}
-
-// ==========================================
 // FAVORITES VIEW RENDER
 // ==========================================
 function renderFavoritesUI() {
@@ -393,18 +368,12 @@ function renderFavoritesUI() {
 }
 
 // ==========================================
-// BROWSE PRODUCTS & PAGINATION
+// SEARCH, BROWSE & PAGINATION
 // ==========================================
 let currentBrowseMode = document.getElementById('browseSortSelect')?.value || 'aisle';
 
 function setBrowseMode(mode) {
   currentBrowseMode = mode;
-
-  const byNameBtn = document.getElementById('browseByNameBtn');
-  const byAisleBtn = document.getElementById('browseByAisleBtn');
-
-  if (byNameBtn) byNameBtn.classList.toggle('active', mode === 'name');
-  if (byAisleBtn) byAisleBtn.classList.toggle('active', mode === 'aisle');
   populateAisleDropdown();
   startBrowse(1);
 }
@@ -416,6 +385,7 @@ async function startBrowse(page = 1) {
 
   let url = `${API_BASE_URL}/api/browse?warehouse=${warehouseId}&page=${page}&limit=${ITEMS_PER_PAGE}&sort=${currentBrowseMode}`;
 
+  if (currentSearchQuery) url += `&q=${encodeURIComponent(currentSearchQuery)}`;
   if (showReportedIncorrectOnly) url += `&show_incorrect=true`;
   if (showDiscontinuedItems) url += `&show_discontinued=true`;
   if (selectedCategory) url += `&category=${encodeURIComponent(selectedCategory)}`;
@@ -701,16 +671,8 @@ function onWarehouseChange(newWarehouseId) {
     selectEl.value = CURRENT_WAREHOUSE;
   });
 
-  const searchBox = document.getElementById('search-input');
-  if (searchBox && searchBox.value.trim()) {
-    performSearch();
-  }
-
-  const activeView = document.querySelector('.page-view.active');
-  if (activeView && activeView.id === 'browse-view') {
-    populateAisleDropdown();
-    startBrowse(1);
-  }
+  populateAisleDropdown();
+  startBrowse(1);
 }
 
 function switchView(viewId) {
@@ -721,11 +683,9 @@ function switchView(viewId) {
   const navDropdown = document.getElementById('navDropdown');
   if (navDropdown) navDropdown.classList.remove('active');
 
-  // Update header title dynamically
   const pageTitleEl = document.getElementById('page-title');
   if (pageTitleEl) {
     if (viewId === 'search-view') pageTitleEl.textContent = 'Search';
-    else if (viewId === 'browse-view') pageTitleEl.textContent = 'Browse';
     else if (viewId === 'favorites-view') pageTitleEl.textContent = 'Favorites';
     else if (viewId === 'donation-view') pageTitleEl.textContent = 'Donate';
   }
@@ -737,25 +697,15 @@ function showFavoritesView() {
 }
 
 function resetSearchView() {
+  currentSearchQuery = '';
   const searchBox = document.getElementById('search-input');
   if (searchBox) searchBox.value = '';
-  document.getElementById('results').innerHTML = '';
-  document.getElementById('count').textContent = '';
+  startBrowse(1);
 }
 
 function toggleShowDiscontinued(checkbox) {
   showDiscontinuedItems = checkbox.checked;
-  const activeView = document.querySelector('.page-view.active');
-
-  if (activeView && activeView.id === 'browse-view') {
-    populateAisleDropdown();
-    startBrowse(1);
-  } else {
-    const searchBox = document.getElementById('search-input');
-    if (searchBox && searchBox.value.trim()) {
-      performSearch();
-    }
-  }
+  startBrowse(1);
 }
 
 async function flagDiscontinued(id, currentStatus) {
@@ -772,10 +722,7 @@ async function flagDiscontinued(id, currentStatus) {
 
     if (res.ok) {
       alert(`Item updated successfully.`);
-      const activeView = document.querySelector('.page-view.active');
-      if (activeView && activeView.id === 'browse-view') {
-        startBrowse(currentBrowsePageNum);
-      }
+      startBrowse(currentBrowsePageNum);
     }
   } catch (err) {
     console.error('Error updating discontinued status:', err);
@@ -898,34 +845,11 @@ function showLoadingSpinner(show) {
 async function performSearch() {
   const searchInput = document.getElementById('search-input');
   const query = searchInput ? searchInput.value.trim() : '';
-  const searchMode = document.querySelector('input[name="searchMode"]:checked')?.value || 'item_number';
 
   if (!query) return;
 
-  showLoadingSpinner(true);
-
-  try {
-    const params = new URLSearchParams({
-      q: query,
-      mode: searchMode,
-      warehouse: CURRENT_WAREHOUSE,
-      show_discontinued: showDiscontinuedItems
-    });
-
-    const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
-    if (response.ok) {
-      const data = await response.json();
-      window._lastSearchResults = data;
-      renderResultsUI(data);
-    } else {
-      alert('Search request failed.');
-    }
-  } catch (err) {
-    console.error('Search error:', err);
-    alert('Error connecting to search server.');
-  } finally {
-    showLoadingSpinner(false);
-  }
+  currentSearchQuery = query;
+  startBrowse(1);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -938,9 +862,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearchModeToggle();
   initVoiceSearch();
 
-	if (CURRENT_WAREHOUSE) {
-		updateWarehouseMappedCount(CURRENT_WAREHOUSE);
-	}
+  if (CURRENT_WAREHOUSE) {
+    updateWarehouseMappedCount(CURRENT_WAREHOUSE);
+  }
 
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
@@ -1015,7 +939,7 @@ async function promptEditUpc(productId) {
         }
       });
     } else {
-      const upc = prompt("Enter UPC manually):");
+      const upc = prompt("Enter UPC manually:");
       if (upc && upc.trim()) {
         const cleanUpc = upc.trim();
         if (!/^\d{12,13}$/.test(cleanUpc)) {
@@ -1153,25 +1077,18 @@ async function updateProductIdentifier(productId, updates) {
     if (res.ok && data.success) {
       alert("Updated successfully!");
 
-      // Update local browseData array if present
       const item = browseData.find(p => p.id === productId);
       if (item) {
         if (updates.item_number !== undefined) item.item_number = updates.item_number;
         if (updates.upc !== undefined) item.upc = updates.upc;
       }
 
-      // Refresh whichever view is currently active
       const activeView = document.querySelector('.page-view.active');
       if (activeView) {
-        if (activeView.id === 'browse-view') {
-          startBrowse(currentBrowsePageNum);
-        } else if (activeView.id === 'favorites-view') {
+        if (activeView.id === 'favorites-view') {
           renderFavoritesUI();
         } else {
-          const searchInput = document.getElementById('search-input');
-          if (searchInput && searchInput.value.trim()) {
-            performSearch();
-          }
+          startBrowse(currentBrowsePageNum);
         }
       }
     } else {
@@ -1240,42 +1157,6 @@ function initSearchModeToggle() {
         });
       }
     });
-  }
-}
-
-function disableProductSearch(placeholderText = "Select a warehouse first...") {
-  const productInput = document.getElementById('search-input');
-  const productButton = document.getElementById('search-btn');
-
-  if (productInput) {
-    productInput.disabled = true;
-    productInput.placeholder = placeholderText;
-    productInput.style.cursor = 'not-allowed';
-    productInput.style.opacity = '0.6';
-  }
-
-  if (productButton) {
-    productButton.disabled = true;
-    productButton.style.cursor = 'not-allowed';
-    productButton.style.opacity = '0.6';
-  }
-}
-
-function enableProductSearch() {
-  const productInput = document.getElementById('search-input');
-  const productButton = document.getElementById('search-btn');
-
-  if (productInput) {
-    productInput.disabled = false;
-    productInput.placeholder = "Search items or item #...";
-    productInput.style.cursor = 'text';
-    productInput.style.opacity = '1';
-  }
-
-  if (productButton) {
-    productButton.disabled = false;
-    productButton.style.cursor = 'pointer';
-    productButton.style.opacity = '1';
   }
 }
 
@@ -1371,6 +1252,18 @@ function renderActiveFilterChips() {
 
   const chips = [];
 
+  if (currentSearchQuery) {
+    chips.push({
+      label: currentSearchQuery,
+      clear: () => {
+        currentSearchQuery = '';
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) searchInput.value = '';
+        startBrowse(1);
+      }
+    });
+  }
+
   if (selectedAisle) {
     chips.push({
       label: `Aisle: ${selectedAisle}`,
@@ -1431,15 +1324,12 @@ function renderProductCard(prod, options = {}) {
   const template = document.getElementById('product-card-template');
   const clone = template.content.cloneNode(true);
 
-  // 1. Title
   clone.querySelector('.product-title strong').textContent = prod.product_name || '';
 
-  // 2. Item Number (Plain static text on its own line)
   const hasItemNumber = prod.item_number && String(prod.item_number).trim() !== '';
   const itemRow = clone.querySelector('.product-item-row');
   itemRow.textContent = hasItemNumber ? `Item: ${prod.item_number}` : 'Item number: Unknown';
 
-  // 3. UPC (Interactive badge on its own line)
   const hasUpc = prod.upc && String(prod.upc).trim() !== '';
   const upcBadge = clone.querySelector('.upc-badge');
   upcBadge.className = hasUpc ? 'upc-badge loc-badge assigned' : 'upc-badge loc-badge unassigned';
@@ -1447,7 +1337,6 @@ function renderProductCard(prod, options = {}) {
   upcBadge.onclick = () => promptEditUpc(prod.id);
   upcBadge.title = "Click to update UPC";
 
-  // 4. Location & Badge
   const locContainer = clone.querySelector('.loc-edit-container');
   locContainer.id = `loc-edit-${prod.id}`;
 
@@ -1468,7 +1357,7 @@ function renderProductCard(prod, options = {}) {
   const safeBay = String(bay).replace(/'/g, "\\'");
   badgeEl.onclick = () => openLocationEditor(prod.id, safeAisle, safeBay, isWrong);
 
-if (aisle) {
+  if (aisle) {
     incorrectBtn.style.display = 'inline-flex';
     const flagSvg = `<svg class="flag-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`;
     incorrectBtn.innerHTML = flagSvg;
@@ -1488,18 +1377,15 @@ if (aisle) {
     incorrectBtn.style.display = 'none';
   }
 
-  // 5. Time ago tag
   const timeText = formatTimeAgo(prod.updated_at);
   clone.querySelector('.updated-time-tag').textContent = timeText ? `(${timeText})` : '';
 
-  // 6. Retailer link
   if (prod.product_url) {
     const linkRow = clone.querySelector('.product-link-row');
     linkRow.style.display = 'block';
     linkRow.querySelector('a').href = prod.product_url;
   }
 
-  // 7. Favorite button state
   const favBtn = clone.querySelector('.fav-btn');
   const favorites = getFavorites();
   const isFav = favorites.some(f => String(f.item_number).trim() === String(prod.item_number).trim());
