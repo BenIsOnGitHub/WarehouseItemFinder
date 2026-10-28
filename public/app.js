@@ -868,13 +868,22 @@ async function performSearch() {
     if (response.ok) {
       const data = await response.json();
       
-      // Store results in browseData so pagination/sorting/cards render natively
       browseData = Array.isArray(data) ? data : (data.products || []);
       currentBrowsePageNum = 1;
-      totalBrowsePages = 1; // Search results typically return a flat array
+      totalBrowsePages = 1; // Search results are flat
 
       renderActiveFilterChips();
-      renderBrowsePage(); // Render using the standard product card list view
+
+      // Render search results using whichever sort/grouping mode is currently selected
+      if (currentBrowseMode === 'aisle') {
+        renderBrowseByAislePage();
+      } else if (currentBrowseMode === 'category') {
+        renderBrowseByCategoryPage();
+      } else if (['updated_at', 'updated', 'date_added'].includes(currentBrowseMode)) {
+        renderBrowseByDatePage();
+      } else {
+        renderBrowsePage();
+      }
     } else {
       alert('Search request failed.');
     }
