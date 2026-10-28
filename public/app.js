@@ -846,11 +846,11 @@ function showLoadingSpinner(show) {
     if (show) {
       searchInput.disabled = true;
       searchBtn.disabled = true;
-      searchBtn.innerHTML = `<span class="spinner"></span> Searching...`;
+      searchBtn.innerHTML = `<span class="spinner"></span>`;
     } else {
       searchInput.disabled = false;
       searchBtn.disabled = false;
-      searchBtn.textContent = 'Search';
+      searchBtn.innerHTML = '&#128269;';
     }
   }
 }
