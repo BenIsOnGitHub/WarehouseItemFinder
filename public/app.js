@@ -769,7 +769,12 @@ function onBrowseSortChange(sortValue) {
     populateCategoryDropdown();
   }
 
-  startBrowse(1);
+  // If there's an active search query, re-run performSearch so the query chip and search results stay active while sorting.
+  if (currentSearchQuery) {
+    performSearch();
+  } else {
+    startBrowse(1);
+  }
 }
 
 function applyFilters() {
