@@ -845,11 +845,45 @@ function showLoadingSpinner(show) {
 async function performSearch() {
   const searchInput = document.getElementById('search-input');
   const query = searchInput ? searchInput.value.trim() : '';
+  const searchMode = document.querySelector('input[name="searchMode"]:checked')?.value || 'product_name';
 
-  if (!query) return;
+  if (!query) {
+    currentSearchQuery = '';
+    startBrowse(1);
+    return;
+  }
 
   currentSearchQuery = query;
-  startBrowse(1);
+  showLoadingSpinner(true);
+
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      mode: searchMode,
+      warehouse: CURRENT_WAREHOUSE,
+      show_discontinued: showDiscontinuedItems
+    });
+
+    const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Store results in browseData so pagination/sorting/cards render natively
+      browseData = Array.isArray(data) ? data : (data.products || []);
+      currentBrowsePageNum = 1;
+      totalBrowsePages = 1; // Search results typically return a flat array
+
+      renderActiveFilterChips();
+      renderBrowsePage(); // Render using the standard product card list view
+    } else {
+      alert('Search request failed.');
+    }
+  } catch (err) {
+    console.error('Search error:', err);
+    alert('Error connecting to search server.');
+  } finally {
+    showLoadingSpinner(false);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
