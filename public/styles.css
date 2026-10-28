@@ -1004,3 +1004,17 @@ header {
   padding-top: 70px;
   padding-bottom: 70px;
 }
+
+.favorites-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.favorites-actions {
+  display: flex;
+  gap: 8px;
+}

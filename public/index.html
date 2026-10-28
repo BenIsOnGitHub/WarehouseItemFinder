@@ -148,9 +148,16 @@
     </div>
   </section>
   
-  <!-- View 2: Favorites List -->
+<!-- View 2: Favorites List -->
   <section id="favorites-view" class="page-view">
-    <div id="favCount"></div>
+    <div class="favorites-header-bar">
+      <div id="favCount"></div>
+      <div class="favorites-actions">
+        <button class="browse-cat-btn" onclick="exportFavorites()">Export Favorites</button>
+        <button class="browse-cat-btn" onclick="triggerImportFavorites()">Import Favorites</button>
+        <input type="file" id="importFavoritesFile" accept=".json" style="display: none;" onchange="importFavorites(event)">
+      </div>
+    </div>
     <ul id="favoritesList"></ul>
   </section>
   

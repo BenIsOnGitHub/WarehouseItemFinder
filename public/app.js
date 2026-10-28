@@ -1452,3 +1452,71 @@ function renderProductCard(prod, options = {}) {
 
   return clone;
 }
+
+// ==========================================
+// FAVORITES EXPORT / IMPORT
+// ==========================================
+function exportFavorites() {
+  const favorites = getFavorites();
+  if (favorites.length === 0) {
+    alert("No favorites to export.");
+    return;
+  }
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(favorites, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `warehouse_favorites_${new Date().toISOString().slice(0, 10)}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function triggerImportFavorites() {
+  const fileInput = document.getElementById('importFavoritesFile');
+  if (fileInput) {
+    fileInput.click();
+  }
+}
+
+function importFavorites(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) {
+        throw new Error("Invalid format");
+      }
+
+      // Merge with existing or overwrite based on user preference
+      const existing = getFavorites();
+      const confirmMerge = confirm(`Found ${imported.length} favorites in file.\n\n[OK] = Merge with existing favorites\n[Cancel] = Replace all existing favorites`);
+
+      let finalFavorites = [];
+      if (confirmMerge) {
+        // Merge without duplicating by item_number or id
+        const map = new Map();
+        [...existing, ...imported].forEach(item => {
+          const key = String(item.item_number || item.id);
+          map.set(key, item);
+        });
+        finalFavorites = Array.from(map.values());
+      } else {
+        finalFavorites = imported;
+      }
+
+      saveFavorites(finalFavorites);
+      renderFavoritesUI();
+      alert("Favorites imported successfully!");
+    } catch (err) {
+      console.error("Import error:", err);
+      alert("Failed to import favorites. Please ensure it is a valid JSON export file.");
+    } finally {
+      event.target.value = ''; // Reset file input
+    }
+  };
+  reader.readAsText(file);
+}
