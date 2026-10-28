@@ -1014,7 +1014,24 @@ header {
   margin-bottom: 12px;
 }
 
+.favorites-header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.favorites-count-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+}
+
 .favorites-actions {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
 }
