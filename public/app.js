@@ -1479,7 +1479,9 @@ function triggerImportFavorites() {
   }
 }
 
-function importFavorites(event) {
+let pendingImportData = null;
+
+function handleFileSelected(event) {
   const file = event.target.files[0];
   if (!file) return;
 
@@ -1491,32 +1493,55 @@ function importFavorites(event) {
         throw new Error("Invalid format");
       }
 
-      // Merge with existing or overwrite based on user preference
-      const existing = getFavorites();
-      const confirmMerge = confirm(`Found ${imported.length} favorites in file.\n\n[OK] = Merge with existing favorites\n[Cancel] = Replace all existing favorites`);
-
-      let finalFavorites = [];
-      if (confirmMerge) {
-        // Merge without duplicating by item_number or id
-        const map = new Map();
-        [...existing, ...imported].forEach(item => {
-          const key = String(item.item_number || item.id);
-          map.set(key, item);
-        });
-        finalFavorites = Array.from(map.values());
-      } else {
-        finalFavorites = imported;
+      pendingImportData = imported;
+      
+      // Update modal text with count and open custom modal
+      const modalText = document.getElementById('importModalText');
+      if (modalText) {
+        modalText.textContent = `Found ${imported.length} favorites in file. Would you like to merge them with your existing list or replace everything?`;
       }
 
-      saveFavorites(finalFavorites);
-      renderFavoritesUI();
-      alert("Favorites imported successfully!");
+      const modal = document.getElementById('importStrategyModal');
+      if (modal) modal.style.display = 'flex';
+
     } catch (err) {
       console.error("Import error:", err);
-      alert("Failed to import favorites. Please ensure it is a valid JSON export file.");
+      alert("Failed to read file. Please ensure it is a valid JSON export file.");
     } finally {
       event.target.value = ''; // Reset file input
     }
   };
   reader.readAsText(file);
+}
+
+function closeImportModal() {
+  pendingImportData = null;
+  const modal = document.getElementById('importStrategyModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmImport(strategy) {
+  if (!pendingImportData) {
+    closeImportModal();
+    return;
+  }
+
+  const existing = getFavorites();
+  let finalFavorites = [];
+
+  if (strategy === 'merge') {
+    const map = new Map();
+    [...existing, ...pendingImportData].forEach(item => {
+      const key = String(item.item_number || item.id);
+      map.set(key, item);
+    });
+    finalFavorites = Array.from(map.values());
+  } else if (strategy === 'replace') {
+    finalFavorites = pendingImportData;
+  }
+
+  saveFavorites(finalFavorites);
+  renderFavoritesUI();
+  closeImportModal();
+  alert("Favorites imported successfully!");
 }

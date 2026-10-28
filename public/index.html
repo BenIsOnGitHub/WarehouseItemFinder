@@ -155,11 +155,24 @@
       <div class="favorites-actions">
         <button class="browse-cat-btn" onclick="exportFavorites()">Export Favorites</button>
         <button class="browse-cat-btn" onclick="triggerImportFavorites()">Import Favorites</button>
-        <input type="file" id="importFavoritesFile" accept=".json" style="display: none;" onchange="importFavorites(event)">
+        <input type="file" id="importFavoritesFile" accept=".json" style="display: none;" onchange="handleFileSelected(event)">
       </div>
     </div>
     <ul id="favoritesList"></ul>
   </section>
+  
+  <!-- Import Strategy Modal -->
+<div id="importStrategyModal" class="custom-modal-backdrop">
+  <div class="custom-modal-content">
+    <button class="modal-close-btn" onclick="closeImportModal()" type="button">&times;</button>
+    <p class="custom-modal-p" id="importModalText">Choose how to import your favorites:</p>
+    <div class="custom-modal-div">
+      <button class="custom-modal-button btn btn-primary" onclick="confirmImport('merge')">Merge</button>
+      <button class="custom-modal-button browse-cat-btn" onclick="confirmImport('replace')">Replace</button>
+      <button class="custom-modal-button btn btn-cancel" onclick="closeImportModal()">Cancel</button>
+    </div>
+  </div>
+</div>
   
   <section id="donation-view" class="page-view">
   	<h1>Donate</h1>
